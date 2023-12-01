@@ -8,7 +8,6 @@ import { PowerIcon } from '@heroicons/react/24/outline';
 const SideNav: React.FC = () => {
   const authContext = useContext(AuthContext);
   const isAuthenticated = authContext?.isAuthenticated ?? false; // Fallback to false if context is undefined
-
   
   const handleSignOut = () => {
     // Implement sign-out logic here

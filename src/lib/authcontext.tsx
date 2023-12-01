@@ -23,3 +23,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => { // 
     </AuthContext.Provider>
   );
 };
+export async function login(formData: FormData) {
+  console.log(Object.fromEntries(formData))
+  const { username, password } = { username: formData.get('username'), password: formData.get('password') };
+  const url = 'https://aptrsapi.souravkalal.tech/api/auth/login/';
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  });
+  const result = await response.json() as User;
+  
+  return {
+    message: 'Server error'
+  };
+}

@@ -1,11 +1,13 @@
 // App.tsx
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './layouts/layout';
-import { AuthProvider } from './lib/authcontext';
+import { AuthContext, AuthProvider } from './lib/authcontext';
 import Home from './pages/home';
 import Login from './pages/login';
-// Import other pages here
+import Dashboard from './pages/dashboard'; // Replace with your protected page component
+
+
 
 const App: React.FC = () => {
   return (
@@ -15,8 +17,10 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            {/* Other protected routes */}
-            {/* <PrivateRoute path="/protectedRoute" element={<ProtectedComponent />} /> */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/vulnerabilities" element={<VulnerabilityDB />} />
           </Routes>
         </Layout>
       </Router>
