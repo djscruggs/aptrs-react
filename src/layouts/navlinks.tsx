@@ -25,21 +25,18 @@ const links = [
   { name: 'Vulnerability DB', href: '/dashboard/vdb', icon: CircleStackIcon },
 ];
 
+
 const NavLinks: React.FC = () => {
-  const authContext = useContext(AuthContext);
-  const isAuthenticated = authContext?.isAuthenticated ?? false; // Fallback to false if context is undefined
   
   const pathname = useLocation().pathname;
   console.log('pathname')
   console.log(pathname)
 
-  const filteredLinks = links.filter(
-    (link) => isAuthenticated || link.name === 'Home' || link.name === 'Login'
-  );
+  
 
   return (
     <>
-      {filteredLinks.map((link) => {
+      {links.map((link) => {
         const LinkIcon = link.icon;
         return (
           <Link
