@@ -5,6 +5,9 @@ import Layout from './layouts/layout';
 import { AuthContext, AuthProvider } from './lib/authcontext';
 import Home from './pages/home';
 import Login from './pages/login';
+import Vulnerabilities from './pages/vulnerabilities';
+import Customers from './pages/customers';
+import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 
 
@@ -20,7 +23,7 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/vulnerabilities" element={<VulnerabilityDB />} />
+            <Route path="/vulnerabilities" element={<Vulnerabilities />} />
           </Routes>
         </Layout>
       </Router>

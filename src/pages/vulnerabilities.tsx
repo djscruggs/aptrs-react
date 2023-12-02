@@ -1,6 +1,6 @@
 import { withAuth } from "../lib/authutils";
-const VulnerabilityDB = () => {
-  return <h1>VulernabilityDB</h1>;
+const Vulnerabilities = () => {
+  return <h1>Vulernabilities</h1>;
 };
 
-export default withAuth(VulnerabilityDB);
+export default withAuth(Vulnerabilities);

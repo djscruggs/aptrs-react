@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-
 import {
   AtSymbolIcon,
   KeyIcon,
@@ -8,10 +6,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
-
+import { login } from '../lib/authcontext';
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,6 +18,7 @@ const Login: React.FC = () => {
     console.log(username)
     console.log('password')
     console.log(password)
+    // const result = await login(username, password)
     // Simulate authentication logic (replace with actual authentication logic)
     // if (username === 'user' && password === 'password') {
     //   // Set authentication flag in local storage
@@ -92,17 +92,5 @@ const Login: React.FC = () => {
           </form>)
 };
 
-export async function login(username:string, password: string) {
-  const url = 'https://aptrsapi.souravkalal.tech/api/auth/login/';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password }),
-  });
-  const result = await response.json();
-  return result;
-}
 
 export default Login;
