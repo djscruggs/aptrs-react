@@ -1,7 +1,6 @@
 // NavLinks.tsx
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../lib/authcontext'; // Update this path accordingly
 import {
   UserGroupIcon,
   HomeIcon,

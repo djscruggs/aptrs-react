@@ -6,18 +6,28 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
-import { login } from '../lib/authcontext';
+import { login } from '../lib/authutils';
+import { useNavigate } from "react-router-dom";
+
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
-
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const [loginError, setLoginError] = useState(false);
+  const navigate = useNavigate();
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('username')
-    console.log(username)
-    console.log('password')
-    console.log(password)
+    
+    const result = await login(username,password)
+    //api returns login errors like so:
+    // {detail:"No active account found with the given credentials"}
+    if(!result){
+      //bad username & password
+      setLoginError(true)
+    } else {
+      
+      navigate("/dashboard");
+    }
+    
     // const result = await login(username, password)
     // Simulate authentication logic (replace with actual authentication logic)
     // if (username === 'user' && password === 'password') {
@@ -81,12 +91,14 @@ const Login: React.FC = () => {
                   <Button type="submit" className="mt-4 w-full">
                       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
                   </Button>
-                  <div className="flex h-8 mt-1em items-end space-x-1" aria-live="polite" aria-atomic="true">
-                    <>
-                      <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                      <p className="text-sm text-red-500">Invalid credentials</p>
-                    </>
-                  </div>
+                  {loginError &&
+                    <div className="flex h-8 mt-1em items-end space-x-1" aria-live="polite" aria-atomic="true">
+                      <>
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                        <p className="text-sm text-red-500">Invalid credentials</p>
+                      </>
+                    </div>
+                  } 
                 </form>
             </div>)
           

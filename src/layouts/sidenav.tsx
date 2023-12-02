@@ -2,7 +2,6 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../lib/authcontext'; // Update the path accordingly
 import NavLinks from './navlinks';
-import AcmeLogo from './acme-logo'; // Assuming AcmeLogo component is present
 import { PowerIcon } from '@heroicons/react/24/outline';
 
 const SideNav: React.FC = () => {

@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Layout from './layouts/layout';
 import { AuthContext, AuthProvider } from './lib/authcontext';
 import Home from './pages/home';
