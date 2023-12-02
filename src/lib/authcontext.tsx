@@ -16,9 +16,12 @@ export const AuthContext = createContext<AuthContextProps | undefined>(undefined
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => { // Use AuthProviderProps interface
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  localStorage.setItem('authenticated','false') 
-  if(localStorage.getItem('authenticated') === 'true'){
+  console.log('in auth provider sessionStorage is ')
+  console.log(sessionStorage.getItem('authenticated'))
+  if(sessionStorage.getItem('authenticated') === 'true'){
     setIsAuthenticated(true)
+    console.log("afer setting in authprovider, value is ")
+    console.log(isAuthenticated)
   }
 
   // Add authentication logic here (login, logout, etc.)
@@ -31,7 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => { // 
   );
 };
 export async function login(username:string, password: string) {
-  localStorage.setItem('authenticated','false');
+  sessionStorage.setItem('authenticated','false');
   const url = 'https://aptrsapi.souravkalal.tech/api/auth/login/';
   const response = await fetch(url, {
     method: 'POST',
@@ -46,7 +49,7 @@ export async function login(username:string, password: string) {
   if(result?.detail){
     return null;
   } else {
-    localStorage.setItem('authenticated','true');
+    sessionStorage.setItem('authenticated','true');
   }
 
   return result;

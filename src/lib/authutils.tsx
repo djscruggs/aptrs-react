@@ -5,9 +5,9 @@ import { AuthContext } from './authcontext';
 
 export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
   const WithAuth: React.FC<any> = (props) => {
-    const authContext = useContext(AuthContext);
-    const isAuthenticated = authContext?.isAuthenticated ?? false; // Fallback to false if context is undefined
-
+    const isAuthenticated = sessionStorage.getItem('authenticated') === 'true'; // Fallback to false if context is undefined
+    console.log("withauth, authentticated is ")
+    console.log(isAuthenticated)
     if (!isAuthenticated) {
       // Redirect to the login page if not authenticated
       return <Navigate to="/login" replace />;
@@ -20,7 +20,7 @@ export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
   return WithAuth;
 }
 export async function login(username:string, password: string) {
-  localStorage.setItem('authenticated','false');
+  sessionStorage.setItem('authenticated','false');
   const url = 'https://aptrsapi.souravkalal.tech/api/auth/login/';
   const response = await fetch(url, {
     method: 'POST',
@@ -30,12 +30,13 @@ export async function login(username:string, password: string) {
     body: JSON.stringify({ username, password }),
   });
   const result = await response.json();
+  console.log(result)
   // api returns loging failures like so
   // {detail:"No active account found with the given credentials"}
   if(result?.detail){
     return null;
   } else {
-    localStorage.setItem('authenticated','true');
+    sessionStorage.setItem('authenticated','true');
   }
 
   return result;

@@ -24,7 +24,9 @@ const Login: React.FC = () => {
       //bad username & password
       setLoginError(true)
     } else {
-      
+      console.log('calling navigae')
+      console.log('sessionStorage auth is')
+      console.log(sessionStorage.getItem('authenticated'))
       navigate("/dashboard");
     }
     
@@ -32,7 +34,7 @@ const Login: React.FC = () => {
     // Simulate authentication logic (replace with actual authentication logic)
     // if (username === 'user' && password === 'password') {
     //   // Set authentication flag in local storage
-    //   localStorage.setItem('authenticated', 'true');
+    //   sessionStorage.setItem('authenticated', 'true');
     //   window.location.href = '/'; // Redirect to the main app page on successful login
     // }
   };
