@@ -13,20 +13,21 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [btnDisabled, setBtnDisabled] = useState(false);
   const navigate = useNavigate();
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
+    setBtnDisabled(true)
     
     const result = await login(username,password)
+    console.log(result)
     //api returns login errors like so:
     // {detail:"No active account found with the given credentials"}
     if(!result){
       //bad username & password
       setLoginError(true)
+      setBtnDisabled(false)
     } else {
-      console.log('calling navigae')
-      console.log('sessionStorage auth is')
-      console.log(sessionStorage.getItem('authenticated'))
       navigate("/dashboard");
     }
     
@@ -90,7 +91,11 @@ const Login: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <Button type="submit" className="mt-4 w-full">
+                  <Button 
+                    type="submit" 
+                    className="mt-4 w-full"
+                    disabled = {btnDisabled}
+                  >
                       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
                   </Button>
                   {loginError &&

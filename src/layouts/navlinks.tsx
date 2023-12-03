@@ -3,7 +3,6 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   UserGroupIcon,
-  HomeIcon,
   BuildingOfficeIcon,
   RocketLaunchIcon,
   CircleStackIcon,
@@ -12,16 +11,15 @@ import clsx from 'clsx';
 // ... (Icons and other imports)
 
 const links = [
-  { name: 'Home', href: '', icon: HomeIcon },
   { name: 'Dashboard', href: '/dashboard', icon: RocketLaunchIcon },
   {
     name: 'Companies',
-    href: '/dashboard/companies',
+    href: '/companies',
     icon: BuildingOfficeIcon,
   },
-  { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
-  { name: 'Projects', href: '/dashboard/projects', icon: RocketLaunchIcon },
-  { name: 'Vulnerability DB', href: '/dashboard/vdb', icon: CircleStackIcon },
+  { name: 'Customers', href: '/customers', icon: UserGroupIcon },
+  { name: 'Projects', href: '/projects', icon: RocketLaunchIcon },
+  { name: 'Vulnerability DB', href: '/vulnerabilities', icon: CircleStackIcon },
 ];
 
 

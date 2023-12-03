@@ -1,12 +1,9 @@
 // SideNav.tsx
-import React, { useContext } from 'react';
-import { AuthContext } from '../lib/authcontext'; // Update the path accordingly
+import React from 'react';
 import NavLinks from './navlinks';
 import { PowerIcon } from '@heroicons/react/24/outline';
 
-const SideNav: React.FC = () => {
-  const authContext = useContext(AuthContext);
-  const isAuthenticated = authContext?.isAuthenticated ?? false; // Fallback to false if context is undefined
+const SideNav: React.FC = (isAuthenticated = false) => {
   
   const handleSignOut = () => {
     // Implement sign-out logic here

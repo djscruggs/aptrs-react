@@ -1,34 +1,31 @@
 // AuthContext.tsx
-import React, { createContext, useState } from 'react';
+import React, { createContext } from 'react';
 
-interface AuthContextProps {
-  isAuthenticated: boolean;
-  // Other authentication-related data or functions
-}
 
 interface AuthProviderProps {
   children: React.ReactNode; // Include children property here
 }
 
-
-export const AuthContext = createContext<AuthContextProps | undefined>(undefined); // Set initial value to undefined
-
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => { // Use AuthProviderProps interface
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  console.log('in auth provider sessionStorage is ')
-  console.log(sessionStorage.getItem('authenticated'))
-  if(sessionStorage.getItem('authenticated') === 'true'){
-    setIsAuthenticated(true)
-    console.log("afer setting in authprovider, value is ")
-    console.log(isAuthenticated)
+export function authenticated(state = null) {
+  if(state !== null){
+    if(state === true){
+      sessionStorage.setItem('authenticated', 'true')  
+    } else {
+      sessionStorage.setItem('authenticated', 'false')  
+    }
   }
 
-  // Add authentication logic here (login, logout, etc.)
+  return (sessionStorage.getItem('authenticated') === 'true')
+}
+export const AuthContext = createContext(authenticated()); 
+
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({children }) => { // Use AuthProviderProps interface
+  const isAuthenticated = authenticated()
   
 
   return (
-    <AuthContext.Provider value={{isAuthenticated}}>
+    <AuthContext.Provider value={isAuthenticated}>
       {children}
     </AuthContext.Provider>
   );

@@ -7,8 +7,7 @@ interface LayoutProps {
   isAuthenticated?: boolean;
   // Other props if applicable
 }
-const Layout: React.FC<LayoutProps> = ({isAuthenticated, children}) => {
-  
+const Layout: React.FC<LayoutProps> = ({isAuthenticated = false, children}) => {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       

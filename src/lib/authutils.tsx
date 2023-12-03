@@ -1,13 +1,10 @@
 // authUtils.tsx
 import { Navigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { AuthContext } from './authcontext';
+import { authenticated } from './authcontext';
 
 export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
   const WithAuth: React.FC<any> = (props) => {
-    const isAuthenticated = sessionStorage.getItem('authenticated') === 'true'; // Fallback to false if context is undefined
-    console.log("withauth, authentticated is ")
-    console.log(isAuthenticated)
+    const isAuthenticated = authenticated();
     if (!isAuthenticated) {
       // Redirect to the login page if not authenticated
       return <Navigate to="/login" replace />;
@@ -20,7 +17,6 @@ export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
   return WithAuth;
 }
 export async function login(username:string, password: string) {
-  sessionStorage.setItem('authenticated','false');
   const url = 'https://aptrsapi.souravkalal.tech/api/auth/login/';
   const response = await fetch(url, {
     method: 'POST',
