@@ -7,8 +7,8 @@ export type Project = {
   name: string;
   description: string;
   projecttype: string; //maybe enum "Web Application Penetration Testing"
-  startdate: Date;
-  enddate: Date;
+  startdate: string;
+  enddate: string;
   testingtype: string; //maybe enum "Black Box",
   projectexception: string; //" empty string in test"
   companyname: string; // "OWASP" -- shouldnt this be an id?

@@ -6,17 +6,14 @@ import { Suspense } from 'react';
 import {InvoicesTableSkeleton} from '../components/skeletons'
 
 const Projects = () => {
+  
   const [projects, setProjects] = useState([]);
+
   useEffect(() => {
-    async function loadProjects() {
-      const result = await fetchProjects();
-      setProjects(result);
-    }
-    loadProjects();
-  }, [])
-  function getProjects(){
-    return projects;
-  }
+    fetchProjects().then((projects) => setProjects(projects));
+  }, []);
+
+  if (!projects) return (<div>Loading...</div>);
   
  return (
     <>
