@@ -2,13 +2,16 @@
 import React from 'react';
 import NavLinks from './navlinks';
 import { PowerIcon } from '@heroicons/react/24/outline';
+import {logout} from '../lib/data/api'
 
 const SideNav: React.FC = (isAuthenticated = false) => {
   
   const handleSignOut = () => {
-    // Implement sign-out logic here
-    // For example: signOut();
-  };
+    logout();
+    console.log('handle signout')
+    document.location = "/";
+    
+  }
 
   return (
     <div className="flex h-full flex-col px-3 py-4 md:px-2">

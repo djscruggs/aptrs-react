@@ -6,15 +6,13 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
-import { login } from '../lib/authutils';
-import { useNavigate } from "react-router-dom";
+import { login } from '../lib/data/api';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
-  const navigate = useNavigate();
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setBtnDisabled(true)
@@ -28,7 +26,8 @@ const Login: React.FC = () => {
       setLoginError(true)
       setBtnDisabled(false)
     } else {
-      navigate("/dashboard");
+      //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
+      document.location = "/dashboard";
     }
     
     // const result = await login(username, password)

@@ -14,7 +14,7 @@ import Dashboard from './pages/dashboard'; // Replace with your protected page c
 
 
 const App: React.FC = () => {
-  const isAuthenticated = Boolean(authenticated()); // Fallback to false if context is undefined
+  const isAuthenticated = authenticated(); // Fallback to false if context is undefined
   return (
     <AuthProvider>
       <Router>
