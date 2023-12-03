@@ -6,16 +6,8 @@ interface AuthProviderProps {
   children: React.ReactNode; // Include children property here
 }
 
-export function authenticated(state = null) {
-  if(state !== null){
-    if(state === true){
-      sessionStorage.setItem('authenticated', 'true')  
-    } else {
-      sessionStorage.setItem('authenticated', 'false')  
-    }
-  }
-
-  return (sessionStorage.getItem('authenticated') === 'true')
+export function authenticated() {
+  return (sessionStorage.getItem('access') != null)
 }
 export const AuthContext = createContext(authenticated()); 
 

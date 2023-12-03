@@ -18,8 +18,8 @@ export async function login(username: string, password:string) {
   if(result?.detail){
     return null;
   } else {
-    sessionStorage.setItem('authenticated','true');
-    sessionStorage.setItem('token',result.access)
+    sessionStorage.setItem('access',result.access);
+    sessionStorage.setItem('refresh',result.refresh)
   }
 
   return result;
@@ -27,7 +27,8 @@ export async function login(username: string, password:string) {
 }
 
 export function logout() {
-  sessionStorage.removeItem('authenticated');
+  sessionStorage.removeItem('access');
+    sessionStorage.removeItem('refresh')
 }
 
 export async function fetchCustomers(limit=[0,10], page=0) {
