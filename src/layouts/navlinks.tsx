@@ -26,9 +26,7 @@ const links = [
 const NavLinks: React.FC = () => {
   
   const pathname = useLocation().pathname;
-  console.log('pathname')
-  console.log(pathname)
-
+  
   
 
   return (
