@@ -1,5 +1,13 @@
+import { Project } from './definitions';
+
 function apiUrl(endpoint = ''): string {
     return 'https://aptrsapi.souravkalal.tech/api/' + endpoint;
+}
+function authHeaders(): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+  };
 }
 
 export async function login(username: string, password:string) {
@@ -12,7 +20,6 @@ export async function login(username: string, password:string) {
     body: JSON.stringify({ username, password }),
   });
   const result = await response.json();
-  console.log(result)
   // api returns loging failures like so
   // {detail:"No active account found with the given credentials"}
   if(result?.detail){
@@ -28,26 +35,28 @@ export async function login(username: string, password:string) {
 
 export function logout() {
   sessionStorage.removeItem('access');
-    sessionStorage.removeItem('refresh')
+  sessionStorage.removeItem('refresh')
 }
 
 export async function fetchCustomers(limit=[0,10], page=0) {
   
  
 }
-export async function fetchProjects(limit=[0,10], page=0) {
+export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: authHeaders()
+    });
+
+    return response.json();
+  } catch (error) {
+    // Handle errors if needed
+    throw error
   }
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: headers
-  });
-  console.log(headers)
-  const result = await response.json();
-  return result;
+
+
  
 }
 

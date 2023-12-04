@@ -8,7 +8,6 @@ const SideNav: React.FC = (isAuthenticated = false) => {
   
   const handleSignOut = () => {
     logout();
-    console.log('handle signout')
     document.location = "/";
     
   }
