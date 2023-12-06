@@ -11,18 +11,12 @@ export function Projects() {
   useEffect(() => {
     fetchProjects()
       .then((data) => {
-        console.log(data)
-        console.log('setting projects')
         setProjects(data as Project[]);
       }).catch((error) => {
-        console.log(error)
         setError(error)})
   }, []);
   if(error){
-    console.log("apiError")
     return <ErrorPage  />
-  } else {
-    console.log("NO apiError")
   }
   if(typeof projects == 'undefined'){
     return (<LatestInvoicesSkeleton />)

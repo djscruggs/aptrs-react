@@ -6,7 +6,7 @@ function apiUrl(endpoint = ''): string {
 function authHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+    'Authorization': 'Bearer ' + sessionStorage.getItem('access')
   };
 }
 
@@ -44,6 +44,8 @@ export async function fetchCustomers(limit=[0,10], page=0) {
 }
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
+  console.log('auth')
+  console.log(authHeaders())
   try {
     const response = await fetch(url, {
       method: 'GET',
