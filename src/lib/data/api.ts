@@ -49,15 +49,14 @@ export async function fetchProjects() {
       method: 'GET',
       headers: authHeaders()
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     return response.json();
-  } catch (error) {
-    // Handle errors if needed
-    throw error
+  } catch (e) {
+    throw e;
   }
-
-
- 
 }
 
 export async function fetchCompanies(limit=[0,10], page=0) {

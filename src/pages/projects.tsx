@@ -1,32 +1,45 @@
 import {Project} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { fetchProjects } from "../lib/data/api";
-import {LatestInvoicesSkeleton} from '../components/skeletons'
+import { LatestInvoicesSkeleton } from '../components/skeletons'
+import ErrorPage from '../components/error-page'
 
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>();
-
+  const [error, setError] = useState('');
+  let apiError = false;
   useEffect(() => {
     fetchProjects()
-    .then((data) => {
-      setProjects(data as Project[]);
-    });
+      .then((data) => {
+        console.log(data)
+        console.log('setting projects')
+        setProjects(data as Project[]);
+      }).catch((error) => {
+        console.log(error)
+        setError(error)})
   }, []);
+  if(error){
+    console.log("apiError")
+    return <ErrorPage  />
+  } else {
+    console.log("NO apiError")
+  }
   if(typeof projects == 'undefined'){
     return (<LatestInvoicesSkeleton />)
   }
   
+  
   return(
     <>
-      {projects && (
+      {typeof(projects) == "object" && (
         <h1>Projects</h1>
       )}
-      {projects &&
+      {typeof(projects) == "object" &&
         <div className="mt-6 flow-root">
           <div className="inline-block min-w-full align-middle">
             <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
               <div className="md:hidden">
-              {projects && projects.map((project: Project) => (
+              {typeof(projects) === "object" && projects.map((project: Project) => (
                   <div
                     key={project.id + "-mobile"}
                     className="mb-2 w-full rounded-md bg-white p-4"
@@ -78,7 +91,7 @@ export function Projects() {
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                {projects && projects.map((project: Project) => (
+                {typeof(projects) === "object"  && projects.map((project: Project) => (
                     <tr
                       key={project.id + "-web"}
                       className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"

@@ -5,6 +5,7 @@ import Layout from './layouts/layout';
 import { AuthProvider, authenticated } from './lib/authcontext';
 import Home from './pages/home';
 import Login from './pages/login';
+import ErrorPage from './components/error-page';
 import Vulnerabilities from './pages/vulnerabilities';
 import Customers from './pages/customers';
 import Projects from './pages/projects';
@@ -27,6 +28,7 @@ const App: React.FC = () => {
             <Route path="/customers" element={<Customers />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+            <Route path="/error" element={<ErrorPage />} />
           </Routes>
         </Layout>
       </Router>
