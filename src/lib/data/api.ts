@@ -1,4 +1,3 @@
-import { Project } from './definitions';
 
 function apiUrl(endpoint = ''): string {
     return 'https://aptrsapi.souravkalal.tech/api/' + endpoint;

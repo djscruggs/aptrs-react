@@ -4,10 +4,10 @@ import { fetchProjects } from "../lib/data/api";
 import { LatestInvoicesSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 
+
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
-  let apiError = false;
   useEffect(() => {
     fetchProjects()
       .then((data) => {
@@ -132,7 +132,4 @@ export function Projects() {
   )
 }
 
-function Loading() {
-  return <h2>🌀 Loading...</h2>;
-}
 export default Projects;
