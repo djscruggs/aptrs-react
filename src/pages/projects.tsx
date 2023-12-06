@@ -6,7 +6,7 @@ import ErrorPage from '../components/error-page'
 
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>();
-  const [error, setError] = useState('');
+  const [error, setError] = useState();
   let apiError = false;
   useEffect(() => {
     fetchProjects()
@@ -16,7 +16,8 @@ export function Projects() {
         setError(error)})
   }, []);
   if(error){
-    return <ErrorPage  />
+    console.error(error)
+    return <ErrorPage />
   }
   if(typeof projects == 'undefined'){
     return (<LatestInvoicesSkeleton />)
