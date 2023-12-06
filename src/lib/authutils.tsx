@@ -7,6 +7,8 @@ export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
     const isAuthenticated = authenticated();
     if (!isAuthenticated) {
       // Redirect to the login page if not authenticated
+      localStorage.setItem('redirect',document.location.pathname)
+
       return <Navigate to="/login" replace />;
     }
 

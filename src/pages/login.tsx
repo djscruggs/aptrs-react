@@ -26,8 +26,14 @@ const Login: React.FC = () => {
       setBtnDisabled(false)
     } else {
       //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
-      document.location = "/dashboard";
-    }
+      const redirect = localStorage.getItem('redirect')
+      if(redirect){
+        localStorage.removeItem('redirect')
+        document.location = redirect;
+      } else {
+        document.location = "/dashboard";
+      }
+    } 
     
     // const result = await login(username, password)
     // Simulate authentication logic (replace with actual authentication logic)
