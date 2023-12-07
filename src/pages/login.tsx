@@ -50,7 +50,7 @@ const Login: React.FC = () => {
                   <h1 className="mb-3 text-2xl">
                     Please log in to continue.
                   </h1>
-                  <div className="w-full">
+                  <div className="w-full mb-4">
                     <div>
                       <label
                         className="mb-3 mt-5 block text-xs font-medium text-gray-900"
