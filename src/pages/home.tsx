@@ -15,7 +15,7 @@ export default function Home() {
             className={styles.shape}
           /> */}
           <p className='text-xl text-gray-800 md:text-3xl md:leading-normal'>
-            <strong>Welcome to APTRS.</strong>
+            <strong>Welcome!</strong>
           </p>
           <Link
             to="/login"

@@ -10,7 +10,7 @@ test('renders learn react link', () => {
 });
 test('Home page renders correctly', () => {
   render(<App />);
-  const homeValue = screen.getByText(/Welcome to APTRS./i);
+  const homeValue = screen.getByText(/Welcome!/i);
   expect(homeValue).toBeInTheDocument();
 });
 
