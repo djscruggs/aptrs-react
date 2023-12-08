@@ -1,22 +1,25 @@
 import { withAuth } from "../lib/authutils";
-import { Suspense } from 'react';
-import { LatestInvoicesSkeleton, RevenueChartSkeleton } from '../components/skeletons';
+
+import { LatestInvoicesSkeleton } from '../components/skeletons';
 const Dashboard = () => {
+  const searchBar = () => {
+
+  }
   return (
     <>
       <h1>Dashboard</h1>
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
+      
+      <div className="w-full">
+        
+      <div className="w-full my-4">
+        <h2 className="mb-2">Latest Projects</h2>
+        <input className="p-2 border-2 border-gray-400 rounded-md" type="text" onClick={searchBar} placeholder="Search..." size={50}></input>
+      </div>
+      <div className="w-fullx">
         <LatestInvoicesSkeleton />
-        <LatestInvoicesSkeleton />
-        <LatestInvoicesSkeleton />
-        <LatestInvoicesSkeleton />
-
-            {/* <Suspense fallback={<RevenueChartSkeleton />}>
-              <RevenueChart />
-            </Suspense>
-            <Suspense fallback={<LatestInvoicesSkeleton />}>
-              <LatestInvoices />
-            </Suspense> */}
+      </div>
+        
+            
 
       </div>
     </>
