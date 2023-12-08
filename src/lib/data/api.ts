@@ -5,7 +5,7 @@ function apiUrl(endpoint = ''): string {
 function authHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + sessionStorage.getItem('access')
+    'Authorization': String(sessionStorage.getItem('access'))
   };
 }
 
@@ -43,7 +43,38 @@ export async function fetchCustomers(limit=[0,10], page=0) {
 }
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
-  console.log('auth')
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: authHeaders()
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (e) {
+    throw e;
+  }
+}
+export async function fetchProject(id: string | undefined) {
+  console.log("id is")
+  console.log(id)
+  if(!id) return null;
+  return {
+    "id": 1,
+    "name": "Juice Shop",
+    "description": "The project is about Juice Shop application security assessment. The project involves finding security vulnerabilities in the application",
+    "projecttype": "Web Application Penetration Testing",
+    "startdate": "2022-10-26",
+    "enddate": "2022-10-31",
+    "testingtype": "Black Box",
+    "projectexception": "",
+    "companyname": "OWASP",
+    "owner": "admin"
+  }
+  const url = apiUrl('project/get-project/' + id);
+  console.log(url)
   console.log(authHeaders())
   try {
     const response = await fetch(url, {

@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({isAuthenticated = false, children}) => {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       
-        {isAuthenticated &&
+        {isAuthenticated && document.location.pathname !== '/login' &&
           <div className="w-full flex-none md:w-64">
             <SideNav />
           </div>

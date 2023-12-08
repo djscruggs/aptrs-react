@@ -9,6 +9,7 @@ import ErrorPage from './components/error-page';
 import Vulnerabilities from './pages/vulnerabilities';
 import Customers from './pages/customers';
 import Projects from './pages/projects';
+import ProjectForm from './pages/project-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 
@@ -27,8 +28,10 @@ const App: React.FC = () => {
             <Route path="/companies" element={<Companies />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:id/edit" element={<ProjectForm />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/error" element={<ErrorPage />} />
+            <Route path="*" element={<ErrorPage is404={true}/>} />
           </Routes>
         </Layout>
       </Router>
