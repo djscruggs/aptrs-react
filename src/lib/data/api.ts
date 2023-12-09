@@ -5,7 +5,7 @@ function apiUrl(endpoint = ''): string {
 function authHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    'Authorization': String(sessionStorage.getItem('access'))
+    'Authorization': 'Bearer ' +String(sessionStorage.getItem('access'))
   };
 }
 
