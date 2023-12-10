@@ -1,6 +1,6 @@
 
 function apiUrl(endpoint = ''): string {
-    return 'https://aptrsapi.souravkalal.tech/api/' + endpoint;
+    return process.env.REACT_APP_API_URL + endpoint;
 }
 function authHeaders(): Record<string, string> {
   return {
@@ -9,16 +9,17 @@ function authHeaders(): Record<string, string> {
   };
 }
 
-export async function login(username: string, password:string) {
+export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
   });
   const result = await response.json();
+  console.log(result)
   // api returns loging failures like so
   // {detail:"No active account found with the given credentials"}
   if(result?.detail){
@@ -58,11 +59,10 @@ export async function fetchProjects() {
   }
 }
 export async function fetchProject(id: string | undefined) {
-  console.log("id is")
-  console.log(id)
   if(!id) return null;
   return {
     "id": 1,
+    "status": "Completed",
     "name": "Juice Shop",
     "description": "The project is about Juice Shop application security assessment. The project involves finding security vulnerabilities in the application",
     "projecttype": "Web Application Penetration Testing",
@@ -73,22 +73,22 @@ export async function fetchProject(id: string | undefined) {
     "companyname": "OWASP",
     "owner": "admin"
   }
-  const url = apiUrl('project/get-project/' + id);
-  console.log(url)
-  console.log(authHeaders())
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: authHeaders()
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+  // const url = apiUrl('project/get-project/' + id);
+  // console.log(url)
+  // console.log(authHeaders())
+  // try {
+  //   const response = await fetch(url, {
+  //     method: 'GET',
+  //     headers: authHeaders()
+  //   });
+  //   if (!response.ok) {
+  //     throw new Error(`HTTP error! status: ${response.status}`);
+  //   }
 
-    return response.json();
-  } catch (e) {
-    throw e;
-  }
+  //   return response.json();
+  // } catch (e) {
+  //   throw e;
+  // }
 }
 
 export async function fetchCompanies(limit=[0,10], page=0) {

@@ -1,94 +1,266 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  AtSymbolIcon,
-  KeyIcon,
-  ExclamationCircleIcon,
-} from '@heroicons/react/24/outline';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
+  StyleTextfield,
+  StyleLabel,
+  FormErrorMessage
+} from '../lib/formstyles'
 import {Button} from '../components/button'
 import { fetchProject } from '../lib/data/api';
-import { Project } from '../lib/data/definitions';
 import { withAuth } from "../lib/authutils";
+import { Controller, useForm } from 'react-hook-form'
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import DatePicker from "react-datepicker";
+
+const schema = z.object({
+  name: z.string().min(3, { message: 'Required' }),
+  status: z.string().min(5),
+  description: z.string().min(5),
+  projecttype: z.string().min(5),
+  startdate: z.date(),
+  enddate: z.date(),
+  testingtype: z.string(),
+  projectexception: z.string(),
+  companyname: z.string(),
+  owner: z.string()
+});
+
+type ProjectFormData = {
+  name: string;
+  description: string;
+  status: string;
+  projecttype: string;
+  startdate: string;
+  enddate: string;
+  testingtype: string;
+  projectexception: string;
+  companyname: string;
+  owner: string;
+};
 
 const ProjectForm: React.FC = () => {
+  console.log("top of form")
   const params = useParams()
-  const id: string | undefined = params.id
-  const [error, setError] = useState(false)
-  console.log("id")
-  console.log(id)
-  
-  
-  
-  const [project, setProject] = useState(null)
+  var projectData:ProjectFormData;
+  const { id } = params;
+  const {
+    control,
+    register,
+    formState: { errors },
+    setValue, // Function to set form values
+  } = useForm<ProjectFormData>({
+    resolver: zodResolver(schema), // Your Zod schema
+  });
   useEffect(() => {
-    fetchProject(id)
-      .then((data) => {
-        console.log(data)
-        setProject(data);
-      }).catch((error) => {
-        setError(error)})
-  }, []);
+    console.log("use effect")
+    const safelySetFormValues = (key: keyof ProjectFormData, value: string | undefined) => {
+      if (key in projectData) {
+        setValue(key, value || '');
+      }
+    };
+    const loadProject = async (id: string) => {
+      try {
+        console.log("loading")
+        // Fetch project details based on the ID
+        projectData = await fetchProject(id) as ProjectFormData;
+        console.log(projectData)
+        for (const [k, v] of Object.entries(projectData)) {
+          safelySetFormValues(k as keyof ProjectFormData, v);
+        }        
+      } catch (error) {
+        console.error("Error")
+        console.error(error)
+        // Handle error
+      }
+    };
 
+    if (id) {
+      loadProject(id);
+    } 
+  }, [id, setValue]);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+  }
+  
     
   const btnDisabled = false;
-  const handleChange = (event: any) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    // setInputs(values => ({...values, [name]: value}))
-  }
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    console.log(event)
-  }
   
   return (
           
-            <div className="max-w-sm flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+    // "id": 1,
+    // "status": "Completed",
+    // "name": "Juice Shop",
+    // "description": "The project is about Juice Shop application security assessment. The project involves finding security vulnerabilities in the application",
+    // "projecttype": "Web Application Penetration Testing",
+    // "startdate": "2022-10-26",
+    // "enddate": "2022-10-31",
+    // "testingtype": "Black Box",
+    // "projectexception": "",
+    // "companyname": "OWASP",
+    // "owner": "admin"
+            <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                 <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
                   <h1 className="mb-3 text-2xl">
-                    Edi  
+                    {id ? "Edit" : "Create"} Project
                   </h1>
                   <div className="w-full mb-4">
                     <div>
                       <label
-                        className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                        className={StyleLabel}
                         htmlFor="name"
                       >
-                        Username
+                        Name
                       </label>
+                      
                       <div className="relative">
                         <input
-                          className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                          id="username"
+                          {...register('name')}
+                          className={StyleTextfield}
                           type="text"
-                          name="name"
-                          placeholder="Enter your username"
                           required
                         />
-                        <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                        {errors.name?.message && <p>{errors.name.message as string}</p>} 
                       </div>
                     </div>
                     <div className="mt-4">
                       <label
-                        className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-                        htmlFor="password"
+                        className={StyleLabel}
+                        htmlFor="projecttype"
                       >
-                        Password
+                        Type
                       </label>
                       <div className="relative">
                         <input
-                          className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                          id="password"
-                          type="password"
-                          name="password"
-                          placeholder="Enter password"
+                          {...register('projecttype')}
+                          className={StyleTextfield}
+                          type="text"
                           required
-                          minLength={4}
-                          
                         />
-                        <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                        {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label
+                        className={StyleLabel}
+                        htmlFor="projecttype"
+                      >
+                        Company
+                      </label>
+                      <div className="relative">
+                        <input
+                          {...register('companyname')}
+                          className={StyleTextfield}
+                          type="text"
+                          required
+                        />
+                        {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2'>
+                      <div className="mt-4">
+                        <label
+                          className={StyleLabel}
+                          htmlFor="startdate"
+                        >
+                          Start Date
+                        </label>
+                        <div className="relative">
+                        <Controller
+                          control={control}
+                          name='startdate'
+                          render={({ field }) => (
+                            <DatePicker
+                              placeholderText='Select date'
+                              dateFormat="yyyy-MM-dd"
+                              onChange={(date:Date) => field.onChange(date)}
+                              selected={field.value ? new Date(field.value) : null}
+                            />
+                          )}
+                        />
+                          
+                          {errors.startdate?.message && <FormErrorMessage message={errors.startdate.message as string} />} 
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <label
+                          className={StyleLabel}
+                          htmlFor="enddate"
+                        >
+                          End Date
+                        </label>
+                        <div className="relative">
+                        <Controller
+                          control={control}
+                          name='enddate'
+                          render={({ field }) => (
+                            <DatePicker
+                              placeholderText='Select date'
+                              dateFormat="yyyy-MM-dd"
+                              onChange={(date:Date) => field.onChange(date)}
+                              selected={field.value ? new Date(field.value) : null}
+                            />
+                          )}
+                        />
+                          {errors.enddate?.message && <FormErrorMessage message={errors.enddate.message as string} />} 
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label
+                        className={StyleLabel}
+                        htmlFor="testingtype"
+                      >
+                        Testing Type
+                      </label>
+                      <div className="relative">
+                        <input
+                          {...register('testingtype')}
+                          className={StyleTextfield}
+                          type="text"
+                          required
+                        />
+                        {errors.testingtype?.message && <FormErrorMessage message={errors.testingtype.message as string} />} 
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label
+                        className={StyleLabel}
+                        htmlFor="projectexception"
+                      >
+                        Project Exception
+                      </label>
+                      <div className="relative">
+                        <input
+                          {...register('projectexception')}
+                          className={StyleTextfield}
+                          type="text"
+                          required
+                        />
+                        {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label
+                        className={StyleLabel}
+                        htmlFor="projecttype"
+                      >
+                        Description
+                      </label>
+                      <div className="relative">
+                        <CKEditor
+                          onReady={ editor => {
+                                if (projectData) {
+                                  editor.setData(projectData.description)
+                                }
+                             } }
+                          editor={ClassicEditor}                        
+                        />
+                          
+                          {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
                       </div>
                     </div>
                   </div>
@@ -97,16 +269,8 @@ const ProjectForm: React.FC = () => {
                     className="mt-4 w-full"
                     disabled = {btnDisabled}
                   >
-                      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+                      Save
                   </Button>
-                 
-                    <div className="flex h-8 mt-1em items-end space-x-1" aria-live="polite" aria-atomic="true">
-                      <>
-                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                        <p className="text-sm text-red-500">Invalid credentials</p>
-                      </>
-                    </div>
-                  
                 </form>
             </div>
   );

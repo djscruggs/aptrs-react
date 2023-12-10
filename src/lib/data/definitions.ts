@@ -8,8 +8,8 @@ export type Props = {
 export type JsonResponse = {
   
 }
-export type Project = {
-  id: number;
+export interface Project  {
+  id?: number;
   name: string;
   description: string;
   projecttype: string; //maybe enum "Web Application Penetration Testing"
@@ -19,6 +19,13 @@ export type Project = {
   projectexception: string; //" empty string in test"
   companyname: string; // "OWASP" -- shouldnt this be an id?
   owner: string; //"admin" -- shouldnt this be an id?
+};
+
+
+export type ProjectScope = {
+  id: number;
+  scopt: string; //url?
+  description: string;
 };
 
 export type User = {

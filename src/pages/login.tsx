@@ -9,7 +9,7 @@ import {Button} from '../components/button'
 import { login } from '../lib/data/api';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
@@ -17,11 +17,11 @@ const Login: React.FC = () => {
     e.preventDefault()
     setBtnDisabled(true)
     
-    const result = await login(username,password)
+    const result = await login(email,password)
     //api returns login errors like so:
     // {detail:"No active account found with the given credentials"}
     if(!result){
-      //bad username & password
+      //bad email & password
       setLoginError(true)
       setBtnDisabled(false)
     } else {
@@ -46,19 +46,19 @@ const Login: React.FC = () => {
                     <div>
                       <label
                         className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-                        htmlFor="username"
+                        htmlFor="email"
                       >
                         Username
                       </label>
                       <div className="relative">
                         <input
                           className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                          id="username"
-                          type="text"
-                          name="username"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          placeholder="Enter your username"
+                          id="email"
+                          type="email"
+                          name="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter your email"
                           required
                         />
                         <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
