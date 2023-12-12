@@ -7,6 +7,7 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
 import { login } from '../lib/data/api';
+import { StyleLabel } from '../lib/formstyles'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -45,7 +46,7 @@ const Login: React.FC = () => {
                   <div className="w-full mb-4">
                     <div>
                       <label
-                        className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                        className={StyleLabel}
                         htmlFor="email"
                       >
                         Username
@@ -66,7 +67,7 @@ const Login: React.FC = () => {
                     </div>
                     <div className="mt-4">
                       <label
-                        className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                        className={StyleLabel}
                         htmlFor="password"
                       >
                         Password

@@ -42,7 +42,6 @@ type ProjectFormData = {
 };
 
 const ProjectForm: React.FC = () => {
-  console.log("top of form")
   const params = useParams()
   var projectData:ProjectFormData;
   const { id } = params;
@@ -55,7 +54,6 @@ const ProjectForm: React.FC = () => {
     resolver: zodResolver(schema), // Your Zod schema
   });
   useEffect(() => {
-    console.log("use effect")
     const safelySetFormValues = (key: keyof ProjectFormData, value: string | undefined) => {
       if (key in projectData) {
         setValue(key, value || '');
@@ -63,10 +61,8 @@ const ProjectForm: React.FC = () => {
     };
     const loadProject = async (id: string) => {
       try {
-        console.log("loading")
         // Fetch project details based on the ID
         projectData = await fetchProject(id) as ProjectFormData;
-        console.log(projectData)
         for (const [k, v] of Object.entries(projectData)) {
           safelySetFormValues(k as keyof ProjectFormData, v);
         }        

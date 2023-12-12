@@ -21,6 +21,13 @@ export interface Project  {
   owner: string; //"admin" -- shouldnt this be an id?
 };
 
+export interface Company  {
+  id?: number;
+  name?: string;
+  img?: string;
+  address?: string; //maybe enum "Web Application Penetration Testing"
+};
+
 
 export type ProjectScope = {
   id: number;

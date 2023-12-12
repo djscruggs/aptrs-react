@@ -5,12 +5,13 @@ function apiUrl(endpoint = ''): string {
 function authHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' +String(sessionStorage.getItem('access'))
+    'Authorization': 'Bearer ' + String(sessionStorage.getItem('access'))
   };
 }
 
 export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
+  console.log(url)
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -19,10 +20,7 @@ export async function login(email: string, password:string) {
     body: JSON.stringify({ email, password }),
   });
   const result = await response.json();
-  console.log(result)
-  // api returns loging failures like so
-  // {detail:"No active account found with the given credentials"}
-  if(result?.detail){
+  if(!result?.access){
     return null;
   } else {
     sessionStorage.setItem('access',result.access);
@@ -44,6 +42,7 @@ export async function fetchCustomers(limit=[0,10], page=0) {
 }
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
+  console.log(authHeaders())
   try {
     const response = await fetch(url, {
       method: 'GET',
@@ -73,26 +72,40 @@ export async function fetchProject(id: string | undefined) {
     "companyname": "OWASP",
     "owner": "admin"
   }
-  // const url = apiUrl('project/get-project/' + id);
-  // console.log(url)
-  // console.log(authHeaders())
-  // try {
-  //   const response = await fetch(url, {
-  //     method: 'GET',
-  //     headers: authHeaders()
-  //   });
-  //   if (!response.ok) {
-  //     throw new Error(`HTTP error! status: ${response.status}`);
-  //   }
+    const url = apiUrl('project/get-project/' + id);
+    console.log(url)
+    console.log(authHeaders())
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: authHeaders()
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  //   return response.json();
-  // } catch (e) {
-  //   throw e;
-  // }
+      return response.json();
+    } catch (e) {
+      throw e;
+    }
 }
 
 export async function fetchCompanies(limit=[0,10], page=0) {
-  
+  const url = apiUrl('customer/all-company');
+  console.log(url)
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: authHeaders()
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (e) {
+    throw e;
+  }
  
 }
 
