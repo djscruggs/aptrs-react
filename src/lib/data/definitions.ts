@@ -25,7 +25,7 @@ export interface Company  {
   id?: number;
   name?: string;
   img?: string;
-  address?: string; //maybe enum "Web Application Penetration Testing"
+  address?: string; 
 };
 
 

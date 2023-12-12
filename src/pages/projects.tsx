@@ -1,8 +1,9 @@
 import {Project} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { fetchProjects } from "../lib/data/api";
-import { LatestInvoicesSkeleton } from '../components/skeletons'
+import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
+import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 
@@ -22,14 +23,14 @@ export function Projects() {
     return <ErrorPage />
   }
   if(typeof projects == 'undefined'){
-    return (<LatestInvoicesSkeleton />)
+    return (<TableSkeleton />)
   }
   
   
   return(
     <>
       {typeof(projects) == "object" && (
-        <h1>Projects</h1>
+        <PageTitle title='Projects' />
       )}
       {typeof(projects) == "object" &&
         <div className="mt-6 flow-root">

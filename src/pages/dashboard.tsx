@@ -1,6 +1,6 @@
 import { withAuth } from "../lib/authutils";
 
-import { LatestInvoicesSkeleton } from '../components/skeletons';
+import { TableSkeleton } from '../components/skeletons';
 const Dashboard = () => {
   const searchBar = () => {
 
@@ -16,7 +16,7 @@ const Dashboard = () => {
         <input className="p-2 border-2 border-gray-400 rounded-md" type="text" onClick={searchBar} placeholder="Search..." size={50}></input>
       </div>
       <div className="w-fullx">
-        <LatestInvoicesSkeleton />
+        <TableSkeleton />
       </div>
         
             

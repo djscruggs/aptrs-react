@@ -17,6 +17,7 @@ export const FormErrorMessage: React.FC<FormErrorMessageProps> = ({ message }) =
 
 
 export const StyleTextfield ='peer block w-full rounded-md border border-gray-200 py-[9px] pl-2 text-sm outline-2 placeholder:text-gray-500';
+export const StyleCheckbox ="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2";
 
 export const StyleLabel = 'mb-3 mt-5 block text-xs font-medium text-gray-900'
 
