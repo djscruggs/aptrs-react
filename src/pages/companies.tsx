@@ -1,5 +1,5 @@
 import {Company} from '../lib/data/definitions'
-import { useEffect, useState, MouseEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
@@ -29,8 +29,7 @@ export function Companies() {
   if(typeof companies == 'undefined'){
     return (<TableSkeleton />)
   }
-  let checkedItems = []
-  const handleCheckbox = () => {
+  const handleMultiCheckbox = () => {
     setAllChecked(!allChecked);
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
@@ -67,7 +66,7 @@ export function Companies() {
         <Button className="float-right mb-2">
             New Company
         </Button>
-        {allChecked || itemChecked &&
+        {(allChecked || itemChecked.length > 0)  &&
           <Button className="float-right mb-2 bg-red-600 mr-2">
             Delete
          </Button>
@@ -103,7 +102,7 @@ export function Companies() {
                       id="selectAll"
                       type="checkbox"
                       checked = {allChecked}
-                      onChange={handleCheckbox}
+                      onChange={handleMultiCheckbox}
                       className={StyleCheckbox}
                     />
                     </th>
