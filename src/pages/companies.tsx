@@ -31,6 +31,9 @@ export function Companies() {
   }
   const handleMultiCheckbox = () => {
     setAllChecked(!allChecked);
+    if(!allChecked){
+      setItemChecked([])
+    }
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
@@ -40,7 +43,6 @@ export function Companies() {
       newChecked.push(Number(search))
     } else {
       itemChecked.map((id) => {
-        
         if(id == search){
           if(checked){
             newChecked.push(id)
