@@ -5,8 +5,8 @@ import {
   StyleLabel,
   FormErrorMessage
 } from '../lib/formstyles'
-import {Button} from '../components/button'
-import { fetchProject } from '../lib/data/api';
+import {Button} from 'flowbite-react'
+import { fetchCompany, fetchProject } from '../lib/data/api';
 import { withAuth } from "../lib/authutils";
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod';
@@ -44,10 +44,10 @@ const CompanyForm: React.FC = () => {
         setValue(key, value || '');
       }
     };
-    const loadProject = async (id: string) => {
+    const loadCompany = async (id: string) => {
       try {
         // Fetch project details based on the ID
-        companyData = await fetchProject(id) as CompanyFormData;
+        companyData = await fetchCompany(id) as CompanyFormData;
         for (const [k, v] of Object.entries(companyData)) {
           safelySetFormValues(k as keyof CompanyFormData, v);
         }        
@@ -59,7 +59,7 @@ const CompanyForm: React.FC = () => {
     };
 
     if (id) {
-      loadProject(id);
+      loadCompany(id);
     } 
   }, [id, setValue]);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,87 +71,75 @@ const CompanyForm: React.FC = () => {
 
   
   return (
-          
-    // "id": 1,
-    // "status": "Completed",
-    // "name": "Juice Shop",
-    // "description": "The project is about Juice Shop application security assessment. The project involves finding security vulnerabilities in the application",
-    // "projecttype": "Web Application Penetration Testing",
-    // "startdate": "2022-10-26",
-    // "enddate": "2022-10-31",
-    // "testingtype": "Black Box",
-    // "projectexception": "",
-    // "companyname": "OWASP",
-    // "owner": "admin"
-            <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
-                  <h1 className="mb-3 text-2xl">
-                    {id ? "Edit" : "Create"} Company
-                  </h1>
-                  <div className="w-full mb-4">
-                    <div>
-                      <label
-                        className={StyleLabel}
-                        htmlFor="name"
-                      >
-                        Name
-                      </label>
-                      
-                      <div className="relative">
-                        <input
-                          {...register('name')}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.name?.message && <p>{errors.name.message as string}</p>} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="address"
-                      >
-                        Address
-                      </label>
-                      <div className="relative">
-                        <input
-                          {...register('address')}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.address?.message && <p>{errors.address.message as string}</p>} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="img"
-                      >
-                        Image
-                      </label>
-                      <div className="relative">
-                        <input
-                          {...register('img')}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.img?.message && <p>{errors.img.message as string}</p>} 
-                      </div>
-                    </div>
-                    
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="mt-4 w-full"
-                    disabled = {btnDisabled}
+        <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+            <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
+              <h1 className="mb-3 text-2xl">
+                {id ? "Edit" : "Create"} Company
+              </h1>
+              <div className="w-full mb-4">
+                <div>
+                  <label
+                    className={StyleLabel}
+                    htmlFor="name"
                   >
-                      Save
-                  </Button>
-                </form>
-            </div>
+                    Name
+                  </label>
+                  
+                  <div className="relative">
+                    <input
+                      {...register('name')}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.name?.message && <p>{errors.name.message as string}</p>} 
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="address"
+                  >
+                    Address
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register('address')}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.address?.message && <p>{errors.address.message as string}</p>} 
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="img"
+                  >
+                    Image
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register('img')}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.img?.message && <p>{errors.img.message as string}</p>} 
+                  </div>
+                </div>
+                
+              </div>
+              <Button 
+                type="submit" 
+                className="mt-4 w-full"
+                disabled = {btnDisabled}
+              >
+                  Save
+              </Button>
+            </form>
+        </div>
   );
 }
           

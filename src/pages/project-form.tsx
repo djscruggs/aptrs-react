@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   StyleTextfield,
@@ -43,6 +43,7 @@ type ProjectFormData = {
 
 const ProjectForm: React.FC = () => {
   const params = useParams()
+  const [data, setData] = useState<ProjectFormData | null>(null)
   var projectData:ProjectFormData;
   const { id } = params;
   const {
@@ -65,7 +66,8 @@ const ProjectForm: React.FC = () => {
         projectData = await fetchProject(id) as ProjectFormData;
         for (const [k, v] of Object.entries(projectData)) {
           safelySetFormValues(k as keyof ProjectFormData, v);
-        }        
+        } 
+        setData(projectData)       
       } catch (error) {
         console.error("Error")
         console.error(error)
@@ -249,8 +251,8 @@ const ProjectForm: React.FC = () => {
                       <div className="relative">
                         <CKEditor
                           onReady={ editor => {
-                                if (projectData) {
-                                  editor.setData(projectData.description)
+                                if (data) {
+                                  editor.setData(data.description)
                                 }
                              } }
                           editor={ClassicEditor}                        

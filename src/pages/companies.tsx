@@ -7,7 +7,8 @@ import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { StyleCheckbox } from '../lib/formstyles';
-import Button from '../components/button';
+import {Button} from 'flowbite-react'
+import { useNavigate } from "react-router-dom";
 
 
 export function Companies() {
@@ -15,6 +16,7 @@ export function Companies() {
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
   const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
+  const navigate = useNavigate();
   useEffect(() => {
     fetchCompanies()
       .then((data) => {
@@ -34,6 +36,14 @@ export function Companies() {
     if(!allChecked){
       setItemChecked([])
     }
+  }
+  const handleNew = () => {
+    navigate('/companies/new')
+  }
+  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    alert('not implemented yet')
+    
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
@@ -57,7 +67,6 @@ export function Companies() {
   }
   
   
-  
   return(
     <>
       {typeof(companies) == "object" && (
@@ -65,7 +74,7 @@ export function Companies() {
       )}
       
       <div className="mt-6 flow-root">
-        <Button className="float-right mb-2">
+        <Button className='float-right mb-2 h-10 rounded-lg bg-primary-500 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-400' onClick={handleNew}>
             New Company
         </Button>
         {(allChecked || itemChecked.length > 0)  &&
@@ -108,10 +117,10 @@ export function Companies() {
                       className={StyleCheckbox}
                     />
                     </th>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
                       Action
                     </th>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
                       Id
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
@@ -122,10 +131,6 @@ export function Companies() {
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
                       Logo
-                    </th>
-                    
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
-                      <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
@@ -148,8 +153,8 @@ export function Companies() {
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex items-center gap-3">
                             
-                            <Link to={`/companies/${company.id}/edit`}>edit</Link>
-        
+                            <Link to={`/companies/${company.id}/edit`} className='underline'>edit</Link>
+                            <Link to={`/companies/${company.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
                         </div>
                       </td>
 
@@ -163,11 +168,15 @@ export function Companies() {
                           <p>{company.name}</p>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {company.address}
+                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                        <div className="flex items-center gap-3">
+                          {company.address}
+                        </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {company.img}
+                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                        <div className="flex items-center gap-3">
+                          {company.img}
+                        </div>
                       </td>
                       
                     </tr>
