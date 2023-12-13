@@ -5,7 +5,7 @@ import {
   StyleLabel,
   FormErrorMessage
 } from '../lib/formstyles'
-import {Button} from 'flowbite-react'
+import Button from '../components/button';
 import { fetchCompany, fetchProject } from '../lib/data/api';
 import { withAuth } from "../lib/authutils";
 import { Controller, useForm } from 'react-hook-form'

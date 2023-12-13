@@ -7,7 +7,7 @@ import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { StyleCheckbox } from '../lib/formstyles';
-import {Button} from 'flowbite-react'
+import Button from '../components/button';
 import { useNavigate } from "react-router-dom";
 
 
@@ -49,11 +49,11 @@ export function Companies() {
     let search = Number(event.currentTarget.value)
     let checked = event.currentTarget.checked
     let newChecked: any = []
-    if(itemChecked.length == 0 && checked){
+    if(itemChecked.length === 0 && checked){
       newChecked.push(Number(search))
     } else {
-      itemChecked.map((id) => {
-        if(id == search){
+      itemChecked.forEach((id) => {
+        if(id === search){
           if(checked){
             newChecked.push(id)
           }
@@ -74,11 +74,11 @@ export function Companies() {
       )}
       
       <div className="mt-6 flow-root">
-        <Button className='float-right mb-2 h-10 rounded-lg bg-primary-500 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-400' onClick={handleNew}>
+        <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Company
         </Button>
         {(allChecked || itemChecked.length > 0)  &&
-          <Button className="float-right mb-2 bg-red-600 mr-2">
+          <Button className="btn btn-error float-right m-2 mr-0">
             Delete
          </Button>
         }
@@ -87,7 +87,7 @@ export function Companies() {
           <div className="inline-block min-w-full align-middle">
             <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
               <div className="md:hidden">
-              {typeof(companies) === "object" && companies.map((company: Company) => (
+              {typeof(companies) == "object" && companies.map((company: Company) => (
                   <div
                     key={company.id + "-mobile"}
                     className="mb-2 w-full rounded-md bg-white p-4"
@@ -105,7 +105,7 @@ export function Companies() {
                   ))
                 }
               </div>
-              <table className="hidden min-w-full text-gray-900 md:table">
+              <table className="table zebra">
                 <thead className="rounded-lg text-left text-sm font-normal">
                   <tr>
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
@@ -135,10 +135,10 @@ export function Companies() {
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                {typeof(companies) === "object"  && companies.map((company: Company) => (
+                {typeof(companies) == "object"  && companies.map((company: Company) => (
                     <tr
                       key={company.id + "-web"}
-                      className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
+                      className="hover w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                     >
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <input
