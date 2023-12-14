@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const schema = z.object({
   name: z.string().min(3, { message: 'Required' }),

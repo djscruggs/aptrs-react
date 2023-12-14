@@ -11,6 +11,7 @@ import Customers from './pages/customers';
 import Projects from './pages/projects';
 import ProjectForm from './pages/project-form';
 import CompanyForm from './pages/company-form';
+import OldCompanyForm from './pages/old-company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id/edit" element={<ProjectForm />} />
             <Route path="/companies/:id/edit" element={<CompanyForm />} />
+            <Route path="/companies-old/:id/edit" element={<OldCompanyForm />} />
             <Route path="/companies/new" element={<CompanyForm />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/error" element={<ErrorPage />} />

@@ -9,6 +9,7 @@ import { withAuth } from "../lib/authutils";
 import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
 import { useNavigate } from "react-router-dom";
+// import CompanyForm from './company-form';
 
 
 export function Companies() {

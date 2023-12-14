@@ -1,7 +1,7 @@
 import {Project} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { fetchProjects } from "../lib/data/api";
-import { TableSkeleton } from '../components/skeletons'
+import { DashboardSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,7 @@ export function Projects() {
     return <ErrorPage />
   }
   if(typeof projects == 'undefined'){
-    return (<TableSkeleton />)
+    return (<DashboardSkeleton />)
   }
   
   

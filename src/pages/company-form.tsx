@@ -1,149 +1,173 @@
-import React, { useEffect } from 'react';
+import React, { 
+  useState, 
+  useEffect,
+  ChangeEvent, 
+  FormEvent 
+} from 'react';
 import { useParams } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
   FormErrorMessage
 } from '../lib/formstyles'
-import Button from '../components/button';
-import { fetchCompany, fetchProject } from '../lib/data/api';
 import { withAuth } from "../lib/authutils";
-import { Controller, useForm } from 'react-hook-form'
-import * as z from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import DatePicker from "react-datepicker";
+import Button from '../components/button';
+import {FormSkeleton} from '../components/skeletons'
+import { fetchCompany } from '../lib/data/api';
+import { upsertCompany } from '../lib/data/api';
+import {Company} from '../lib/data/definitions'
+interface FormErrors {
+  name?: {
+    message: string;
+  };
+  address?: {
+    message: string;
+  };
+  img?: {
+    message: string;
+  };
+}
 
-const schema = z.object({
-  name: z.string().min(3, { message: 'Required' }),
-  address: z.string().min(10),
-});
-
-type CompanyFormData = {
-  name: string;
-  address: string;
-  img: string;
-};
-
-const CompanyForm: React.FC = () => {
+function CompanyForm(): JSX.Element {
   const params = useParams()
-  var companyData:CompanyFormData;
   const { id } = params;
-  const {
-    control,
-    register,
-    formState: { errors },
-    setValue, // Function to set form values
-  } = useForm<CompanyFormData>({
-    resolver: zodResolver(schema), // Your Zod schema
+  const [btnDisabled, setBtnDisabled] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Company>({
+    name: '',
+    address: '',
+    img: '',
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+
   useEffect(() => {
-    const safelySetFormValues = (key: keyof CompanyFormData, value: string | undefined) => {
-      if (key in companyData) {
-        setValue(key, value || '');
+    const loadData = async () => {
+      if (id) {
+        setLoading(true);
+        try {
+          const companyData = await fetchCompany(id) as Company;
+          setFormData(companyData);
+        } catch (error) {
+          console.error("Error fetching company data:", error);
+          // Handle error fetching data
+        } finally {
+          setLoading(false);
+        }
       }
     };
-    const loadCompany = async (id: string) => {
+
+    loadData();
+  }, [id]);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
+    setBtnDisabled(true);
+    event.preventDefault();
+    // Perform your form validation here
+    const newErrors: FormErrors = {};
+    // Example validation logic (replace with your own)
+    if (formData.name && formData.name.length < 3) {
+      newErrors.name = { message: 'Name should be at least three characters' };
+    }
+    // Add more validation for other fields if needed
+      
+    console.log('Form submitted:', formData);
+    if (Object.keys(newErrors).length >  0) {
+      setErrors(newErrors);
+      setBtnDisabled(false);
+      console.log('Form submitted:', formData);
+    } else {
       try {
-        // Fetch project details based on the ID
-        companyData = await fetchCompany(id) as CompanyFormData;
-        for (const [k, v] of Object.entries(companyData)) {
-          safelySetFormValues(k as keyof CompanyFormData, v);
-        }        
+        const response = await upsertCompany(formData as Company);
+        console.log('Form submitted successfully:', response);
+        // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
-        console.error("Error")
-        console.error(error)
-        // Handle error
+        console.error('Error submitting form:', error);
+        // Handle error (e.g., show error message)
       }
-    };
-
-    if (id) {
-      loadCompany(id);
-    } 
-  }, [id, setValue]);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+      console.log('Form submitted:', formData);
+    }
   }
+  if(loading) return <FormSkeleton numInputs={3}/>
   
-    
-  const btnDisabled = false;
 
-  
   return (
-        <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-            <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
-              <h1 className="mb-3 text-2xl">
-                {id ? "Edit" : "Create"} Company
-              </h1>
-              <div className="w-full mb-4">
-                <div>
-                  <label
-                    className={StyleLabel}
-                    htmlFor="name"
-                  >
-                    Name
-                  </label>
-                  
-                  <div className="relative">
-                    <input
-                      {...register('name')}
-                      className={StyleTextfield}
-                      type="text"
-                      required
-                    />
-                    {errors.name?.message && <p>{errors.name.message as string}</p>} 
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <label
-                    className={StyleLabel}
-                    htmlFor="address"
-                  >
-                    Address
-                  </label>
-                  <div className="relative">
-                    <input
-                      {...register('address')}
-                      className={StyleTextfield}
-                      type="text"
-                      required
-                    />
-                    {errors.address?.message && <p>{errors.address.message as string}</p>} 
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <label
-                    className={StyleLabel}
-                    htmlFor="img"
-                  >
-                    Image
-                  </label>
-                  <div className="relative">
-                    <input
-                      {...register('img')}
-                      className={StyleTextfield}
-                      type="text"
-                      required
-                    />
-                    {errors.img?.message && <p>{errors.img.message as string}</p>} 
-                  </div>
-                </div>
-                
-              </div>
-              <Button 
-                type="submit" 
-                className="mt-4 w-full"
-                disabled = {btnDisabled}
-              >
-                  Save
-              </Button>
-            </form>
+    <div className="max-w-lg flex-1 rounded-lg">
+      <h1 className="mb-3 text-2xl">
+        {id ? "Edit" : "Create"} Company
+      </h1>
+      <form onSubmit={handleSubmit} id="projectForm" method="POST">
+        {/* Form inputs */}
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="name"
+            className={StyleLabel}>
+            Company Name
+          </label>
+          <div className="relative">
+            <input
+              name="name"
+              className={StyleTextfield}
+              value={formData.name}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.name?.message && <FormErrorMessage message={errors.name.message} />}
+          </div>
         </div>
+        <div className="w-full mb-4">
+          <label 
+            className={StyleLabel}
+            htmlFor="address">
+              Address
+          </label>
+          <div className="relative">
+            <input
+              name="address"
+              className={StyleTextfield}
+              value={formData.address}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.address?.message && <FormErrorMessage message={errors.address.message} />}
+          </div>
+        </div>
+        <div className="w-full mb-4">
+          <label 
+              className={StyleLabel}
+              htmlFor="img">
+              Image
+          </label>
+          <div className="relative">
+            <input
+              name="img"
+              className={StyleTextfield}
+              value={formData.img}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.img?.message && <FormErrorMessage message={errors.img.message} />}
+          </div>
+        </div>
+        {/* Submit button */}
+        <Button 
+          className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+          disabled={btnDisabled}
+          type="submit">
+            Save
+        </Button>
+      </form>
+    </div>
   );
 }
-          
-
-
 
 export default withAuth(CompanyForm);

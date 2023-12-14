@@ -8,8 +8,10 @@ interface FormErrorMessageProps {
 export const FormErrorMessage: React.FC<FormErrorMessageProps> = ({ message }) => {
   return (
     <>
-      <ExclamationCircleIcon className='h-5 w-5 text-red-500' />
-      <p className='text-sm text-red-500'>{message}</p>
+      <p className='text-sm text-red-500'>
+        <ExclamationCircleIcon className='inline h-5 w-5 mr-1 text-red-500' />
+        {message}
+      </p>
     </>
   );
 };

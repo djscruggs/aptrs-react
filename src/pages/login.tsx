@@ -90,7 +90,7 @@ const Login: React.FC = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="mt-4 w-full"
+                    className="bg-primary"
                     disabled = {btnDisabled}
                   >
                       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />

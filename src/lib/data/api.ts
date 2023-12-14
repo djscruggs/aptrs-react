@@ -1,3 +1,4 @@
+import {Company} from './definitions'
 
 function apiUrl(endpoint = ''): string {
     return process.env.REACT_APP_API_URL + endpoint;
@@ -108,21 +109,55 @@ export async function fetchCompanies(limit=[0,10], page=0) {
  
 }
 export async function fetchCompany(id: string | undefined) {
-  if(!id) return null;
-    const url = apiUrl(`customer/company/${id}/`);
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: authHeaders()
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  if (!id) return null;
+  
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      const url = apiUrl(`customer/company/${id}/`);
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: authHeaders()
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      return response.json();
-    } catch (e) {
-      throw e;
+        const data = await response.json();
+        resolve(data);
+      } catch (error) {
+        reject(error);
+      }
+    }, 1500); // Simulate 1.5 seconds delay
+  });
+}
+
+export async function upsertCompany(formData: Company): Promise<any> {
+  let url = apiUrl(`customer/company/add`);
+  
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`customer/company/edit/${formData['id']}/`);
+    console.log(url)
+  }
+  console.log('sending data as ')
+  console.log(authHeaders())
+  console.log(JSON.stringify(formData))
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(formData), // Convert form data to JSON format
+    });
+    console.log(response)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function fetchVulnerabilities(limit=[0,10], page=0) {

@@ -2,6 +2,35 @@
 const shimmer =
   'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
 
+export function InputSkeleton() {
+  return (
+      <div className="flex flex-col gap-4 w-104 mb-4">
+        <div className="flex gap-4 items-center">
+          <div className="flex flex-col gap-4">
+            <div className="skeleton h-6 w-28 bg-gray-100 dark:bg-gray-70"></div>
+            <div className="skeleton h-12 w-80 bg-gray-100 dark:bg-gray-70"></div>
+          </div>
+        </div>
+      </div>
+  )
+}
+interface FormSkeletonProps {
+  numInputs?: number;
+}
+export const FormSkeleton: React.FC<FormSkeletonProps> = ({ numInputs = 3 }) => {
+  const inputSkeletons = [];
+
+  for (let i = 0; i < numInputs; i++) {
+    inputSkeletons.push(<InputSkeleton key={i} />);
+  }
+
+  return (
+    <div>
+      {inputSkeletons}
+    </div>
+  );
+
+}
 export function CardSkeleton() {
   return (
     <div
@@ -82,7 +111,7 @@ export function TableSkeleton() {
   );
 }
 
-export default function DashboardSkeleton() {
+export function DashboardSkeleton() {
   return (
     <>
       <div
