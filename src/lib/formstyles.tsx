@@ -16,6 +16,17 @@ export const FormErrorMessage: React.FC<FormErrorMessageProps> = ({ message }) =
   );
 };
 
+export const ModalErrorMessage: React.FC<FormErrorMessageProps> = ({ message }) => {
+  return (
+    <>
+      <p className='text-lg text-red-500'>
+        <ExclamationCircleIcon className='inline h-5 w-5 mr-1 text-red-500' />
+        {message}
+      </p>
+    </>
+  );
+};
+
 
 
 export const StyleTextfield ='peer block w-full rounded-md border border-gray-200 py-[9px] pl-2 text-sm outline-2 placeholder:text-gray-500';

@@ -1,5 +1,5 @@
 import {Company} from '../lib/data/definitions'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { fetchCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
@@ -9,15 +9,26 @@ import { withAuth } from "../lib/authutils";
 import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
 import { useNavigate } from "react-router-dom";
+import CompanyForm from './company-form';
+import { Modal } from 'react-daisyui'
 // import CompanyForm from './company-form';
 
 
 export function Companies() {
+  const [visible, toggleVisible] = useState<boolean>(false);
   const [companies, setCompanies] = useState<Company[]>();
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
   const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
+  const [currentId, setCurrentId] = useState('')
+  
   const navigate = useNavigate();
+  const ref = useRef<HTMLDialogElement>(null);
+  
+  const handleModal = useCallback((id: string) => {
+    // Use the "id" parameter as needed in your function
+    ref.current?.showModal();
+  }, [ref]);
   useEffect(() => {
     fetchCompanies()
       .then((data) => {
@@ -68,12 +79,24 @@ export function Companies() {
   }
   
   
+  
   return(
     <>
       {typeof(companies) == "object" && (
         <PageTitle title='Companies' />
       )}
-      
+      {/* modal content */}
+      <Modal ref={ref} className="modal-box bg-white w-full  p-4 rounded-md" >
+        <form method="dialog">
+          <Button className="bg-gray absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+            x
+          </Button>
+        </form>
+        <Modal.Body>
+          {currentId && <CompanyForm id={currentId} isModal={true}/>}
+        
+        </Modal.Body>
+      </Modal>
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Company
@@ -154,7 +177,8 @@ export function Companies() {
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex items-center gap-3">
                             
-                            <Link to={`/companies/${company.id}/edit`} className='underline'>edit</Link>
+                            <div className='underline cursor-pointer' onClick={() => handleModal(String(company.id))}>edit</div>
+
                             <Link to={`/companies/${company.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
                         </div>
                       </td>

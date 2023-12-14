@@ -2,20 +2,21 @@ import React, {
   useState, 
   useEffect,
   ChangeEvent, 
-  FormEvent 
+  FormEvent
 } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
-  FormErrorMessage
+  FormErrorMessage,
+  ModalErrorMessage
 } from '../lib/formstyles'
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
-import {FormSkeleton} from '../components/skeletons'
+import { FormSkeleton } from '../components/skeletons'
 import { fetchCompany } from '../lib/data/api';
 import { upsertCompany } from '../lib/data/api';
-import {Company} from '../lib/data/definitions'
+import { Company } from '../lib/data/definitions'
 interface FormErrors {
   name?: {
     message: string;
@@ -27,17 +28,25 @@ interface FormErrors {
     message: string;
   };
 }
-
-function CompanyForm(): JSX.Element {
+interface CompanyFormProps {
+  id?: string; // Make the ID parameter optional
+  isModal?: boolean
+}
+function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JSX.Element {
+  console.log("isModal", isModal)
   const params = useParams()
-  const { id } = params;
+  const { id: routeId } = params;
+  const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Company>({
     name: '',
     address: '',
     img: '',
   });
+  
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -49,6 +58,7 @@ function CompanyForm(): JSX.Element {
           setFormData(companyData);
         } catch (error) {
           console.error("Error fetching company data:", error);
+          setLoadingError(true);
           // Handle error fetching data
         } finally {
           setLoading(false);
@@ -65,7 +75,10 @@ function CompanyForm(): JSX.Element {
       [name]: value,
     }));
   };
-
+  const navigate = useNavigate()
+  const handleCancel = () =>  {
+    navigate(-1)
+  }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
@@ -80,8 +93,7 @@ function CompanyForm(): JSX.Element {
     console.log('Form submitted:', formData);
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
-      setBtnDisabled(false);
-      console.log('Form submitted:', formData);
+      console.log('Form failed validation:', newErrors);
     } else {
       try {
         const response = await upsertCompany(formData as Company);
@@ -89,19 +101,24 @@ function CompanyForm(): JSX.Element {
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
+        setSaveError(String(error))
         // Handle error (e.g., show error message)
       }
-      console.log('Form submitted:', formData);
     }
+    setBtnDisabled(false);
   }
-  if(loading) return <FormSkeleton numInputs={3}/>
   
+  if(loading) return <FormSkeleton numInputs={3}/>
+  if (loadingError) return <ModalErrorMessage message={"Error loading company"} />
+
 
   return (
     <div className="max-w-lg flex-1 rounded-lg">
+      
       <h1 className="mb-3 text-2xl">
         {id ? "Edit" : "Create"} Company
       </h1>
+      {saveError && <FormErrorMessage message={saveError} />}
       <form onSubmit={handleSubmit} id="projectForm" method="POST">
         {/* Form inputs */}
         <div className="w-full mb-4">
@@ -159,12 +176,28 @@ function CompanyForm(): JSX.Element {
           </div>
         </div>
         {/* Submit button */}
-        <Button 
-          className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
-          disabled={btnDisabled}
-          type="submit">
-            Save
-        </Button>
+        
+        <div className="p-2 flex">
+          <div className="w-1/2 flex justify-left">
+                <Button 
+                className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+                disabled={btnDisabled}
+                type="submit">
+                  Save
+              </Button>
+              {!isModal &&
+                <Button 
+                  className="bg-red-500 ml-1"
+                  onClick = {handleCancel}
+                  disabled={btnDisabled}>
+                    Cancel
+                </Button>
+              } 
+          </div>
+      </div>
+        
+        
+        
       </form>
     </div>
   );
