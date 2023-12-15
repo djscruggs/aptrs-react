@@ -40,9 +40,9 @@ const Login: React.FC = () => {
           
             <div className="max-w-sm flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                 <form action="" onSubmit={handleLogin} id="loginForm">
-                  <h1 className="mb-3 text-2xl">
+                  {/* <h1 className="mb-3 text-2xl">
                     Please log in to continue.
-                  </h1>
+                  </h1> */}
                   <div className="w-full mb-4">
                     <div>
                       <label

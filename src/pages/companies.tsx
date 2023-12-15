@@ -11,6 +11,7 @@ import Button from '../components/button';
 import { useNavigate } from "react-router-dom";
 import CompanyForm from './company-form';
 import { Modal } from 'react-daisyui'
+import { boolean } from 'zod';
 // import CompanyForm from './company-form';
 
 
@@ -21,11 +22,34 @@ export function Companies() {
   const [allChecked, setAllChecked] = useState(false);
   const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
   const [currentId, setCurrentId] = useState('')
-  
+  const [newCo, setNewCo] = useState(false);
+  let editing = false;
   const navigate = useNavigate();
   const ref = useRef<HTMLDialogElement>(null);
   
-  const handleModal = useCallback((id: string) => {
+  const handleModal = useCallback((id?: string) => {
+    if(id) setCurrentId(id)
+    if (!id) setNewCo(true)
+    const handleEsc = (event: KeyboardEvent) => {
+      //when they hit escape make sure to call clearModal
+      // console.log('keypress, editing is ', editing) 
+      // if (event.key === 'Escape') {
+      //   console.log('ESC called, editing is ', editing) 
+      //   if(editing){
+      //     var c = confirm("Discard changes?");
+      //     if(!c){
+      //       return null;
+      //     }
+      //   } 
+      //   clearModal()
+      // } else {
+      //   console.log('setting editing  to true') 
+      // //set that they are editing
+      //   editing =true;
+      // }
+      // console.log('now editins is ', editing)
+    }
+    window.addEventListener('keydown', handleEsc);
     // Use the "id" parameter as needed in your function
     ref.current?.showModal();
   }, [ref]);
@@ -36,6 +60,12 @@ export function Companies() {
       }).catch((error) => {
         setError(error)})
   }, []);
+  const clearModal = () => {
+    console.log('clearmodal')
+    setNewCo(false)
+    setCurrentId('')
+    editing = false;
+  }
   if(error){
     console.error(error)
     return <ErrorPage />
@@ -50,7 +80,8 @@ export function Companies() {
     }
   }
   const handleNew = () => {
-    navigate('/companies/new')
+    // navigate('/companies/new')
+    handleModal('')
   }
   const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -86,14 +117,15 @@ export function Companies() {
         <PageTitle title='Companies' />
       )}
       {/* modal content */}
-      <Modal ref={ref} className="modal-box bg-white w-full  p-4 rounded-md" >
-        <form method="dialog">
-          <Button className="bg-gray absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-            x
+      <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
+        <form method="dialog" onSubmit={clearModal}>
+          <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+            <span className="text-gray-400 hover:text-white-900">x</span>
           </Button>
         </form>
         <Modal.Body>
           {currentId && <CompanyForm id={currentId} isModal={true}/>}
+          {newCo && <CompanyForm isModal={true}/>}
         
         </Modal.Body>
       </Modal>

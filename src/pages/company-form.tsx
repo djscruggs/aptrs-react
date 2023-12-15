@@ -33,7 +33,6 @@ interface CompanyFormProps {
   isModal?: boolean
 }
 function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JSX.Element {
-  console.log("isModal", isModal)
   const params = useParams()
   const { id: routeId } = params;
   const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
@@ -170,7 +169,6 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
               value={formData.img}
               onChange={handleChange}
               type="text"
-              required
             />
             {errors.img?.message && <FormErrorMessage message={errors.img.message} />}
           </div>
