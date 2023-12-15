@@ -11,6 +11,7 @@ export type JsonResponse = {
 export interface Project  {
   id?: number;
   name: string;
+  status: string;
   description: string;
   projecttype: string; //maybe enum "Web Application Penetration Testing"
   startdate: string;

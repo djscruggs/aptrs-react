@@ -1,7 +1,7 @@
 import {Project} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { fetchProjects } from "../lib/data/api";
-import { DashboardSkeleton } from '../components/skeletons'
+import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,7 @@ export function Projects() {
     return <ErrorPage />
   }
   if(typeof projects == 'undefined'){
-    return (<DashboardSkeleton />)
+    return (<TableSkeleton />)
   }
   
   
@@ -47,7 +47,10 @@ export function Projects() {
                         <div className="mb-2 flex items-center">
                           <p>{project.name}</p>
                         </div>
-                        <p className="text-sm text-gray-500">{project.description}</p>
+                        <p className="text-sm text-gray-500">
+                        {project.description.length > 50 ?
+                          `${project.description.substring(0, 200)}...` : project.description}
+                        </p>
                       </div>
                       {/* <InvoiceStatus status={invoice.status} /> */}
                     </div>
@@ -58,7 +61,6 @@ export function Projects() {
                         </div>
                         <p className="text-sm text-gray-500">{project.enddate}</p>
                       </div>
-                      {/* <InvoiceStatus status={invoice.status} /> */}
                     </div>
                     
                   </div>
@@ -116,7 +118,8 @@ export function Projects() {
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        {project.description}
+                      {project.description.length > 50 ?
+                          `${project.description.substring(0, 50)}...` : project.description}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
                         {project.startdate}

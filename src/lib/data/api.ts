@@ -1,4 +1,4 @@
-import {Company} from './definitions'
+import {Company, Project} from './definitions'
 import axios from 'axios'
 
 function apiUrl(endpoint = ''): string {
@@ -86,6 +86,20 @@ export async function upsertCompany(formData: Company): Promise<any> {
   
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/company/edit/${formData['id']}/`);
+  }
+  try {
+    const response = await axios.post(url, formData, authHeaders())
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function upsertProject(formData: Project): Promise<any> {
+  let url = apiUrl(`project/add-project`);
+  
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`project/edit-project/${formData['id']}/`);
   }
   try {
     const response = await axios.post(url, formData, authHeaders())
