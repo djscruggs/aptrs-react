@@ -15,7 +15,7 @@ import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { fetchCompany } from '../lib/data/api';
-import { upsertCompany } from '../lib/data/api';
+import { upsertCompany} from '../lib/data/api';
 import { Company } from '../lib/data/definitions'
 interface FormErrors {
   name?: {
@@ -81,6 +81,7 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
+    console.log(event)
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
