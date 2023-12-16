@@ -1,4 +1,4 @@
-import {Company, Project} from './definitions'
+import {Company, Project, Customer} from './definitions'
 import axios from 'axios'
 
 function apiUrl(endpoint = ''): string {
@@ -30,9 +30,38 @@ export function logout() {
   sessionStorage.removeItem('refresh')
 }
 
-export async function fetchCustomers(limit=[0,10], page=0) {
-  
+export async function fetchCustomers() {
+  const url = apiUrl('customer/all-customer');
+  try {
+    const response = await axios.get(url,authHeaders());
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
  
+}
+export async function fetchCustomer(id: string | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`customer/customer/${id}/`);
+  try {
+    const response = await axios.get(url, authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+}
+export async function upsertCustomer(formData: Company): Promise<any> {
+  let url = apiUrl(`customer/customer/add`);
+  
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`customer/customer/edit/${formData['id']}/`);
+  }
+  try {
+    const response = await axios.post(url, formData, authHeaders())
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
 }
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
@@ -53,7 +82,19 @@ export async function fetchProject(id: string | undefined) {
     throw e;
   }
 }
-
+export async function upsertProject(formData: Project): Promise<any> {
+  let url = apiUrl(`project/add-project`);
+  
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`project/edit-project/${formData['id']}/`);
+  }
+  try {
+    const response = await axios.post(url, formData, authHeaders())
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
+}
 export async function fetchCompanies(limit=[0,10], page=0) {
   const url = apiUrl('customer/all-company');
   try {
@@ -86,20 +127,6 @@ export async function upsertCompany(formData: Company): Promise<any> {
   
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/company/edit/${formData['id']}/`);
-  }
-  try {
-    const response = await axios.post(url, formData, authHeaders())
-    return response.data;    
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function upsertProject(formData: Project): Promise<any> {
-  let url = apiUrl(`project/add-project`);
-  
-  if (Object.keys(formData).includes('id')) {
-    url = apiUrl(`project/edit-project/${formData['id']}/`);
   }
   try {
     const response = await axios.post(url, formData, authHeaders())

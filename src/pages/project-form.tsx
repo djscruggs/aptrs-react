@@ -20,6 +20,8 @@ import { Project } from '../lib/data/definitions'
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 interface FormErrors {
   name?: {
     message: string;
@@ -53,6 +55,7 @@ interface FormErrors {
   };
 }
 
+
 interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
   isModal?: boolean
@@ -64,6 +67,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Project>({
     name: '',
@@ -113,7 +117,6 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
-    console.log(event)
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
@@ -122,14 +125,13 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
     }
     // Add more validation for other fields if needed
       
-    console.log('Form submitted:', formData);
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.log('Form failed validation:', newErrors);
     } else {
       try {
         const response = await upsertProject(formData as Project);
-        console.log('Form submitted successfully:', response);
+        
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -138,191 +140,194 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
       }
     }
     setBtnDisabled(false);
+    
   }
-  
   if(loading) return <FormSkeleton numInputs={3}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
 
   return (
-    <div className="max-w-lg flex-1 rounded-lg">
-      
-      <h1 className="mb-3 text-2xl">
-        {id ? "Edit" : "Create"} Project
-      </h1>
-      {saveError && <FormErrorMessage message={saveError} />}
-      <form onSubmit={handleSubmit} id="projectForm" method="POST">
-        {/* Form inputs */}
-        <div className="w-full mb-4">
-                    <div>
-                      <label
-                        className={StyleLabel}
-                        htmlFor="name"
-                      >
-                        Name
-                      </label>
-                      
-                      <div className="relative">
-                        <input
-                          value = {formData.name}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.name?.message && <p>{errors.name.message as string}</p>} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="projecttype"
-                      >
-                        Type
-                      </label>
-                      <div className="relative">
-                        <input
-                          value = {formData.projecttype}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="projecttype"
-                      >
-                        Company
-                      </label>
-                      <div className="relative">
-                        <input
-                          value = {formData.companyname}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
-                      </div>
-                    </div>
-                    {/* <div className='grid grid-cols-2'>
-                      <div className="mt-4">
-                        <label
-                          className={StyleLabel}
-                          htmlFor="startdate"
-                        >
-                          Start Date
-                        </label>
-                        <div className="relative">
-                            <DatePicker
-                              placeholderText='Select date'
-                              dateFormat="yyyy-MM-dd"
-                              onChange={(date:Date) => field.onChange(date)}
-                              selected={field.value ? new Date(field.value) : null}
-                            />
-                          
-                          {errors.startdate?.message && <FormErrorMessage message={errors.startdate.message as string} />} 
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <label
-                          className={StyleLabel}
-                          htmlFor="enddate"
-                        >
-                          End Date
-                        </label>
-                        <div className="relative">
-                          <DatePicker
-                            placeholderText='Select date'
-                            dateFormat="yyyy-MM-dd"
-                            onChange={(date:Date) => field.onChange(date)}
-                            selected={field.value ? new Date(field.value) : null}
-                          />
-                          {errors.enddate?.message && <FormErrorMessage message={errors.enddate.message as string} />} 
-                        </div>
-                      </div>
-                    </div> */}
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="testingtype"
-                      >
-                        Testing Type
-                      </label>
-                      <div className="relative">
-                        <input
-                          value = {formData.testingtype}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.testingtype?.message && <FormErrorMessage message={errors.testingtype.message as string} />} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="projectexception"
-                      >
-                        Project Exception
-                      </label>
-                      <div className="relative">
-                        <input
-                          value = {formData.projectexception}
-                          className={StyleTextfield}
-                          type="text"
-                          required
-                        />
-                        {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label
-                        className={StyleLabel}
-                        htmlFor="projecttype"
-                      >
-                        Description
-                      </label>
-                      <div className="relative">
-                        <CKEditor
-                          onReady={ editor => {
-                                if (formData) {
-                                  editor.setData(formData.description)
-                                }
-                             } }
-                          editor={ClassicEditor}                        
-                        />
-                          
-                          {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
-                      </div>
-                    </div>
+          <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+          <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
+            <h1 className="mb-3 text-2xl">
+              {id ? "Edit" : "Create"} Project
+            </h1>
+            <div className="w-full mb-4">
+              <div>
+                <label
+                  className={StyleLabel}
+                  htmlFor="name"
+                >
+                  Name
+                </label>
+                
+                <div className="relative">
+                  <input
+                    name="name"
+                    value = {formData.name}
+                    className={StyleTextfield}
+                    onChange={handleChange}
+                    type="text"
+                    required
+                  />
+                  {errors.name?.message && <p>{errors.name.message as string}</p>} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="projecttype"
+                >
+                  Type
+                </label>
+                <div className="relative">
+                  <input
+                    name="projecttype"
+                    value = {formData.projecttype}
+                    onChange={handleChange}
+                    className={StyleTextfield}
+                    type="text"
+                    required
+                  />
+                  {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="projecttype"
+                >
+                  Company
+                </label>
+                <div className="relative">
+                  <input
+                    name="company"
+                    value = {formData.companyname}
+                    onChange={handleChange}
+                    className={StyleTextfield}
+                    type="text"
+                    required
+                  />
+                  {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
+                </div>
+              </div>
+              <div className='grid grid-cols-2'>
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="startdate"
+                  >
+                    Start Date
+                  </label>
+                  <div className="relative">
+                  {/* <Controller
+                    control={control}
+                    name='startdate'
+                    render={({ field }) => (
+                      <DatePicker
+                        placeholderText='Select date'
+                        dateFormat="yyyy-MM-dd"
+                        onChange={(date:Date) => field.onChange(date)}
+                        selected={field.value ? new Date(field.value) : null}
+                      />
+                    )}
+                    /> */}
+                    
+                    {errors.startdate?.message && <FormErrorMessage message={errors.startdate.message as string} />} 
                   </div>
-        {/* Submit button */}
-        
-        <div className="p-2 flex">
-          <div className="w-1/2 flex justify-left">
-                <Button 
-                className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
-                disabled={btnDisabled}
-                type="submit">
-                  Save
-              </Button>
-              {!isModal &&
-                <Button 
-                  className="bg-red-500 ml-1"
-                  onClick = {handleCancel}
-                  disabled={btnDisabled}>
-                    Cancel
-                </Button>
-              } 
-          </div>
+                </div>
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="enddate"
+                  >
+                    End Date
+                  </label>
+                  <div className="relative">
+                  {/* <Controller
+                    control={control}
+                    name='enddate'
+                    render={({ field }) => (
+                      <DatePicker
+                        placeholderText='Select date'
+                        dateFormat="yyyy-MM-dd"
+                        onChange={(date:Date) => field.onChange(date)}
+                        selected={field.value ? new Date(field.value) : null}
+                      />
+                      )}
+                    /> */}
+                    {errors.enddate?.message && <FormErrorMessage message={errors.enddate.message as string} />} 
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="testingtype"
+                >
+                  Testing Type
+                </label>
+                <div className="relative">
+                  <input
+                    name="testingtype"
+                    value = {formData.testingtype}
+                    onChange={handleChange}
+                    className={StyleTextfield}
+                    type="text"
+                    required
+                  />
+                  {errors.testingtype?.message && <FormErrorMessage message={errors.testingtype.message as string} />} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="projectexception"
+                >
+                  Project Exception
+                </label>
+                <div className="relative">
+                  <input
+                    name="projectexception"
+                    value = {formData.projectexception}
+                    onChange={handleChange}
+                    className={StyleTextfield}
+                    type="text"
+                    required
+                  />
+                  {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="projecttype"
+                >
+                  Description
+                </label>
+                <div className="relative">
+                  <CKEditor
+                    onReady={ editor => {
+                          if (formData.description) {
+                            editor.setData(formData.description)
+                          }
+                      } }
+                    editor={ClassicEditor}                        
+                  />
+                    
+                    {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
+                </div>
+              </div>
+            </div>
+            <Button 
+              type="submit" 
+              className="mt-4 w-sm bg-primary"
+              disabled = {btnDisabled}
+            >
+                Save
+            </Button>
+          </form>
       </div>
-        
-        
-        
-      </form>
-    </div>
   );
 }
 

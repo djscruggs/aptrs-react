@@ -16,15 +16,12 @@ import { boolean } from 'zod';
 
 
 export function Companies() {
-  const [visible, toggleVisible] = useState<boolean>(false);
   const [companies, setCompanies] = useState<Company[]>();
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
   const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
   const [currentId, setCurrentId] = useState('')
   const [newCo, setNewCo] = useState(false);
-  let editing = false;
-  const navigate = useNavigate();
   const ref = useRef<HTMLDialogElement>(null);
   
   const handleModal = useCallback((id?: string) => {
@@ -64,7 +61,7 @@ export function Companies() {
     console.log('clearmodal')
     setNewCo(false)
     setCurrentId('')
-    editing = false;
+    // editing = false;
   }
   if(error){
     console.error(error)

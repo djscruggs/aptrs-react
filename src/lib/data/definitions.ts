@@ -29,6 +29,14 @@ export interface Company  {
   address?: string; 
 };
 
+export interface Customer  {
+  id?: number;
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  position?: string;
+  company?: string; 
+};
 
 export type ProjectScope = {
   id: number;
