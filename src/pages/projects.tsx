@@ -1,5 +1,6 @@
 import {Project} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { fetchProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
@@ -23,6 +24,12 @@ export function Projects(props:ProjectsProps): JSX.Element {
       }).catch((error) => {
         setError(error)})
   }, []);
+
+  const navigate = useNavigate();
+  const clickRow = (id: string) => {
+    navigate('/projects/' + id)
+  }
+
   if(error){
     console.error(error)
     return <ErrorPage />
@@ -30,7 +37,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   if(typeof projects == 'undefined'){
     return (<TableSkeleton />)
   }
-  console.log(props)
+  
   
   return(
     <>
@@ -74,17 +81,17 @@ export function Projects(props:ProjectsProps): JSX.Element {
                           <Link to={`/projects/${project.id}/delete`}><TrashIcon className="inline w-6 ml-2" /></Link>
                         </div>
                       }
-                      <div className="table-cell py-4 pl-2">
+                      <div className="table-cell py-4 pl-2" onClick={()=> clickRow(String(project.id))}>
                           {project.name}
                       </div>
-                      <div className="table-cell py-4 pl-2">
+                      <div className="table-cell py-4 pl-2" onClick={()=> clickRow(String(project.id))}>
                         {project.description.length > 50 ?
                             `${project.description.substring(0, 50)}...` : project.description}
                       </div>
-                      <div className="table-cell py-4 pl-2">
+                      <div className="table-cell py-4 pl-2" onClick={()=> clickRow(String(project.id))}>
                         {project.startdate}
                       </div>
-                      <div className="table-cell py-4 pl-2">
+                      <div className="table-cell py-4 pl-2" onClick={()=> clickRow(String(project.id))}>
                       {project.enddate}
                       </div>
                       

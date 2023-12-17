@@ -1,159 +1,139 @@
-import {Project} from '../lib/data/definitions'
-import { useEffect, useState } from 'react';
-import { fetchProjects } from "../lib/data/api";
-import { TableSkeleton } from '../components/skeletons'
-import ErrorPage from '../components/error-page'
-import PageTitle from '../components/page-title';
-import { Link } from 'react-router-dom';
+import React, { 
+  useState, 
+  useEffect,
+  ChangeEvent, 
+  FormEvent
+} from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import Button from '../components/button';
+import { FormSkeleton } from '../components/skeletons'
+import { fetchProject } from '../lib/data/api';
+import { Project } from '../lib/data/definitions'
+import "react-datepicker/dist/react-datepicker.css";
+import { ModalErrorMessage } from '../lib/formstyles';
+import { StyleLabel } from '../lib/formstyles';
 
 
-interface ProjectsProps {
-  pageTitle: string; 
-  hideActions?: boolean;
+
+
+interface ProjectViewProps {
+  id?: string; // Make the ID parameter optional
 }
-export function Projects(props:ProjectsProps): JSX.Element {
-  const [projects, setProjects] = useState<Project[]>();
-  const [error, setError] = useState();
+function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
+  const params = useParams()
+  const { id: routeId } = params;
+  const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
+  const [loading, setLoading] = useState(false);
+  const [project, setProject] = useState<Project>()
+  const [loadingError, setLoadingError] = useState(false);
+  
+  
   useEffect(() => {
-    fetchProjects()
-      .then((data) => {
-        setProjects(data as Project[]);
-      }).catch((error) => {
-        setError(error)})
-  }, []);
-  if(error){
-    console.error(error)
-    return <ErrorPage />
-  }
-  if(typeof projects == 'undefined'){
-    return (<TableSkeleton />)
-  }
-  
-  
-  return(
-    <>
-      {typeof(projects) == "object" && (
-        <PageTitle title={props.pageTitle} />
-      )}
-      {typeof(projects) == "object" &&
-        <div className="mt-6 flow-root">
-          <div className="inline-block min-w-full align-middle">
-            <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-              {typeof(projects) === "object" && projects.map((project: Project) => (
-                  <div
-                    key={project.id + "-mobile"}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{project.name}</p>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                        {project.description.length > 50 ?
-                          `${project.description.substring(0, 200)}...` : project.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{project.startdate}</p>
-                        </div>
-                        <p className="text-sm text-gray-500">{project.enddate}</p>
-                      </div>
-                    </div>
-                    
-                  </div>
-                  ))
-                }
-              </div>
-              <table className="hidden min-w-full text-gray-900 md:table">
-                <thead className="rounded-lg text-left text-sm font-normal">
-                  <tr>
-                    {!props.hideActions &&
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Action
-                    </th>
-                    }
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Id
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Description
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Start Date
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      End Date
-                    </th>
-                    
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                {typeof(projects) === "object"  && projects.map((project: Project) => (
-                    <tr
-                      key={project.id + "-web"}
-                      className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                    >
-                      {!props.hideActions &&
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                          <div className="flex items-center gap-3">
-                          
-                        
-                              <Link to={`/projects/${project.id}/edit`}><PencilSquareIcon className="w-6" /></Link>
-                              <Link to={`/projects/${project.id}/delete`}><TrashIcon className="w-6" /></Link>
-          
-                          </div>
-                        </td>
-                      }
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{project.id}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{project.name}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                      {project.description.length > 50 ?
-                          `${project.description.substring(0, 50)}...` : project.description}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {project.startdate}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                      {project.enddate}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {/* <InvoiceStatus status={invoice.status} /> */}
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-3">
-                          {/* <UpdateInvoice id={invoice.id} />
-                          <DeleteInvoice id={invoice.id} /> */}
-                        </div>
-                      </td>
-                    </tr>
-                   ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+    const loadData = async () => {
+      if (id) {
+        setLoading(true);
+        try {
+          const projectData = await fetchProject(id) as Project;
+          setProject(projectData as Project);
+        } catch (error) {
+          console.error("Error fetching project data:", error);
+          setLoadingError(true);
+          // Handle error fetching data
+        } finally {
+          setLoading(false);
+        }
       }
-    </>
-  )
+    };
+
+    loadData();
+  }, [id]);
+  
+  const navigate = useNavigate()
+  
+  if(loading) return <FormSkeleton numInputs={4}/>
+  if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
+
+
+  return (
+        <>
+          {typeof(project) == 'object' && (
+            <div className="max-w-lg flex-1 rounded-lg bg-white px-6 pb-4 pt-8">
+              <h1 className="mb-3 text-2xl">
+                Project Details
+              </h1>
+              <div className="w-full mb-4">
+                <label className={StyleLabel}>
+                  Name
+                </label>
+                
+                <div className="relative">
+                  {project.name}
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className={StyleLabel}>
+                  Type
+                </label>
+                <div className="relative">
+                  {project.projecttype}
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className={StyleLabel}>
+                  Company
+                </label>
+                <div className="relative">
+                  {project.companyname} 
+                </div>
+              </div>
+              <div className='grid grid-cols-2'>
+                <div className="mt-4">
+                  <label className={StyleLabel}>
+                    Start Date
+                  </label>
+                  <div className="relative">
+                    {project.startdate} 
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className={StyleLabel}>
+                    End Date
+                  </label>
+                  <div className="relative">
+                    {project.enddate}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className={StyleLabel}>
+                  Testing Type
+                </label>
+                <div className="relative">
+                  {project.testingtype}
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className={StyleLabel}>
+                  Project Exception
+                </label>
+                <div className="relative">
+                  {project.projectexception}
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className={StyleLabel} >
+                  Description
+                </label>
+                <div className="relative">
+                  {project.description}
+                </div>
+              </div>
+            </div>
+            )
+          }
+        </>
+  );
 }
 
-export default withAuth(Projects);
+export default withAuth(ProjectView);

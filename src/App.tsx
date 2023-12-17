@@ -8,7 +8,8 @@ import Login from './pages/login';
 import ErrorPage from './components/error-page';
 import Vulnerabilities from './pages/vulnerabilities';
 import Customers from './pages/customers';
-import Projects from './pages/projects';
+import Projects from './pages/projects'
+import ProjectView from './pages/project-view';
 import ProjectForm from './pages/project-form';
 import CompanyForm from './pages/company-form';
 import OldCompanyForm from './pages/old-company-form';
@@ -30,6 +31,7 @@ const App: React.FC = () => {
             <Route path="/companies" element={<Companies />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/projects" element={<Projects pageTitle='Projects'/>} />
+            <Route path="/projects/:id" element={<ProjectView />} />
             <Route path="/projects/:id/edit" element={<ProjectForm />} />
             <Route path="/companies/:id/edit" element={<CompanyForm />} />
             <Route path="/companies-old/:id/edit" element={<OldCompanyForm />} />

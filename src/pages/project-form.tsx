@@ -195,7 +195,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
               <div className="mt-4">
                 <label
                   className={StyleLabel}
-                  htmlFor="projecttype"
+                  htmlFor="companyname"
                 >
                   Company
                 </label>
@@ -301,7 +301,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
               <div className="mt-4">
                 <label
                   className={StyleLabel}
-                  htmlFor="projecttype"
+                  htmlFor="description"
                 >
                   Description
                 </label>
