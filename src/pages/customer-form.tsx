@@ -2,9 +2,11 @@ import React, {
   useState, 
   useEffect,
   ChangeEvent, 
-  FormEvent
+  FormEvent,
+  useContext,
+  RefObject
 } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
@@ -17,6 +19,7 @@ import { FormSkeleton } from '../components/skeletons'
 import { fetchCustomer } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
+import { ModalContext } from '../lib/modalcontext';
 
 interface FormErrors {
   name?: {
@@ -38,16 +41,15 @@ interface FormErrors {
 
 interface CustomerFormProps {
   id?: string; // Make the ID parameter optional
-  isModal?: boolean
+  forwardedRef?: RefObject<HTMLDialogElement>
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>
 }
-function CustomerForm({ id: externalId, isModal: isModal }: CustomerFormProps): JSX.Element {
-  const params = useParams()
-  const { id: routeId } = params;
-  const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
+function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerFormProps): JSX.Element {
+  const [id, setId] = useState(externalId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  const [hideSelf, setHideSelf] = useState(false)
+  
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Customer>({
     name: '',
@@ -85,9 +87,11 @@ function CustomerForm({ id: externalId, isModal: isModal }: CustomerFormProps): 
       [name]: value,
     }));
   };
-  const navigate = useNavigate()
-  const handleCancel = () =>  {
-    navigate(-1)
+  const CloseModal = () =>  {
+    setId('')
+    if(forwardedRef?.current ) {
+      forwardedRef.current.close()
+    }
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
@@ -106,7 +110,10 @@ function CustomerForm({ id: externalId, isModal: isModal }: CustomerFormProps): 
     } else {
       try {
         const response = await upsertCustomer(formData as Customer);
-        
+        if(setRefresh){
+          setRefresh(true)
+        }
+        CloseModal()
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -128,7 +135,7 @@ function CustomerForm({ id: externalId, isModal: isModal }: CustomerFormProps): 
         {id ? "Edit" : "Create"} Customer
       </h1>
       {saveError && <FormErrorMessage message={saveError} />}
-      <form onSubmit={handleSubmit} id="projectForm" method="POST">
+      <form onSubmit={handleSubmit} id="customerForm" method="POST">
         {/* Form inputs */}
         <div className="w-full mb-4">
           <div>
@@ -238,14 +245,14 @@ function CustomerForm({ id: externalId, isModal: isModal }: CustomerFormProps): 
                 type="submit">
                   Save
               </Button>
-              {!isModal &&
-                <Button 
-                  className="bg-red-500 ml-1"
-                  onClick = {handleCancel}
-                  disabled={btnDisabled}>
-                    Cancel
-                </Button>
-              } 
+              <Button 
+                type="button"
+                className="bg-red-500 ml-1"
+                onClick = {CloseModal}
+                disabled={btnDisabled}>
+                  Cancel
+              </Button>
+               
           </div>
       </div>
         

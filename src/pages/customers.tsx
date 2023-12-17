@@ -3,8 +3,9 @@ import {
         useEffect, 
         useState, 
         useRef, 
-        useCallback, 
-        useContext } from 'react';
+        useCallback,
+        useContext, 
+        createContext } from 'react';
 import { fetchCustomers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
@@ -15,58 +16,73 @@ import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
 import { Modal } from 'react-daisyui'
+import { ModalContext } from '../lib/modalcontext';
 
 // import CompanyForm from './customer-form';
 
 
+
 export function Customers() {
-  console.log('top of customers')
-  const [customers, setCustomers] = useState<Customer[]>();
-  const [error, setError] = useState();
-  const [allChecked, setAllChecked] = useState(false);
-  const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
-  const [currentId, setCurrentId] = useState('')
-  const [newCustomer, setNewCustomer] = useState(false);
-  const ref = useRef<HTMLDialogElement>(null);
   
-  const handleModal = useCallback((id?: string) => {
-    if(id) setCurrentId(id)
-    if (!id) setNewCustomer(true)
-    // Use the "id" parameter as needed in your function
+  
+  
+  /* MODAL CREATING AND HANDLING */
+  const [currentId, setCurrentId] = useState('') //id of the object to be edited in modal
+  const [refresh, setRefresh] = useState(false);
+  const ref = useRef<HTMLDialogElement>(null);
+  const openModal = useCallback((id: string ='') => {
+    setCurrentId(id)
+    setIsModalOpen(true)
+    setShow(true)
     ref.current?.showModal();
   }, [ref]);
+  
+  const clearModal = () => {
+    setCurrentId('')
+    setIsModalOpen(false);
+  }
+  const { show, setShow } = useContext(ModalContext);
+  const [isModalOpen, setIsModalOpen] = useState(show);
+
+  const showModalOpen = {
+    show: isModalOpen,
+    setShow: setIsModalOpen,
+    toggleModal: clearModal
+  };
+  useEffect(() => {
+    setIsModalOpen(show);
+  }, [show]);
+  
+  
+  const handleNew = () => {
+    // navigate('/customers/new')
+    
+    openModal('')
+  }
+  /* FETCH OF DATA TO RENDER */
+  const [customers, setCustomers] = useState<Customer[]>();
+  const [error, setError] = useState();
   useEffect(() => {
     fetchCustomers()
       .then((data) => {
         setCustomers(data as Customer[]);
       }).catch((error) => {
         setError(error)})
-  }, []);
-  const clearModal = () => {
-    setNewCustomer(false)
-    setCurrentId('')
+    setRefresh(false)
+  }, [refresh]);
+  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    alert('not implemented yet')
+    
   }
-  if(error){
-    console.error(error)
-    return <ErrorPage />
-  }
-  if(typeof customers == 'undefined'){
-    return (<TableSkeleton />)
-  }
+  /* UI HANDLERS FOR CHECKBOXES */
+  const [allChecked, setAllChecked] = useState(false);
+  const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
   const handleMultiCheckbox = () => {
     setAllChecked(!allChecked);
     if(!allChecked){
       setItemChecked([])
     }
-  }
-  const handleNew = () => {
-    // navigate('/customers/new')
-    handleModal('')
-  }
-  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    alert('not implemented yet')
-    
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
@@ -86,29 +102,36 @@ export function Customers() {
       })
     }
     setItemChecked(newChecked)
-    
   }
-  
-  
-  
+   /* RENDERING IF ERROR OR STILL LOADING */
+   if(error){
+    console.error(error)
+    return <ErrorPage />
+  }
+  if(typeof customers == 'undefined'){
+    return (<TableSkeleton />)
+  }
   return(
     <>
       {typeof(customers) == "object" && (
         <PageTitle title='Customers' />
       )}
       {/* modal content */}
-      <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
-        <form method="dialog" onSubmit={clearModal}>
-          <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-            <span className="text-gray-400 hover:text-white-900">x</span>
-          </Button>
-        </form>
-        <Modal.Body>
-          {currentId && <CustomerForm id={currentId} isModal={true}/>}
-          {newCustomer && <CustomerForm isModal={true}/>}
-        
-        </Modal.Body>
-      </Modal>
+      
+      <ModalContext.Provider value = {showModalOpen}>
+          <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
+            <form method="dialog" onSubmit={clearModal}>
+              <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                <span className="text-gray-400 hover:text-white-900">x</span>
+              </Button>
+            </form>
+            <Modal.Body>
+            {currentId   && <CustomerForm id={currentId} forwardedRef={ref} setRefresh={setRefresh}/>}
+            {!currentId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh}/>}
+            </Modal.Body>
+          </Modal>
+      </ModalContext.Provider>
+      
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Customer
@@ -195,7 +218,7 @@ export function Customers() {
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex items-center gap-3">
                             
-                            <div className='underline cursor-pointer' onClick={() => handleModal(String(customer.id))}>edit</div>
+                            <div className='underline cursor-pointer' onClick={() => openModal(String(customer.id))}>edit</div>
 
                             <Link to={`/customers/${customer.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
                         </div>
