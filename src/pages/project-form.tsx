@@ -308,10 +308,8 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                 <div className="relative">
                   <CKEditor
                     onReady={ editor => {
-                          if (formData.description) {
-                            editor.setData(formData.description)
-                          }
-                      } }
+                          if (formData.description) editor.setData(formData.description)
+                      }}
                     editor={ClassicEditor}                        
                   />
                     

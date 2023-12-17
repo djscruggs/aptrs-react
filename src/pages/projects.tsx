@@ -6,12 +6,14 @@ import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+
 
 interface ProjectsProps {
-  pageTitle: string; // Make the ID parameter optional
+  pageTitle: string; 
+  hideActions?: boolean;
 }
-export function Projects(props: {pageTitle:string}): JSX.Element {
-  console.log(props)
+export function Projects(props:ProjectsProps): JSX.Element {
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
   useEffect(() => {
@@ -28,7 +30,7 @@ export function Projects(props: {pageTitle:string}): JSX.Element {
   if(typeof projects == 'undefined'){
     return (<TableSkeleton />)
   }
-  
+  console.log(props)
   
   return(
     <>
@@ -39,111 +41,58 @@ export function Projects(props: {pageTitle:string}): JSX.Element {
         <div className="mt-6 flow-root">
           <div className="inline-block min-w-full align-middle">
             <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-              {typeof(projects) === "object" && projects.map((project: Project) => (
-                  <div
-                    key={project.id + "-mobile"}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{project.name}</p>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                        {project.description.length > 50 ?
-                          `${project.description.substring(0, 200)}...` : project.description}
-                        </p>
+              <div className="table w-full text-gray-900 md:table">
+                <div className="table-header-group rounded-lg text-left text-sm">
+                  <div className="table-row">
+                    {!props.hideActions &&
+                      <div className="table-cell text-left"> 
+                        Action
                       </div>
-                      {/* <InvoiceStatus status={invoice.status} /> */}
-                    </div>
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{project.startdate}</p>
-                        </div>
-                        <p className="text-sm text-gray-500">{project.enddate}</p>
-                      </div>
-                    </div>
-                    
-                  </div>
-                  ))
-                }
-              </div>
-              <table className="hidden min-w-full text-gray-900 md:table">
-                <thead className="rounded-lg text-left text-sm font-normal">
-                  <tr>
-                  <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Action
-                    </th>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Id
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    }
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Description
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Start Date
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       End Date
-                    </th>
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                {typeof(projects) === "object"  && projects.map((project: Project) => (
-                    <tr
+                    </div>
+                  </div>
+                </div>
+                <div className="table-row-group">
+                  {typeof(projects) === "object"  && projects.map((project: Project) => (
+                    <div className="table-row py-4 pl-2 bg-white cursor-pointer"
                       key={project.id + "-web"}
-                      className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                     >
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          
-                            <Link to={`/projects/${project.id}/edit`}>edit</Link>
-        
+                      {!props.hideActions &&
+                        <div className="table-cell py-4 pl-2">
+                          <Link to={`/projects/${project.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
+                          <Link to={`/projects/${project.id}/delete`}><TrashIcon className="inline w-6 ml-2" /></Link>
                         </div>
-                      </td>
-
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{project.id}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{project.name}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                      {project.description.length > 50 ?
-                          `${project.description.substring(0, 50)}...` : project.description}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
+                      }
+                      <div className="table-cell py-4 pl-2">
+                          {project.name}
+                      </div>
+                      <div className="table-cell py-4 pl-2">
+                        {project.description.length > 50 ?
+                            `${project.description.substring(0, 50)}...` : project.description}
+                      </div>
+                      <div className="table-cell py-4 pl-2">
                         {project.startdate}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
+                      </div>
+                      <div className="table-cell py-4 pl-2">
                       {project.enddate}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {/* <InvoiceStatus status={invoice.status} /> */}
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-3">
-                          {/* <UpdateInvoice id={invoice.id} />
-                          <DeleteInvoice id={invoice.id} /> */}
-                        </div>
-                      </td>
-                    </tr>
+                      </div>
+                      
+                    </div>
                    ))
                   }
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
