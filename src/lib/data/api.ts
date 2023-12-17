@@ -51,7 +51,7 @@ export async function fetchCustomer(id: string | undefined) {
   }
 }
 export async function upsertCustomer(formData: Company): Promise<any> {
-  let url = apiUrl(`customer/customer/add`);
+  let url = apiUrl(`customer/customer/add/`);
   
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/customer/edit/${formData['id']}/`);

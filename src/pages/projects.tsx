@@ -7,8 +7,11 @@ import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 
-
-export function Projects() {
+interface ProjectsProps {
+  pageTitle: string; // Make the ID parameter optional
+}
+export function Projects(props: {pageTitle:string}): JSX.Element {
+  console.log(props)
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
   useEffect(() => {
@@ -30,7 +33,7 @@ export function Projects() {
   return(
     <>
       {typeof(projects) == "object" && (
-        <PageTitle title='Projects' />
+        <PageTitle title={props.pageTitle} />
       )}
       {typeof(projects) == "object" &&
         <div className="mt-6 flow-root">

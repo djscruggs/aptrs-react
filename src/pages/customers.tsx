@@ -118,7 +118,7 @@ export function Customers() {
       )}
       {/* modal content */}
       
-      <ModalContext.Provider value = {showModalOpen}>
+      
           <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
             <form method="dialog" onSubmit={clearModal}>
               <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
@@ -130,7 +130,7 @@ export function Customers() {
             {!currentId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh}/>}
             </Modal.Body>
           </Modal>
-      </ModalContext.Provider>
+      
       
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>

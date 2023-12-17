@@ -1,4 +1,5 @@
 import { withAuth } from "../lib/authutils";
+import { Projects } from "./projects";
 
 import { DashboardSkeleton } from '../components/skeletons';
 const Dashboard = () => {
@@ -16,7 +17,7 @@ const Dashboard = () => {
         <input className="p-2 border-2 border-gray-400 rounded-md" type="text" onClick={searchBar} placeholder="Search..." size={50}></input>
       </div>
       <div className="w-fullx">
-        <DashboardSkeleton />
+        <Projects pageTitle=''/>
       </div>
         
             
