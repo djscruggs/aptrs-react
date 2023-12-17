@@ -3,23 +3,20 @@ import React, {
   useEffect,
   ChangeEvent, 
   FormEvent,
-  useContext,
   RefObject
 } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
-import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { fetchCustomer } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
-import { ModalContext } from '../lib/modalcontext';
+import toast from 'react-hot-toast';
 
 interface FormErrors {
   name?: {
@@ -81,7 +78,9 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
     loadData();
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    
     const { name, value } = event.target;
+    console.log(name, value)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
@@ -110,6 +109,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
     } else {
       try {
         const response = await upsertCustomer(formData as Customer);
+        toast.success('Customer saved.')
         if(setRefresh){
           setRefresh(true)
         }
@@ -130,7 +130,6 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
 
   return (
     <div className="max-w-lg flex-1 rounded-lg">
-      
       <h1 className="mb-3 text-2xl">
         {id ? "Edit" : "Create"} Customer
       </h1>
@@ -145,7 +144,6 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
             >
               Name
             </label>
-            
             <div className="relative">
               <input
                 name="name"
@@ -215,7 +213,6 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
               {errors.company?.message && <FormErrorMessage message={errors.company.message as string} />} 
             </div>
           </div>
-          
           <div className="mt-4">
             <label
               className={StyleLabel}
@@ -225,6 +222,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
             </label>
             <div className="relative">
               <input
+                name="position"
                 value = {formData.position}
                 onChange={handleChange}
                 className={StyleTextfield}
@@ -234,9 +232,8 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
               {errors.position?.message && <FormErrorMessage message={errors.position.message as string} />} 
             </div>
           </div>
+          
         </div>
-        {/* Submit button */}
-        
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">
                 <Button 
@@ -252,15 +249,11 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
                 disabled={btnDisabled}>
                   Cancel
               </Button>
-               
           </div>
-      </div>
-        
-        
-        
+        </div>
       </form>
     </div>
   );
 }
 
-export default withAuth(CustomerForm);
+export default CustomerForm;
