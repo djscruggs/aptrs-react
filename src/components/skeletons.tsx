@@ -82,7 +82,6 @@ export function RowSkeleton() {
 }
 
 export function TableSkeleton() {
-  console.log('table')
   return (
     <div
       className={`${shimmer} relative flex w-full flex-col overflow-hidden md:col-span-4 lg:col-span-4`}

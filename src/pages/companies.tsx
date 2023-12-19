@@ -4,15 +4,12 @@ import { fetchCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
-import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
-import { useNavigate } from "react-router-dom";
 import CompanyForm from './company-form';
 import { Modal } from 'react-daisyui'
-import { boolean } from 'zod';
-// import CompanyForm from './company-form';
+import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 
 export function Companies() {
@@ -45,8 +42,6 @@ export function Companies() {
     setShowModal(false);
   }
   const handleNew = () => {
-    // navigate('/customers/new')
-    
     openModal('')
   }
   
@@ -74,29 +69,37 @@ export function Companies() {
     }
   }
   
-  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const handleDelete = (id:string) => {
     alert('not implemented yet')
-    
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
+    console.log('search is ', search)
     let checked = event.currentTarget.checked
+    console.log('checked is ', checked)
     let newChecked: any = []
+    console.log(itemChecked)
     if(itemChecked.length === 0 && checked){
+      console.log('empty & pushing')
       newChecked.push(Number(search))
     } else {
+      console.log('searching for ', search)
       itemChecked.forEach((id) => {
         if(id === search){
           if(checked){
-            newChecked.push(id)
+            console.log('checked and pushing')
+            newChecked.push(search)
+          } else {
+            console.log('NOT checked')
           }
-        } else {
-          newChecked.push(id)
         }
+        console.log('bottom of foreach')
+        console.log(newChecked)
       })
     }
     setItemChecked(newChecked)
+    console.log('new state')
+    console.log(newChecked)
     
   }
   
@@ -131,93 +134,73 @@ export function Companies() {
             Delete
          </Button>
         }
-        
-      {typeof(companies) == "object" &&
+        <div className="mt-6 flow-root min-w-full">
           <div className="inline-block min-w-full align-middle">
             <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <table className="table zebra">
-                <thead className="rounded-lg text-left text-sm font-normal">
-                  <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+              <div className="table w-full text-gray-900 md:table">
+                <div className="table-header-group rounded-lg text-left text-sm">
+                  <div className="table-row">
+                    <div className="table-cell text-left pl-2 py-2"> 
                     <input
                       id="selectAll"
                       type="checkbox"
                       checked = {allChecked}
                       onChange={handleMultiCheckbox}
-                      className={StyleCheckbox}
+                      className={`${StyleCheckbox} align-bottom`}
                     />
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Action
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
-                      Id
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Address
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
+                    </div>
+                    <div className="table-cell text-left py-4 pl-2"> 
                       Logo
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                {typeof(companies) == "object"  && companies.map((company: Company) => (
-                    <tr
-                      key={company.id + "-web"}
-                      className="hover w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                    >
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    </div>
+                  </div>
+                </div>
+                {typeof(companies) == "object" &&
+                  <div className="table-row-group">
+                    {typeof(companies) === "object"  && companies.map((company: Company) => (
+                      <div className="table-row py-4 pl-2 bg-white cursor-pointer" key={company.id + "-web"}>
+                        <div className="table-cell py-4 pl-2">
                         <input
-                          id={"select-" + company.id + "-web"}
-                          type="checkbox"
-                          checked = {allChecked || itemChecked.includes(company.id)}
-                          value= {company.id}
-                          onChange={handleItemCheckbox}
-                          className={StyleCheckbox}
-                        />
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                            
-                            <div className='underline cursor-pointer' onClick={() => openModal(String(company.id))}>edit</div>
-
-                            <Link to={`/companies/${company.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
+                            id={"select-" + company.id + "-web"}
+                            type="checkbox"
+                            checked = {allChecked || itemChecked.includes(company.id)}
+                            value= {company.id}
+                            onChange={handleItemCheckbox}
+                            className={`${StyleCheckbox} align-bottom`}
+                          />
                         </div>
-                      </td>
-
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{company.id}</p>
+                        <div className="table-cell py-4 pl-2">
+                          <PencilSquareIcon className="inline w-6 cursoer-pointer" onClick={() => openModal(String(company.id))}/>
+                          <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={() => handleDelete(String(company.id))}/>
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{company.name}</p>
+                        
+                        <div className="table-cell py-4 pl-2">
+                            {company.name}
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
+                        <div className="table-cell py-4 pl-2">
                           {company.address}
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          {/* {company.img} */}
+                        <div className="table-cell py-4 pl-2">
+                          {company.img}
                         </div>
-                      </td>
-                      
-                    </tr>
-                   ))
-                  }
-                </tbody>
-              </table>
+                        
+                      </div>
+                    ))
+                    }
+                  </div>
+                }                  
+              </div>
             </div>
           </div>
-      }
+        </div>
       </div>
     </>
   )
