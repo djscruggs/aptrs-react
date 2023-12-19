@@ -20,49 +20,46 @@ export function Companies() {
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
   const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
-  const [currentId, setCurrentId] = useState('')
-  const [newCo, setNewCo] = useState(false);
+  //modal state variables
+  const [companyId, setCompanyId] = useState('')
+  const [refresh, setRefresh] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
   const ref = useRef<HTMLDialogElement>(null);
   
-  const handleModal = useCallback((id?: string) => {
-    if(id) setCurrentId(id)
-    if (!id) setNewCo(true)
-    const handleEsc = (event: KeyboardEvent) => {
-      //when they hit escape make sure to call clearModal
-      // console.log('keypress, editing is ', editing) 
-      // if (event.key === 'Escape') {
-      //   console.log('ESC called, editing is ', editing) 
-      //   if(editing){
-      //     var c = confirm("Discard changes?");
-      //     if(!c){
-      //       return null;
-      //     }
-      //   } 
-      //   clearModal()
-      // } else {
-      //   console.log('setting editing  to true') 
-      // //set that they are editing
-      //   editing =true;
-      // }
-      // console.log('now editins is ', editing)
-    }
-    window.addEventListener('keydown', handleEsc);
-    // Use the "id" parameter as needed in your function
+  const openModal = useCallback((id: string ='') => {
+    setCompanyId(id)
+    setShowModal(true)
     ref.current?.showModal();
+    
   }, [ref]);
+  useEffect(() => {
+    if(showModal){
+      ref.current?.showModal()
+    } else {
+      ref.current?.close()
+    }
+  },[showModal])
+  const clearModal = () => {
+    setCompanyId('')
+    setShowModal(false);
+  }
+  const handleNew = () => {
+    // navigate('/customers/new')
+    
+    openModal('')
+  }
+  
+  
+ 
   useEffect(() => {
     fetchCompanies()
       .then((data) => {
         setCompanies(data as Company[]);
       }).catch((error) => {
         setError(error)})
-  }, []);
-  const clearModal = () => {
-    console.log('clearmodal')
-    setNewCo(false)
-    setCurrentId('')
-    // editing = false;
-  }
+      setRefresh(false)
+  }, [refresh]);
   if(error){
     console.error(error)
     return <ErrorPage />
@@ -76,10 +73,7 @@ export function Companies() {
       setItemChecked([])
     }
   }
-  const handleNew = () => {
-    // navigate('/companies/new')
-    handleModal('')
-  }
+  
   const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     alert('not implemented yet')
@@ -114,18 +108,20 @@ export function Companies() {
         <PageTitle title='Companies' />
       )}
       {/* modal content */}
-      <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
-        <form method="dialog" onSubmit={clearModal}>
-          <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-            <span className="text-gray-400 hover:text-white-900">x</span>
-          </Button>
-        </form>
-        <Modal.Body>
-          {currentId && <CompanyForm id={currentId} isModal={true}/>}
-          {newCo && <CompanyForm isModal={true}/>}
-        
-        </Modal.Body>
-      </Modal>
+        {showModal &&
+        <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
+          <form method="dialog" onSubmit={clearModal}>
+            <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+              <span className="text-gray-400 hover:text-white-900">x</span>
+            </Button>
+          </form>
+          <Modal.Body>
+          {companyId   && <CompanyForm id={companyId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {!companyId && <CompanyForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          </Modal.Body>
+        </Modal>
+        }
+        {/* END modal content */}
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Company
@@ -139,25 +135,6 @@ export function Companies() {
       {typeof(companies) == "object" &&
           <div className="inline-block min-w-full align-middle">
             <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-              {typeof(companies) == "object" && companies.map((company: Company) => (
-                  <div
-                    key={company.id + "-mobile"}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{company.name}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    
-                  </div>
-                  ))
-                }
-              </div>
               <table className="table zebra">
                 <thead className="rounded-lg text-left text-sm font-normal">
                   <tr>
@@ -206,7 +183,7 @@ export function Companies() {
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex items-center gap-3">
                             
-                            <div className='underline cursor-pointer' onClick={() => handleModal(String(company.id))}>edit</div>
+                            <div className='underline cursor-pointer' onClick={() => openModal(String(company.id))}>edit</div>
 
                             <Link to={`/companies/${company.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
                         </div>
@@ -229,7 +206,7 @@ export function Companies() {
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex items-center gap-3">
-                          {company.img}
+                          {/* {company.img} */}
                         </div>
                       </td>
                       

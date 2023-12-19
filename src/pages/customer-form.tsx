@@ -80,8 +80,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         editing = true;
       }
     }
-    // function handleSelectEvent
-
     //set flag to true if an input eleent
     function handleInputChange(e: Event){
       editing = true;
@@ -92,7 +90,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     return function cleanup() {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("change", handleInputChange);
-      // document.removeEventListener("change", handleKeyDown);
     };
   }, []);
 

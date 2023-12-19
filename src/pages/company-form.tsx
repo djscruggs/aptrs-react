@@ -2,7 +2,8 @@ import React, {
   useState, 
   useEffect,
   ChangeEvent, 
-  FormEvent
+  FormEvent,
+  RefObject
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -17,6 +18,7 @@ import { FormSkeleton } from '../components/skeletons'
 import { fetchCompany } from '../lib/data/api';
 import { upsertCompany} from '../lib/data/api';
 import { Company } from '../lib/data/definitions'
+import toast from 'react-hot-toast';
 interface FormErrors {
   name?: {
     message: string;
@@ -28,14 +30,15 @@ interface FormErrors {
     message: string;
   };
 }
+
 interface CompanyFormProps {
   id?: string; // Make the ID parameter optional
-  isModal?: boolean
+  forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
+  onClose: () => void;
 }
-function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JSX.Element {
-  const params = useParams()
-  const { id: routeId } = params;
-  const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
+function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: CompanyFormProps): JSX.Element {
+  const [id, setId] = useState(companyId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
@@ -43,10 +46,39 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
   const [formData, setFormData] = useState<Company>({
     name: '',
     address: '',
-    img: '',
+    // img: '',
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
+  
+  useEffect(() => {
+    let editing: Boolean; //flag to track whether the form has been edited
+    function handleKeyDown(e: KeyboardEvent) {
+      if(e.key == 'Escape') {
+        e.preventDefault()
+        if(editing){
+          if(!confirm('Quit without saving?')){
+            return null;
+          }
+        } 
+        closeModal()
+      //if it's an input element, set editing to true
+      } else if(e.target?.toString().includes('HTMLInput')) {
+        editing = true;
+      }
+    }
+    //set flag to true if an input eleent
+    function handleInputChange(e: Event){
+      editing = true;
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("change", handleInputChange);
+
+    return function cleanup() {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("change", handleInputChange);
+    };
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -54,6 +86,7 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
         setLoading(true);
         try {
           const companyData = await fetchCompany(id) as Company;
+          
           setFormData(companyData);
         } catch (error) {
           console.error("Error fetching company data:", error);
@@ -75,29 +108,33 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
     }));
   };
   const navigate = useNavigate()
-  const handleCancel = () =>  {
-    navigate(-1)
+  const closeModal = () =>  {
+    setId('')
+    if(forwardedRef?.current ) {
+      forwardedRef.current.close()
+    }
+    onClose()
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
-    console.log(event)
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
     if (formData.name && formData.name.length < 3) {
       newErrors.name = { message: 'Name should be at least three characters' };
     }
-    // Add more validation for other fields if needed
-      
-    console.log('Form submitted:', formData);
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
-      console.log('Form failed validation:', newErrors);
+      console.error('Form failed validation:', newErrors);
     } else {
       try {
         const response = await upsertCompany(formData as Company);
-        console.log('Form submitted successfully:', response);
+        toast.success('Compay saved.')
+        if(setRefresh){
+          setRefresh(true)
+        }
+        closeModal()
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -163,7 +200,7 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
               htmlFor="img">
               Image
           </label>
-          <div className="relative">
+          {/* <div className="relative">
             <input
               name="img"
               className={StyleTextfield}
@@ -172,7 +209,7 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
               type="text"
             />
             {errors.img?.message && <FormErrorMessage message={errors.img.message} />}
-          </div>
+          </div> */}
         </div>
         {/* Submit button */}
         
@@ -184,14 +221,12 @@ function CompanyForm({ id: externalId, isModal: isModal }: CompanyFormProps): JS
                 type="submit">
                   Save
               </Button>
-              {!isModal &&
-                <Button 
-                  className="bg-red-500 ml-1"
-                  onClick = {handleCancel}
-                  disabled={btnDisabled}>
-                    Cancel
-                </Button>
-              } 
+              <Button 
+                className="bg-red-500 ml-1"
+                onClick = {closeModal}
+                disabled={btnDisabled}>
+                  Cancel
+              </Button>
           </div>
       </div>
         
