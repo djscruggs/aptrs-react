@@ -1,4 +1,3 @@
-import {Customer, Column} from '../lib/data/definitions'
 import { 
         useEffect, 
         useState, 
@@ -8,14 +7,15 @@ import { fetchCustomers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
-import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
 import { Modal } from 'react-daisyui'
-
+import {Customer, Column} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
+
+
 
 export function Customers() {
   
@@ -24,7 +24,7 @@ export function Customers() {
   /* MODAL CREATING AND HANDLING */
   const [customerId, setCustomerId] = useState('') //id of the object to be edited in modal
   const [refresh, setRefresh] = useState(false);
-  const [showDelete, setShowDelete] = useState(false); //flag to who delete button
+  const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
   const ref = useRef<HTMLDialogElement>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -60,7 +60,7 @@ export function Customers() {
     fetchCustomers()
       .then((data) => {
         let temp: any = []
-        data.forEach((row: CustomerWithActions, index: number) => {
+        data.forEach((row: CustomerWithActions) => {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
                         
@@ -151,20 +151,19 @@ export function Customers() {
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Customer
         </Button>
-          <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" disabled={showDelete}>
-            Delete
-          </Button>
-        
+        <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" disabled={showDelete}>
+          Delete
+        </Button>
         {typeof(customers) == "object" &&
-        <DataTable
-            columns={columns}
-            data={customers}
-            selectableRows
-            pagination
-            striped
-            onSelectedRowsChange={handleSelectedChange}
-        />
-      }
+          <DataTable
+              columns={columns}
+              data={customers}
+              selectableRows
+              pagination
+              striped
+              onSelectedRowsChange={handleSelectedChange}
+          />
+        }
       </div>
     </>
   )

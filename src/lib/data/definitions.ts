@@ -65,4 +65,5 @@ export type Column = { //used for data tables
   selector: (row: any) => any;
   sortable?: boolean
   maxWidth?: string
+  omit?: boolean
 };
