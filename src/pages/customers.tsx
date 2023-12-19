@@ -1,4 +1,4 @@
-import {Customer} from '../lib/data/definitions'
+import {Customer, Column} from '../lib/data/definitions'
 import { 
         useEffect, 
         useState, 
@@ -10,14 +10,12 @@ import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
-import { StyleCheckbox } from '../lib/formstyles';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
 import { Modal } from 'react-daisyui'
 
-// import CompanyForm from './customer-form';
-
-
+import DataTable from 'react-data-table-component';
 
 export function Customers() {
   
@@ -26,6 +24,7 @@ export function Customers() {
   /* MODAL CREATING AND HANDLING */
   const [customerId, setCustomerId] = useState('') //id of the object to be edited in modal
   const [refresh, setRefresh] = useState(false);
+  const [showDelete, setShowDelete] = useState(false); //flag to who delete button
   const ref = useRef<HTMLDialogElement>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -47,57 +46,76 @@ export function Customers() {
     setCustomerId('')
     setShowModal(false);
   }
-  
-  
   const handleNew = () => {
-    // navigate('/customers/new')
-    
     openModal('')
   }
   /* FETCH OF DATA TO RENDER */
-  const [customers, setCustomers] = useState<Customer[]>();
+  //CustomerWithActions is a type of customer that allows appending an actions column for use in the table view
+  const [customers, setCustomers] = useState<CustomerWithActions[]>();
   const [error, setError] = useState();
+  interface CustomerWithActions extends Customer {
+    actions: JSX.Element;
+  }
   useEffect(() => {
     fetchCustomers()
       .then((data) => {
-        setCustomers(data as Customer[]);
+        let temp: any = []
+        data.forEach((row: CustomerWithActions, index: number) => {
+          row.actions = (<>
+                        <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
+                        
+                        <TrashIcon onClick={() => handleDelete(String(row.id))} className="inline w-6 ml-2 cursor-pointer" />                        
+                        </>)
+          temp.push(row)
+        });
+        
+        setCustomers(temp as CustomerWithActions[]);
       }).catch((error) => {
         setError(error)})
     setRefresh(false)
   }, [refresh]);
-  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  
+  
+  const columns: Column[] = [
+    {
+      name: 'Action',
+      selector: (row: any) => row.actions,
+      maxWidth: '5em'
+    },
+    {
+      name: 'Name',
+      selector: (row: Customer) => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Company',
+      selector: (row: Customer) => row.company,
+      sortable: true,
+    },
+    {
+      name: 'Position',
+      selector: (row: Customer) => row.position,
+      sortable: true,
+    },
+    {
+      name: 'Email',
+      selector: (row: Customer) => row.email,
+    },
+    {
+      name: 'Phone',
+      selector: (row: Customer) => row.phoneNumber,
+    },
+  ];
+  
+  const handleDelete = (id: string) => {
+    console.log("deleting id ",id)
     alert('not implemented yet')
     
   }
-  /* UI HANDLERS FOR CHECKBOXES */
-  const [allChecked, setAllChecked] = useState(false);
-  const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
-  const handleMultiCheckbox = () => {
-    setAllChecked(!allChecked);
-    if(!allChecked){
-      setItemChecked([])
-    }
+  const handleSelectedChange = (event: any) => {
+    setShowDelete(event.selectedCount == 0)
   }
-  const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
-    let search = Number(event.currentTarget.value)
-    let checked = event.currentTarget.checked
-    let newChecked = [...itemChecked]
-    if(itemChecked.length === 0 && checked){
-      console.log('empty & pushing')
-      newChecked.push(Number(search))
-    } else if(checked) {
-      if(!itemChecked.includes(search)){
-          newChecked.push(search)
-      }
-    } else {
-      const index = newChecked.indexOf(search);
-      if(index !== -1){
-        newChecked.splice(index, 1);
-      }
-    }
-    setItemChecked(newChecked)
-  }
+  
    /* RENDERING IF ERROR OR STILL LOADING */
    if(error){
     console.error(error)
@@ -128,137 +146,24 @@ export function Customers() {
         }
         {/* END modal content */}
       
-      
+        
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Customer
         </Button>
-        {(allChecked || itemChecked.length > 0)  &&
-          <Button className="btn btn-error float-right m-2 mr-0">
+          <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" disabled={showDelete}>
             Delete
-         </Button>
-        }
+          </Button>
         
-      {typeof(customers) == "object" &&
-          <div className="inline-block min-w-full align-middle">
-            <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-              {typeof(customers) == "object" && customers.map((customer: Customer) => (
-                  <div
-                    key={customer.id + "-mobile"}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <p>{customer.name}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    
-                  </div>
-                  ))
-                }
-              </div>
-              <table className="table zebra">
-                <thead className="rounded-lg text-left text-sm font-normal">
-                  <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                    <input
-                      id="selectAll"
-                      type="checkbox"
-                      checked = {allChecked}
-                      onChange={handleMultiCheckbox}
-                      className={StyleCheckbox}
-                    />
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
-                      Action
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium sm:pl-6">
-                      Id
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Position
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Company
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Email
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Phone
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                {typeof(customers) == "object"  && customers.map((customer: Customer) => (
-                    <tr
-                      key={customer.id + "-web"}
-                      className="hover w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                    >
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <input
-                          id={"select-" + customer.id + "-web"}
-                          type="checkbox"
-                          checked = {allChecked || itemChecked.includes(customer.id)}
-                          value= {customer.id}
-                          onChange={handleItemCheckbox}
-                          className={StyleCheckbox}
-                        />
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                            
-                            <div className='underline cursor-pointer' onClick={() => openModal(String(customer.id))}>edit</div>
-
-                            <Link to={`/customers/${customer.id}/delete`} onClick={handleDelete} className='underline'>delete</Link>
-                        </div>
-                      </td>
-
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{customer.id}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <p>{customer.name}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          {customer.position}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          {customer.company}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          {customer.email}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          {customer.phoneNumber}
-                        </div>
-                      </td>
-                      
-                    </tr>
-                   ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {typeof(customers) == "object" &&
+        <DataTable
+            columns={columns}
+            data={customers}
+            selectableRows
+            pagination
+            striped
+            onSelectedRowsChange={handleSelectedChange}
+        />
       }
       </div>
     </>

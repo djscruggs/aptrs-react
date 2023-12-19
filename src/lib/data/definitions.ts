@@ -21,7 +21,6 @@ export interface Project  {
   companyname: string; // "OWASP" -- shouldnt this be an id?
   owner: string; //"admin" -- shouldnt this be an id?
 };
-
 export interface Company  {
   id?: number;
   name?: string;
@@ -59,3 +58,11 @@ export type Profile = {
   company: string;
   user: number; //user id
 }
+
+//react data table types
+export type Column = { //used for data tables
+  name: string;
+  selector: (row: any) => any;
+  sortable?: boolean
+  maxWidth?: string
+};
