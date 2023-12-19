@@ -74,33 +74,22 @@ export function Companies() {
   }
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
-    console.log('search is ', search)
     let checked = event.currentTarget.checked
-    console.log('checked is ', checked)
-    let newChecked: any = []
-    console.log(itemChecked)
+    let newChecked = [...itemChecked]
     if(itemChecked.length === 0 && checked){
       console.log('empty & pushing')
       newChecked.push(Number(search))
+    } else if(checked) {
+      if(!itemChecked.includes(search)){
+          newChecked.push(search)
+      }
     } else {
-      console.log('searching for ', search)
-      itemChecked.forEach((id) => {
-        if(id === search){
-          if(checked){
-            console.log('checked and pushing')
-            newChecked.push(search)
-          } else {
-            console.log('NOT checked')
-          }
-        }
-        console.log('bottom of foreach')
-        console.log(newChecked)
-      })
+      const index = newChecked.indexOf(search);
+      if(index !== -1){
+        newChecked.splice(index, 1);
+      }
     }
     setItemChecked(newChecked)
-    console.log('new state')
-    console.log(newChecked)
-    
   }
   
   

@@ -82,19 +82,19 @@ export function Customers() {
   const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
     let search = Number(event.currentTarget.value)
     let checked = event.currentTarget.checked
-    let newChecked: any = []
+    let newChecked = [...itemChecked]
     if(itemChecked.length === 0 && checked){
+      console.log('empty & pushing')
       newChecked.push(Number(search))
+    } else if(checked) {
+      if(!itemChecked.includes(search)){
+          newChecked.push(search)
+      }
     } else {
-      itemChecked.forEach((id) => {
-        if(id === search){
-          if(checked){
-            newChecked.push(id)
-          }
-        } else {
-          newChecked.push(id)
-        }
-      })
+      const index = newChecked.indexOf(search);
+      if(index !== -1){
+        newChecked.splice(index, 1);
+      }
     }
     setItemChecked(newChecked)
   }
