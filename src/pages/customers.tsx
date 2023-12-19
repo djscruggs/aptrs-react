@@ -3,9 +3,7 @@ import {
         useEffect, 
         useState, 
         useRef, 
-        useCallback,
-        useContext, 
-        createContext } from 'react';
+        useCallback } from 'react'
 import { fetchCustomers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
@@ -16,7 +14,6 @@ import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
 import { Modal } from 'react-daisyui'
-import { ModalContext } from '../lib/modalcontext';
 
 // import CompanyForm from './customer-form';
 
@@ -27,31 +24,29 @@ export function Customers() {
   
   
   /* MODAL CREATING AND HANDLING */
-  const [currentId, setCurrentId] = useState('') //id of the object to be edited in modal
+  const [customerId, setCustomerId] = useState('') //id of the object to be edited in modal
   const [refresh, setRefresh] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
+  const [showModal, setShowModal] = useState(false);
+
   const openModal = useCallback((id: string ='') => {
-    setCurrentId(id)
-    setIsModalOpen(true)
-    setShow(true)
+    setCustomerId(id)
+    setShowModal(true)
     ref.current?.showModal();
+    
   }, [ref]);
+  useEffect(() => {
+    if(showModal){
+      ref.current?.showModal()
+    } else {
+      ref.current?.close()
+    }
+  },[showModal])
   
   const clearModal = () => {
-    setCurrentId('')
-    setIsModalOpen(false);
+    setCustomerId('')
+    setShowModal(false);
   }
-  const { show, setShow } = useContext(ModalContext);
-  const [isModalOpen, setIsModalOpen] = useState(show);
-
-  const showModalOpen = {
-    show: isModalOpen,
-    setShow: setIsModalOpen,
-    toggleModal: clearModal
-  };
-  useEffect(() => {
-    setIsModalOpen(show);
-  }, [show]);
   
   
   const handleNew = () => {
@@ -113,23 +108,25 @@ export function Customers() {
   }
   return(
     <>
+      
       {typeof(customers) == "object" && (
         <PageTitle title='Customers' />
       )}
-      {/* modal content */}
-      
-      
-          <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
-            <form method="dialog" onSubmit={clearModal}>
-              <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                <span className="text-gray-400 hover:text-white-900">x</span>
-              </Button>
-            </form>
-            <Modal.Body>
-            {currentId   && <CustomerForm id={currentId} forwardedRef={ref} setRefresh={setRefresh}/>}
-            {!currentId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh}/>}
-            </Modal.Body>
-          </Modal>
+        {/* modal content */}
+        {showModal &&
+        <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
+          <form method="dialog" onSubmit={clearModal}>
+            <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+              <span className="text-gray-400 hover:text-white-900">x</span>
+            </Button>
+          </form>
+          <Modal.Body>
+          {customerId   && <CustomerForm id={customerId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {!customerId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          </Modal.Body>
+        </Modal>
+        }
+        {/* END modal content */}
       
       
       <div className="mt-6 flow-root">

@@ -1,6 +1,7 @@
 import {Company, Project, Customer} from './definitions'
 import axios from 'axios'
 
+
 function apiUrl(endpoint = ''): string {
     return process.env.REACT_APP_API_URL + endpoint;
 }
@@ -51,7 +52,7 @@ export async function fetchCustomer(id: string | undefined) {
   }
 }
 export async function upsertCustomer(formData: Company): Promise<any> {
-  let url = apiUrl(`customer/customer/add/`);
+  let url = apiUrl(`customer/customer/add`);
   
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/customer/edit/${formData['id']}/`);
@@ -124,7 +125,6 @@ export async function fetchCompany(id: string | undefined) {
 
 export async function upsertCompany(formData: Company): Promise<any> {
   let url = apiUrl(`customer/company/add`);
-  
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/company/edit/${formData['id']}/`);
   }

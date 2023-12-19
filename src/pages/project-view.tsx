@@ -13,6 +13,7 @@ import { Project } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
 import { StyleLabel } from '../lib/formstyles';
+import PageTitle from '../components/page-title';
 
 
 
@@ -49,7 +50,6 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     loadData();
   }, [id]);
   
-  const navigate = useNavigate()
   
   if(loading) return <FormSkeleton numInputs={4}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
@@ -58,10 +58,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   return (
         <>
           {typeof(project) == 'object' && (
-            <div className="max-w-lg flex-1 rounded-lg bg-white px-6 pb-4 pt-8">
-              <h1 className="mb-3 text-2xl">
-                Project Details
-              </h1>
+            <div className="max-w-lg flex-1 rounded-lg bg-white px-6 pb-4 ">
+              <PageTitle title='Project Details' />
               <div className="w-full mb-4">
                 <label className={StyleLabel}>
                   Name

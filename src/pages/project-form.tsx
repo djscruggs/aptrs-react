@@ -90,6 +90,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
         setLoading(true);
         try {
           const projectData = await fetchProject(id) as Project;
+          console.log(projectData)
           setFormData(projectData);
         } catch (error) {
           console.error("Error fetching project data:", error);
@@ -110,6 +111,13 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
       [name]: value,
     }));
   };
+  const handleDatePicker = (input: string, value:string): void => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [input]: value,
+    }));
+  }
+  
   const navigate = useNavigate()
   const handleCancel = () =>  {
     navigate(-1)
@@ -153,7 +161,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
               {id ? "Edit" : "Create"} Project
             </h1>
             <div className="w-full mb-4">
-              <div>
+              <div className="mt-4">
                 <label
                   className={StyleLabel}
                   htmlFor="name"
@@ -220,19 +228,12 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                     Start Date
                   </label>
                   <div className="relative">
-                  {/* <Controller
-                    control={control}
-                    name='startdate'
-                    render={({ field }) => (
                       <DatePicker
                         placeholderText='Select date'
                         dateFormat="yyyy-MM-dd"
-                        onChange={(date:Date) => field.onChange(date)}
-                        selected={field.value ? new Date(field.value) : null}
+                        onChange={(date:string) => handleDatePicker('startdate', date)}
+                        selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
-                    )}
-                    /> */}
-                    
                     {errors.startdate?.message && <FormErrorMessage message={errors.startdate.message as string} />} 
                   </div>
                 </div>
@@ -244,18 +245,12 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                     End Date
                   </label>
                   <div className="relative">
-                  {/* <Controller
-                    control={control}
-                    name='enddate'
-                    render={({ field }) => (
-                      <DatePicker
-                        placeholderText='Select date'
-                        dateFormat="yyyy-MM-dd"
-                        onChange={(date:Date) => field.onChange(date)}
-                        selected={field.value ? new Date(field.value) : null}
-                      />
-                      )}
-                    /> */}
+                    <DatePicker
+                      placeholderText='Select date'
+                      dateFormat="yyyy-MM-dd"
+                      onChange={(date:string) => handleDatePicker('enddate', date)}
+                      selected={formData.enddate ? new Date(formData.enddate) : ''}
+                    />
                     {errors.enddate?.message && <FormErrorMessage message={errors.enddate.message as string} />} 
                   </div>
                 </div>

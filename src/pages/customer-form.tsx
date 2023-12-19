@@ -14,8 +14,10 @@ import {
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { fetchCustomer } from '../lib/data/api';
+import { fetchCompanies } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
+import { Company } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 
 interface FormErrors {
@@ -38,14 +40,16 @@ interface FormErrors {
 
 interface CustomerFormProps {
   id?: string; // Make the ID parameter optional
-  forwardedRef?: RefObject<HTMLDialogElement>
-  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>
+  forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
+  onClose: () => void;
 }
-function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerFormProps): JSX.Element {
-  const [id, setId] = useState(externalId)
+function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: CustomerFormProps): JSX.Element {
+  const [id, setId] = useState(customerId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>();
   
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Customer>({
@@ -57,40 +61,88 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
+  
+  
+  //listen for the escape key, give user option of overriding if their editing
+  useEffect(() => {
+    let editing: Boolean; //flag to track whether the form has been edited
+    function handleKeyDown(e: KeyboardEvent) {
+      if(e.key == 'Escape') {
+        e.preventDefault()
+        if(editing){
+          if(!confirm('Quit without saving?')){
+            return null;
+          }
+        } 
+        closeModal()
+      //if it's an input element, set editing to true
+      } else if(e.target?.toString().includes('HTMLInput')) {
+        editing = true;
+      }
+    }
+    // function handleSelectEvent
+
+    //set flag to true if an input eleent
+    function handleInputChange(e: Event){
+      editing = true;
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("change", handleInputChange);
+
+    return function cleanup() {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("change", handleInputChange);
+      // document.removeEventListener("change", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadCustomer = async () => {
+      setLoading(true);
       if (id) {
-        setLoading(true);
         try {
           const customerData = await fetchCustomer(id) as Customer;
-          setFormData(customerData);
+          setFormData(customerData);          
         } catch (error) {
           console.error("Error fetching customer data:", error);
           setLoadingError(true);
           // Handle error fetching data
-        } finally {
-          setLoading(false);
-        }
+        } 
       }
     };
-
-    loadData();
+    loadCustomer();
+    loadCompanies();
   }, [id]);
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  //load companies list for <select>
+  const loadCompanies = async () => {
+    setLoading(true);
+    try {
+      const companiesData = await fetchCompanies()
+      setCompanies(companiesData as Company[]);
+    } catch (error) {
+      console.error("Error fetching companies list:", error);
+      setLoadingError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+  // loadCompanies()
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     
     const { name, value } = event.target;
-    console.log(name, value)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
   };
-  const CloseModal = () =>  {
+  //clean up the data to make sure the next instance is clean
+  const closeModal = () =>  {
     setId('')
     if(forwardedRef?.current ) {
       forwardedRef.current.close()
     }
+    onClose()
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
@@ -105,7 +157,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
       
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
-      console.log('Form failed validation:', newErrors);
+      console.error('Form failed validation:', newErrors);
     } else {
       try {
         const response = await upsertCustomer(formData as Customer);
@@ -113,7 +165,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
         if(setRefresh){
           setRefresh(true)
         }
-        CloseModal()
+        closeModal()
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -124,7 +176,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
     setBtnDisabled(false);
     
   }
-  if(loading) return <FormSkeleton numInputs={3}/>
+  if(loading) return <FormSkeleton numInputs={5}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading customer"} />
 
 
@@ -202,14 +254,16 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
               Company
             </label>
             <div className="relative">
-              <input
-                name="company"
-                value = {formData.company}
-                onChange={handleChange}
-                className={StyleTextfield}
-                type="text"
-                required
-              />
+              <select name="company"
+                      value={formData.company} 
+                      onChange={handleChange}
+                      className={StyleTextfield}
+              >
+            
+                  {companies && companies.map(company =>
+                    <option key={company.id} value={company.name}>{company.name}</option>
+                  )};
+              </select>
               {errors.company?.message && <FormErrorMessage message={errors.company.message as string} />} 
             </div>
           </div>
@@ -245,7 +299,7 @@ function CustomerForm({ id: externalId, forwardedRef, setRefresh }: CustomerForm
               <Button 
                 type="button"
                 className="bg-red-500 ml-1"
-                onClick = {CloseModal}
+                onClick = {closeModal}
                 disabled={btnDisabled}>
                   Cancel
               </Button>
