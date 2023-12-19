@@ -1,4 +1,4 @@
-import {Company} from '../lib/data/definitions'
+import {Company, Column} from '../lib/data/definitions'
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { fetchCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
@@ -10,6 +10,7 @@ import Button from '../components/button';
 import CompanyForm from './company-form';
 import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import DataTable from 'react-data-table-component';
 
 
 export function Companies() {
@@ -21,6 +22,7 @@ export function Companies() {
   const [companyId, setCompanyId] = useState('')
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
 
   const ref = useRef<HTMLDialogElement>(null);
   
@@ -44,13 +46,42 @@ export function Companies() {
   const handleNew = () => {
     openModal('')
   }
-  
-  
+  const handleSelectedChange = (event: any) => {
+    setShowDelete(event.selectedCount == 0)
+  }
+  const columns: Column[] = [
+    {
+      name: 'Action',
+      selector: (row: any) => row.actions,
+      maxWidth: '5em'
+    },
+    {
+      name: 'Name',
+      selector: (row: Company) => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Address',
+      selector: (row: Company) => row.address
+    },
+  ];
+  interface CompanyWithActions extends Company {
+    actions: JSX.Element;
+  }
  
   useEffect(() => {
     fetchCompanies()
       .then((data) => {
-        setCompanies(data as Company[]);
+        let temp: any = []
+        data.forEach((row: CompanyWithActions) => {
+          row.actions = (<>
+                        <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
+                        
+                        <TrashIcon onClick={() => handleDelete(String(row.id))} className="inline w-6 ml-2 cursor-pointer" />                        
+                        </>)
+          temp.push(row)
+        });
+        setCompanies(data as CompanyWithActions[]);
       }).catch((error) => {
         setError(error)})
       setRefresh(false)
@@ -72,25 +103,7 @@ export function Companies() {
   const handleDelete = (id:string) => {
     alert('not implemented yet')
   }
-  const handleItemCheckbox = (event:React.FormEvent<HTMLInputElement>) => {
-    let search = Number(event.currentTarget.value)
-    let checked = event.currentTarget.checked
-    let newChecked = [...itemChecked]
-    if(itemChecked.length === 0 && checked){
-      console.log('empty & pushing')
-      newChecked.push(Number(search))
-    } else if(checked) {
-      if(!itemChecked.includes(search)){
-          newChecked.push(search)
-      }
-    } else {
-      const index = newChecked.indexOf(search);
-      if(index !== -1){
-        newChecked.splice(index, 1);
-      }
-    }
-    setItemChecked(newChecked)
-  }
+  
   
   
   
@@ -113,83 +126,30 @@ export function Companies() {
           </Modal.Body>
         </Modal>
         }
+        
         {/* END modal content */}
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Company
         </Button>
-        {(allChecked || itemChecked.length > 0)  &&
-          <Button className="btn btn-error float-right m-2 mr-0">
+        
+        <Button 
+          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+          disabled={showDelete}>
             Delete
-         </Button>
+        </Button>
+        {companies &&
+          <DataTable
+                columns={columns}
+                data={companies}
+                selectableRows
+                pagination
+                striped
+                onSelectedRowsChange={handleSelectedChange}
+            />
         }
-        <div className="mt-6 flow-root min-w-full">
-          <div className="inline-block min-w-full align-middle">
-            <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-              <div className="table w-full text-gray-900 md:table">
-                <div className="table-header-group rounded-lg text-left text-sm">
-                  <div className="table-row">
-                    <div className="table-cell text-left pl-2 py-2"> 
-                    <input
-                      id="selectAll"
-                      type="checkbox"
-                      checked = {allChecked}
-                      onChange={handleMultiCheckbox}
-                      className={`${StyleCheckbox} align-bottom`}
-                    />
-                    </div>
-                    <div className="table-cell text-left py-4 pl-2"> 
-                      Action
-                    </div>
-                    <div className="table-cell text-left py-4 pl-2"> 
-                      Name
-                    </div>
-                    <div className="table-cell text-left py-4 pl-2"> 
-                      Address
-                    </div>
-                    <div className="table-cell text-left py-4 pl-2"> 
-                      Logo
-                    </div>
-                  </div>
-                </div>
-                {typeof(companies) == "object" &&
-                  <div className="table-row-group">
-                    {typeof(companies) === "object"  && companies.map((company: Company) => (
-                      <div className="table-row py-4 pl-2 bg-white cursor-pointer" key={company.id + "-web"}>
-                        <div className="table-cell py-4 pl-2">
-                        <input
-                            id={"select-" + company.id + "-web"}
-                            type="checkbox"
-                            checked = {allChecked || itemChecked.includes(company.id)}
-                            value= {company.id}
-                            onChange={handleItemCheckbox}
-                            className={`${StyleCheckbox} align-bottom`}
-                          />
-                        </div>
-                        <div className="table-cell py-4 pl-2">
-                          <PencilSquareIcon className="inline w-6 cursoer-pointer" onClick={() => openModal(String(company.id))}/>
-                          <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={() => handleDelete(String(company.id))}/>
-                        </div>
-                        
-                        <div className="table-cell py-4 pl-2">
-                            {company.name}
-                        </div>
-                        <div className="table-cell py-4 pl-2">
-                          {company.address}
-                        </div>
-                        <div className="table-cell py-4 pl-2">
-                          {company.img}
-                        </div>
-                        
-                      </div>
-                    ))
-                    }
-                  </div>
-                }                  
-              </div>
-            </div>
-          </div>
-        </div>
+        
+        
       </div>
     </>
   )

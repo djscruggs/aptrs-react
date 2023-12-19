@@ -73,8 +73,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const handleNew = () => {
     navigate('/projects/new')
   }
-  const clickRow = (id: any) => {
-  }
   const handleDelete = (id: any) => {
     console.log("deleting id ",id)
     alert('not implemented yet')
