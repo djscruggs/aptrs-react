@@ -3,9 +3,10 @@ import {
         useState, 
         useRef, 
         useCallback } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { fetchCustomers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
-import ErrorPage from '../components/error-page'
+
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -19,7 +20,7 @@ import DataTable from 'react-data-table-component';
 
 export function Customers() {
   
-  
+  const navigate = useNavigate()
   
   /* MODAL CREATING AND HANDLING */
   const [customerId, setCustomerId] = useState('') //id of the object to be edited in modal
@@ -27,6 +28,7 @@ export function Customers() {
   const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
   const ref = useRef<HTMLDialogElement>(null);
   const [showModal, setShowModal] = useState(false);
+  
 
   const openModal = useCallback((id: string ='') => {
     setCustomerId(id)
@@ -118,8 +120,7 @@ export function Customers() {
   
    /* RENDERING IF ERROR OR STILL LOADING */
    if(error){
-    console.error(error)
-    return <ErrorPage />
+    navigate('/error')
   }
   if(typeof customers == 'undefined'){
     return (<TableSkeleton />)

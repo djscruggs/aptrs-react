@@ -121,6 +121,7 @@ export function Companies() {
       setRefresh(false)
   }, [refresh]);
   if(error){
+    console.error(error)
     navigate('/error')
   }
   if(typeof companies == 'undefined'){

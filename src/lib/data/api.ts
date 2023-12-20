@@ -167,7 +167,13 @@ export async function deleteCompanies(ids: any[]): Promise<any> {
   }
 }
 
-export async function fetchVulnerabilities(limit=[0,10], page=0) {
-  
+export async function fetchVulnerabilities() {
+  const url = apiUrl('vulndb/all-vulndb');
+  try {
+    const response = await axios.get(url,authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
  
 }

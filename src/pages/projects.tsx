@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { fetchProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
-import ErrorPage from '../components/error-page'
+
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
@@ -84,7 +84,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
 
   if(error){
     console.error(error)
-    return <ErrorPage />
+    navigate('/error')
   }
   if(typeof projects == 'undefined'){
     return (<TableSkeleton />)
