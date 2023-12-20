@@ -56,7 +56,6 @@ export function Companies() {
   }
   const deleteMultiple = () => {
     return handleDelete(selected)
-    
   }
   const columns: Column[] = [
     {

@@ -25,9 +25,9 @@ export function Customers() {
   /* MODAL CREATING AND HANDLING */
   const [customerId, setCustomerId] = useState('') //id of the object to be edited in modal
   const [refresh, setRefresh] = useState(false);
-  const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
   const ref = useRef<HTMLDialogElement>(null);
   const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState([])
   
 
   const openModal = useCallback((id: string ='') => {
@@ -109,13 +109,20 @@ export function Customers() {
     },
   ];
   
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: any) => {
     console.log("deleting id ",id)
     alert('not implemented yet')
-    
+  }
+  const deleteMultiple = () => {
+    return handleDelete(selected)
   }
   const handleSelectedChange = (event: any) => {
-    setShowDelete(event.selectedCount == 0)
+    console.log(event)
+    const ids = event.selectedRows.map((item:any) => item.id);
+    console.log('ids selected ', ids)
+    console.log(event.selectedCount)
+    setSelected(ids)
+    
   }
   
    /* RENDERING IF ERROR OR STILL LOADING */
@@ -152,7 +159,11 @@ export function Customers() {
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Customer
         </Button>
-        <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" disabled={showDelete}>
+        <Button 
+          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+          disabled={selected.length == 0}
+          onClick = {deleteMultiple}
+          >
           Delete
         </Button>
         {typeof(customers) == "object" &&

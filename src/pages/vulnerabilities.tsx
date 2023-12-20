@@ -15,8 +15,16 @@ const Vulnerabilities = () => {
   const [selected, setSelected] = useState([])
   const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  
   const navigate = useNavigate()
+
+  const handleSelectedChange = (event: any) => {
+    console.log(event)
+    const ids = event.selectedRows.map((item:any) => item.id);
+    console.log('ids selected ', ids)
+    console.log(event.selectedCount)
+    setSelected(ids)
+    
+  }
   interface VulnWithActions extends Vulnerability {
     actions: JSX.Element;
   }
@@ -32,7 +40,6 @@ const Vulnerabilities = () => {
                         </>)
           temp.push(row)
         });
-        console.log(temp)
         setVulnerabilities(temp as VulnWithActions[]);
       }).catch((error) => {
         setError(error)
@@ -88,7 +95,9 @@ const Vulnerabilities = () => {
       maxWidth: '5em'
     },
   ]
-    
+  const deleteMultiple = () => {
+    return handleDelete(selected)
+  }
   if(error){
     console.error(error)
     navigate('/error')
@@ -104,11 +113,12 @@ const Vulnerabilities = () => {
             className='btn btn-primary float-right m-2' 
             onClick={()=> navigate('vulnerabilities/new')}
           >
-              New Project
+              New
         </Button>
         <Button  
           className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={false}
+          disabled={selected.length == 0}
+          onClick = {deleteMultiple}
         >
           Delete
         </Button>
@@ -119,6 +129,7 @@ const Vulnerabilities = () => {
                 selectableRows
                 pagination
                 striped
+                onSelectedRowsChange={handleSelectedChange}
             />
           }
         </div>

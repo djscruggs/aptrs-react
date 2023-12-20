@@ -19,7 +19,7 @@ interface ProjectsProps {
 export function Projects(props:ProjectsProps): JSX.Element {
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
-  const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
+  const [selected, setSelected] = useState([]); //flag to disable delete button
   interface ProjectWithActions extends Project {
     actions: JSX.Element;
   }
@@ -78,10 +78,18 @@ export function Projects(props:ProjectsProps): JSX.Element {
     alert('not implemented yet')
     
   }
-  const handleSelectedChange = (event: any) => {
-    setShowDelete(event.selectedCount == 0)
+  const deleteMultiple = () => {
+    return handleDelete(selected)
+    
   }
-
+  const handleSelectedChange = (event: any) => {
+    console.log(event)
+    const ids = event.selectedRows.map((item:any) => item.id);
+    console.log('ids selected ', ids)
+    console.log(event.selectedCount)
+    setSelected(ids)
+    
+  }
   if(error){
     console.error(error)
     navigate('/error')
@@ -99,7 +107,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
       <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
             New Project
         </Button>
-      <Button onClick = {handleDelete} className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" disabled={showDelete}>
+      <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+        disabled={selected.length == 0}
+        onClick = {deleteMultiple}
+        >
         Delete
       </Button>
       {typeof(projects) == "object" &&
