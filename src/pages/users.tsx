@@ -1,7 +1,7 @@
-import {Company, Column} from '../lib/data/definitions'
+import {User, Column} from '../lib/data/definitions'
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { fetchCompanies, deleteCompanies } from "../lib/data/api";
+import { fetchUsers, deleteUsers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
@@ -22,21 +22,21 @@ export function Users() {
     navigate('/access-denied')
   }
   
-  const [companies, setCompanies] = useState<Company[]>();
-  console.log(AuthUser())
+  const [users, setUsers] = useState<User[]>();
+  
   
   const [selected, setSelected] = useState([])
   const [error, setError] = useState(false);
   
   //modal state variables
-  const [companyId, setCompanyId] = useState('')
+  const [userId, setUserId] = useState('')
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
   
   const ref = useRef<HTMLDialogElement>(null);
   
   const openModal = useCallback((id: string ='') => {
-    setCompanyId(id)
+    setUserId(id)
     setShowModal(true)
     ref.current?.showModal();
     
@@ -49,17 +49,14 @@ export function Users() {
     }
   },[showModal])
   const clearModal = () => {
-    setCompanyId('')
+    setUserId('')
     setShowModal(false);
   }
   const handleNew = () => {
     openModal('')
   }
   const handleSelectedChange = (event: any) => {
-    console.log(event)
     const ids = event.selectedRows.map((item:any) => item.id);
-    console.log('ids selected ', ids)
-    console.log(event.selectedCount)
     setSelected(ids)
     
   }
@@ -67,6 +64,17 @@ export function Users() {
     return handleDelete(selected)
   }
   const columns: Column[] = [
+    // "username": "manager",
+    //     "full_name": "manager user",
+    //     "email": "manager@manager.com",
+    //     "is_staff": true,
+    //     "is_active": true,
+    //     "is_superuser": false,
+    //     "profilepic": "/media/profile/avatar-1.svg",
+    //     "number": null,
+    //     "company": "AnoF PVT LTD",
+    //     "position": null,
+    //     "groups":
     {
       name: 'Action',
       selector: (row: any) => row.actions,
@@ -74,15 +82,27 @@ export function Users() {
     },
     {
       name: 'Name',
-      selector: (row: Company) => row.name,
+      selector: (row: User) => row.full_name,
       sortable: true,
     },
     {
+      name: 'Phone',
+      selector: (row: User) => row.number
+    },
+    {
       name: 'Address',
-      selector: (row: Company) => row.address
+      selector: (row: User) => row.email
+    },
+    {
+      name: 'Company',
+      selector: (row: User) => row.company
+    },
+    {
+      name: 'Admin?',
+      selector: (row: User) => row.is_superuser
     },
   ];
-  interface CompanyWithActions extends Company {
+  interface UserWithActions extends User {
     actions: JSX.Element;
   }
   const handleDelete = (ids: any[]) => {
@@ -91,14 +111,14 @@ export function Users() {
     }
     console.log()
     let count = ids.length
-    deleteCompanies(ids)
+    deleteUsers(ids)
       .then((data) => {
         setRefresh(true)
         let msg:string;
         if(count == 1) {
           msg = 'Company deleted';
         } else {
-          msg = `${count} companies deleted`;
+          msg = `${count} users deleted`;
         }
         toast.success(msg)
         return true
@@ -110,10 +130,10 @@ export function Users() {
         return false
   }
   useEffect(() => {
-    fetchCompanies()
+    fetchUsers()
       .then((data) => {
         let temp: any = []
-        data.forEach((row: CompanyWithActions) => {
+        data.forEach((row: UserWithActions) => {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
                         
@@ -121,7 +141,8 @@ export function Users() {
                         </>)
           temp.push(row)
         });
-        setCompanies(data as CompanyWithActions[]);
+        console.log(temp)
+        setUsers(temp as UserWithActions[]);
       }).catch((error) => {
         setError(error)
       })
@@ -131,13 +152,13 @@ export function Users() {
     console.error(error)
     navigate('/error')
   }
-  if(typeof companies == 'undefined'){
+  if(typeof users == 'undefined'){
     return (<TableSkeleton />)
   }
   
   return(
     <>
-      {typeof(companies) == "object" && (
+      {typeof(users) == "object" && (
         <PageTitle title='Users' />
       )}
       {/* modal content */}
@@ -149,8 +170,8 @@ export function Users() {
             </Button>
           </form>
           <Modal.Body>
-          {companyId   && <CompanyForm id={companyId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          {!companyId && <CompanyForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {userId   && <CompanyForm id={userId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {!userId && <CompanyForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           </Modal.Body>
         </Modal>
         }
@@ -158,7 +179,7 @@ export function Users() {
         {/* END modal content */}
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
-            New Company
+            New User
         </Button>
         
         <Button 
@@ -168,10 +189,10 @@ export function Users() {
           >
             Delete
         </Button>
-        {companies &&
+        {users &&
           <DataTable
                 columns={columns}
-                data={companies}
+                data={users}
                 selectableRows
                 pagination
                 striped

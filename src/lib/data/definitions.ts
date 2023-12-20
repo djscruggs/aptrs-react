@@ -11,7 +11,7 @@ export type Vulnerability = {
   cvssscore: number;
   cvssvector: string;
 };
-export type User = {
+export type LoginUser = {
   email?: string;
   refresh?: string;
   access?: string;
@@ -79,4 +79,18 @@ export type Column = { //used for data tables
   sortable?: boolean
   maxWidth?: string
   omit?: boolean
+};
+export type User = {
+  id: number;
+  username: string;
+  full_name: string;
+  email: string;
+  is_staff: boolean;
+  is_active: boolean;
+  is_superuser: boolean;
+  profilepic?: string;
+  number?: string;
+  company?: string;
+  position?: string;
+  groups?: string[];
 };

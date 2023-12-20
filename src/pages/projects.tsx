@@ -83,12 +83,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
     
   }
   const handleSelectedChange = (event: any) => {
-    console.log(event)
     const ids = event.selectedRows.map((item:any) => item.id);
-    console.log('ids selected ', ids)
-    console.log(event.selectedCount)
     setSelected(ids)
-    
   }
   if(error){
     console.error(error)

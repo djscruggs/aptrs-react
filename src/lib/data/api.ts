@@ -1,4 +1,4 @@
-import {Company, Project, User} from './definitions'
+import {Company, Project, User, LoginUser} from './definitions'
 import axios from 'axios'
 
 
@@ -12,7 +12,7 @@ function authHeaders(): { headers: Record<string, string> } {
   return header;
 }
 
-export function setUser(user: User): void {
+export function setAuthUser(user: LoginUser): void {
   const jsonUser = JSON.stringify(user);
   sessionStorage.setItem('user', jsonUser);
 }
@@ -20,7 +20,7 @@ export function setUser(user: User): void {
 export function AuthUser(): any | undefined {
   const jsonUser = sessionStorage.getItem('user');
   if(jsonUser !== null) {
-    return JSON.parse(jsonUser) as User;
+    return JSON.parse(jsonUser) as LoginUser;
   }
   return null;
 }
@@ -34,9 +34,9 @@ export async function login(email: string, password:string) {
   if(!result?.access){
     return null;
   } else {
-    const user = result as User;
+    const user = result as LoginUser;
     user.email = email;
-    setUser(user)
+    setAuthUser(user)
   }
 
   return result;
@@ -176,4 +176,30 @@ export async function fetchVulnerabilities() {
     throw e;
   }
  
+}
+
+export async function fetchUsers() {
+  const url = apiUrl('auth/users');
+  try {
+    const response = await axios.get(url,authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+ 
+}
+export async function deleteUsers(ids: any[]): Promise<any> {
+  const url = apiUrl('auth/deleteuser');
+  //axios delete is weird
+  //configuration step based on https://stackoverflow.com/a/61644708/865884
+  const config = { 
+    headers: authHeaders().headers,
+    data: ids
+  }
+  try {
+    const response = await axios.delete(url, config)
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
 }
