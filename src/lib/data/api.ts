@@ -135,6 +135,21 @@ export async function upsertCompany(formData: Company): Promise<any> {
     throw error;
   }
 }
+export async function deleteCompanies(ids: [String]): Promise<any> {
+  const url = apiUrl('customer/company/delete');
+  //axios delete is weird
+  //configuration step based on https://stackoverflow.com/a/61644708/865884
+  const config = { 
+    headers: authHeaders().headers,
+    data: ids
+  }
+  try {
+    const response = await axios.delete(url, config)
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
+}
 
 export async function fetchVulnerabilities(limit=[0,10], page=0) {
   

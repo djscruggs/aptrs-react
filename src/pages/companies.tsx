@@ -1,23 +1,23 @@
 import {Company, Column} from '../lib/data/definitions'
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { fetchCompanies } from "../lib/data/api";
+import { useNavigate } from 'react-router-dom'
+import { fetchCompanies, deleteCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
-import { StyleCheckbox } from '../lib/formstyles';
 import Button from '../components/button';
 import CompanyForm from './company-form';
 import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
+import { toast } from 'react-hot-toast';
 
 
 export function Companies() {
   const [companies, setCompanies] = useState<Company[]>();
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
-  const [itemChecked, setItemChecked] = useState<(number | undefined)[]>([]);
   //modal state variables
   const [companyId, setCompanyId] = useState('')
   const [refresh, setRefresh] = useState(false);
@@ -68,7 +68,20 @@ export function Companies() {
   interface CompanyWithActions extends Company {
     actions: JSX.Element;
   }
- 
+  const handleDelete = (id:string) => {
+    if(!confirm('Are you sure?')){
+      return null;
+    }
+    deleteCompanies([id])
+      .then((data) => {
+        setRefresh(true)
+        toast.success('Company deleted')
+        
+      }).catch((error) => {
+        console.error(error)
+        setError(error)})
+        setRefresh(false)
+  }
   useEffect(() => {
     fetchCompanies()
       .then((data) => {
@@ -83,7 +96,8 @@ export function Companies() {
         });
         setCompanies(data as CompanyWithActions[]);
       }).catch((error) => {
-        setError(error)})
+        setError(error)
+      })
       setRefresh(false)
   }, [refresh]);
   if(error){
@@ -93,16 +107,8 @@ export function Companies() {
   if(typeof companies == 'undefined'){
     return (<TableSkeleton />)
   }
-  const handleMultiCheckbox = () => {
-    setAllChecked(!allChecked);
-    if(!allChecked){
-      setItemChecked([])
-    }
-  }
   
-  const handleDelete = (id:string) => {
-    alert('not implemented yet')
-  }
+  
   
   
   
