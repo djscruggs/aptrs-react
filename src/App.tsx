@@ -12,7 +12,6 @@ import Projects from './pages/projects'
 import ProjectView from './pages/project-view';
 import ProjectForm from './pages/project-form';
 import CompanyForm from './pages/company-form';
-import OldCompanyForm from './pages/old-company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 import Users from './pages/users'
@@ -37,9 +36,10 @@ const App: React.FC = () => {
             <Route path="/projects/:id" element={<ProjectView />} />
             <Route path="/projects/:id/edit" element={<ProjectForm />} />
             <Route path="/companies/:id/edit" element={<CompanyForm />} />
-            <Route path="/companies-old/:id/edit" element={<OldCompanyForm />} />
             <Route path="/companies/new" element={<CompanyForm />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+            <Route path="/vulnerabilities/:id/edit" element={<CompanyForm />} />
+            <Route path="/vulnerabilities/new" element={<CompanyForm />} />
             {AuthUser()?.isAdmin && (<Route path="/users" element={<Users />} />)}
             <Route path="/error" element={<ErrorPage />} />
             <Route path="*" element={<ErrorPage is404={true}/>} />

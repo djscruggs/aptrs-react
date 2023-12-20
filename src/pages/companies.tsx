@@ -19,7 +19,6 @@ export function Companies() {
   const [selected, setSelected] = useState([])
   const [error, setError] = useState(false);
   const navigate = useNavigate()
-  const [allChecked, setAllChecked] = useState(false);
   //modal state variables
   const [companyId, setCompanyId] = useState('')
   const [refresh, setRefresh] = useState(false);
