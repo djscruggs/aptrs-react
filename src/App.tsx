@@ -5,7 +5,6 @@ import Layout from './layouts/layout';
 import { AuthProvider, authenticated } from './lib/authcontext';
 import Home from './pages/home';
 import Login from './pages/login';
-import ErrorPage from './components/error-page';
 import Vulnerabilities from './pages/vulnerabilities';
 import Customers from './pages/customers';
 import Projects from './pages/projects'
@@ -15,7 +14,8 @@ import CompanyForm from './pages/company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 import Users from './pages/users'
-import {AuthUser} from './lib/data/api'
+import ErrorPage from './pages/error-page';
+import AccessDenied from './pages/access-denied';
 
 
 
@@ -40,8 +40,11 @@ const App: React.FC = () => {
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
             <Route path="/vulnerabilities/:id/edit" element={<CompanyForm />} />
             <Route path="/vulnerabilities/new" element={<CompanyForm />} />
-            {AuthUser()?.isAdmin && (<Route path="/users" element={<Users />} />)}
+            <Route path="/users" element={<Users />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="/error" element={<ErrorPage />} />
+            
+            <Route path="404" element={<ErrorPage is404={true}/>} />
             <Route path="*" element={<ErrorPage is404={true}/>} />
           </Routes>
         </Layout>

@@ -11,7 +11,7 @@ import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
-import { object } from 'zod';
+
 
 
 export function Companies() {
