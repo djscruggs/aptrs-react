@@ -135,7 +135,7 @@ export async function upsertCompany(formData: Company): Promise<any> {
     throw error;
   }
 }
-export async function deleteCompanies(ids: [String]): Promise<any> {
+export async function deleteCompanies(ids: any[]): Promise<any> {
   const url = apiUrl('customer/company/delete');
   //axios delete is weird
   //configuration step based on https://stackoverflow.com/a/61644708/865884

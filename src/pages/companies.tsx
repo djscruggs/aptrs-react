@@ -12,18 +12,19 @@ import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
+import { object } from 'zod';
 
 
 export function Companies() {
   const [companies, setCompanies] = useState<Company[]>();
+  const [selected, setSelected] = useState([])
   const [error, setError] = useState();
   const [allChecked, setAllChecked] = useState(false);
   //modal state variables
   const [companyId, setCompanyId] = useState('')
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [showDelete, setShowDelete] = useState(false); //flag to disable delete button
-
+  
   const ref = useRef<HTMLDialogElement>(null);
   
   const openModal = useCallback((id: string ='') => {
@@ -47,7 +48,16 @@ export function Companies() {
     openModal('')
   }
   const handleSelectedChange = (event: any) => {
-    setShowDelete(event.selectedCount == 0)
+    console.log(event)
+    const ids = event.selectedRows.map((item:any) => item.id);
+    console.log('ids selected ', ids)
+    console.log(event.selectedCount)
+    setSelected(ids)
+    
+  }
+  const deleteMultiple = () => {
+    return handleDelete(selected)
+    
   }
   const columns: Column[] = [
     {
@@ -68,19 +78,29 @@ export function Companies() {
   interface CompanyWithActions extends Company {
     actions: JSX.Element;
   }
-  const handleDelete = (id:string) => {
+  const handleDelete = (ids: any[]) => {
     if(!confirm('Are you sure?')){
-      return null;
+      return false;
     }
-    deleteCompanies([id])
+    console.log()
+    let count = ids.length
+    deleteCompanies(ids)
       .then((data) => {
         setRefresh(true)
-        toast.success('Company deleted')
+        let msg:string;
+        if(count == 1) {
+          msg = 'Company deleted';
+        } else {
+          msg = `${count} companies deleted`;
+        }
+        toast.success(msg)
+        return true
         
       }).catch((error) => {
         console.error(error)
         setError(error)})
         setRefresh(false)
+        return false
   }
   useEffect(() => {
     fetchCompanies()
@@ -90,7 +110,7 @@ export function Companies() {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
                         
-                        <TrashIcon onClick={() => handleDelete(String(row.id))} className="inline w-6 ml-2 cursor-pointer" />                        
+                        <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                         </>)
           temp.push(row)
         });
@@ -141,7 +161,9 @@ export function Companies() {
         
         <Button 
           className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={showDelete}>
+          disabled={selected.length == 0}
+          onClick = {deleteMultiple}
+          >
             Delete
         </Button>
         {companies &&
