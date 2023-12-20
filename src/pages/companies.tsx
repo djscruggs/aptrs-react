@@ -3,7 +3,6 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchCompanies, deleteCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
-import ErrorPage from '../components/error-page'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
@@ -18,7 +17,8 @@ import { object } from 'zod';
 export function Companies() {
   const [companies, setCompanies] = useState<Company[]>();
   const [selected, setSelected] = useState([])
-  const [error, setError] = useState();
+  const [error, setError] = useState(false);
+  const navigate = useNavigate()
   const [allChecked, setAllChecked] = useState(false);
   //modal state variables
   const [companyId, setCompanyId] = useState('')
@@ -121,17 +121,11 @@ export function Companies() {
       setRefresh(false)
   }, [refresh]);
   if(error){
-    console.error(error)
-    return <ErrorPage />
+    navigate('/error')
   }
   if(typeof companies == 'undefined'){
     return (<TableSkeleton />)
   }
-  
-  
-  
-  
-  
   
   return(
     <>

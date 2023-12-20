@@ -1,6 +1,17 @@
 
 import{ ReactNode } from 'react';
 
+export type User = {
+  email?: string;
+  refresh?: string;
+  access?: string;
+  Status?: string;
+  username?: string;
+  Pic?: string;
+  isAdmin?: boolean;
+  permissions?: string[];
+};
+
 export type Props = {
   children: ReactNode;
 };
@@ -43,14 +54,6 @@ export type ProjectScope = {
   description: string;
 };
 
-export type User = {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  is_superuser: boolean;
-}
 export type Profile = {
   id: number;
   profilepic: string

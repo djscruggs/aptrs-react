@@ -15,6 +15,8 @@ import CompanyForm from './pages/company-form';
 import OldCompanyForm from './pages/old-company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
+import Users from './pages/users'
+import {AuthUser} from './lib/data/api'
 
 
 
@@ -38,6 +40,7 @@ const App: React.FC = () => {
             <Route path="/companies-old/:id/edit" element={<OldCompanyForm />} />
             <Route path="/companies/new" element={<CompanyForm />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+            {AuthUser()?.isAdmin && (<Route path="/users" element={<Users />} />)}
             <Route path="/error" element={<ErrorPage />} />
             <Route path="*" element={<ErrorPage is404={true}/>} />
           </Routes>

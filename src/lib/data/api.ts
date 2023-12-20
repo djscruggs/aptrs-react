@@ -1,15 +1,31 @@
-import {Company, Project, Customer} from './definitions'
+import {Company, Project, User} from './definitions'
 import axios from 'axios'
+
 
 
 function apiUrl(endpoint = ''): string {
     return process.env.REACT_APP_API_URL + endpoint;
 }
 function authHeaders(): { headers: Record<string, string> } {
-  const token = String(sessionStorage.getItem('access'))
+  const token = AuthUser()?.access;
   const header = { headers: {'Authorization': `Bearer ${token}`} }
   return header;
 }
+
+export function setUser(user: User): void {
+  const jsonUser = JSON.stringify(user);
+  sessionStorage.setItem('user', jsonUser);
+}
+
+export function AuthUser(): any | undefined {
+  const jsonUser = sessionStorage.getItem('user');
+  if(jsonUser !== null) {
+    return JSON.parse(jsonUser) as User;
+  }
+  return null;
+}
+
+
 
 export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
@@ -18,8 +34,9 @@ export async function login(email: string, password:string) {
   if(!result?.access){
     return null;
   } else {
-    sessionStorage.setItem('access',result.access);
-    sessionStorage.setItem('refresh',result.refresh)
+    const user = result as User;
+    user.email = email;
+    setUser(user)
   }
 
   return result;
@@ -27,8 +44,7 @@ export async function login(email: string, password:string) {
 }
 
 export function logout() {
-  sessionStorage.removeItem('access');
-  sessionStorage.removeItem('refresh')
+  sessionStorage.removeItem('user');
 }
 
 export async function fetchCustomers() {

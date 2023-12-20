@@ -1,5 +1,6 @@
 // AuthContext.tsx
 import React, { createContext } from 'react';
+import {AuthUser} from './data/api'
 
 
 interface AuthProviderProps {
@@ -7,7 +8,7 @@ interface AuthProviderProps {
 }
 
 export function authenticated() {
-  return (sessionStorage.getItem('access') != null)
+  return AuthUser()?.access
 }
 export const AuthContext = createContext(authenticated()); 
 

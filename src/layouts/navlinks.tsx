@@ -6,20 +6,19 @@ import {
   BuildingOfficeIcon,
   RocketLaunchIcon,
   CircleStackIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
+import { AuthUser } from '../lib/data/api'
 import clsx from 'clsx';
 // ... (Icons and other imports)
 
 const links = [
   { name: 'Dashboard', href: '/dashboard', icon: RocketLaunchIcon },
-  {
-    name: 'Companies',
-    href: '/companies',
-    icon: BuildingOfficeIcon,
-  },
+  {name: 'Companies', href: '/companies', icon: BuildingOfficeIcon },
   { name: 'Customers', href: '/customers', icon: UserGroupIcon },
   { name: 'Projects', href: '/projects', icon: RocketLaunchIcon },
   { name: 'Vulnerability DB', href: '/vulnerabilities', icon: CircleStackIcon },
+  ...(AuthUser()?.isAdmin ? [{ name: 'Users', href: '/users', icon: UsersIcon}] : [])
 ];
 
 
