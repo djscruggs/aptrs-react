@@ -205,7 +205,7 @@ export async function deleteUsers(ids: any[]): Promise<any> {
 }
 export async function getUser(id: string | undefined) {
   if(!id) return null;
-  const url = apiUrl(`project/get-project/${id}/`);
+  const url = apiUrl(`auth/user/${id}`);
   try {
     const response = await axios.get(url, authHeaders())
     return response.data;
@@ -214,4 +214,18 @@ export async function getUser(id: string | undefined) {
   }
 }
 export async function upsertUser(formData: User): Promise<any> {
+  let temp = formData;
+  delete(temp.profilepic)
+  console.log('temp is')
+  console.log(temp)
+  let url = apiUrl(`auth/adduser`);
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`auth/edituser/${formData['id']}`);
+  }
+  try {
+    const response = await axios.post(url, temp, authHeaders())
+    return response.data;    
+  } catch (error) {
+    throw error;
+  }
 }

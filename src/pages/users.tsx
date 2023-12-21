@@ -109,7 +109,6 @@ export function Users() {
     if(!confirm('Are you sure?')){
       return false;
     }
-    console.log()
     let count = ids.length
     deleteUsers(ids)
       .then((data) => {
@@ -141,7 +140,6 @@ export function Users() {
                         </>)
           temp.push(row)
         });
-        console.log(temp)
         setUsers(temp as UserWithActions[]);
       }).catch((error) => {
         setError(error)

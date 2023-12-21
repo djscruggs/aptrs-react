@@ -8,12 +8,14 @@ import React, {
 
 import {
   StyleTextfield,
+  StyleTextfieldError,
   StyleLabel,
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
+import ShowPasswordButton from '../components/show-password-button';
 import { FormSkeleton } from '../components/skeletons'
 import { getUser } from '../lib/data/api';
 import { upsertUser} from '../lib/data/api';
@@ -49,7 +51,12 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [formData, setFormData] = useState<User>({
+  //extend User type to support password fields
+  type UserForm = User & {
+    password?: string;
+    password_check?: string;
+  };
+  const [formData, setFormData] = useState<UserForm>({
     username: '',
     full_name: '',
     email: '',
@@ -59,6 +66,8 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     number: '',
     company: '',
     position: '',
+    password: '',
+    password_check: '',
     groups: [],
   });
   
@@ -115,8 +124,6 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
-      console.log('name', name)
-      console.log('checked', checked)
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
     setFormData((prevFormData) => ({
@@ -124,6 +131,10 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
       [name]: inputValue,
     }));
   };
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  function togglePasswordVisibility() {
+    setPasswordVisible((prevState) => !prevState);
+  }
   const closeModal = () =>  {
     setId('')
     if(forwardedRef?.current ) {
@@ -161,10 +172,10 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     setBtnDisabled(false);
   }
   
-  if(loading) return <FormSkeleton numInputs={3}/>
+  if(loading) return <FormSkeleton numInputs={6}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading user"} />
 
-
+  
   return (
     <div className="max-w-lg flex-1 rounded-lg">
       
@@ -246,71 +257,98 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
           </div>
         </div>
-        <fieldset className="form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
-          <legend className='text-sm'>User Status</legend>
-          <div className="flex items-center">
-          <label 
-              htmlFor="is_active"
-              className='label cursor-pointer text-left'
-            >
-            
-            <input type="checkbox" 
-              name='is_active' 
-              className='rounded-xl toggle toggle-accent mr-2'
-              onChange={handleChange}
-              checked={formData.is_active ? true : false} 
-            />
-            
-              <span className="label-text text-left">Active</span> 
-            </label>  
-            
-          </div>
-          <div className="flex items-center">
+        <div className="flex">
+          <fieldset className="mr-4 form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
+            <legend className='text-sm'>User Status</legend>
+            <div className="flex items-center">
             <label 
-              htmlFor="is_staff"
-              className='label cursor-pointer'
-            >
-              <input type="checkbox" 
-              name='is_staff' 
-              className='rounded-xl toggle toggle-accent mr-2'
-              onChange={handleChange}
-              checked={formData.is_staff ? true : false} 
-            />
-             <span className="label-text">Staff Member</span> 
-            </label>
-          </div>
-          <div className="flex items-center">
-            <label 
-              htmlFor="is_staff"
-              className='label cursor-pointer'
-            >
+                htmlFor="is_active"
+                className='label cursor-pointer text-left'
+              >
               
               <input type="checkbox" 
-              name='is_superuser' 
-              className='rounded-xl toggle toggle-accent mr-2'
-              onChange={handleChange}
-              checked={formData.is_superuser ? true : false} 
-            />
-              <span className="label-text">Administrator</span> 
-            </label>
-          </div>
-        </fieldset>
-        <div className="w-full mb-4">
-          <label 
-              className={StyleLabel}
-              htmlFor="img">
-              Image
-          </label>
-          {/* <div className="relative">
-            <input
-              name="img"
-              className={StyleTextfield}
-              value={formData.img}
-              onChange={handleChange}
-              type="text"
-            />
-            {errors.img?.message && <FormErrorMessage message={errors.img.message} />}
-          </div> */}
+                name='is_active' 
+                className='rounded-xl toggle toggle-accent mr-2'
+                onChange={handleChange}
+                checked={formData.is_active ? true : false} 
+              />
+              
+                <span className="label-text text-left">Active</span> 
+              </label>  
+              
+            </div>
+            <div className="flex items-center">
+              <label 
+                htmlFor="is_staff"
+                className='label cursor-pointer'
+              >
+                <input type="checkbox" 
+                name='is_staff' 
+                className='rounded-xl toggle toggle-accent mr-2'
+                onChange={handleChange}
+                checked={formData.is_staff ? true : false} 
+              />
+              <span className="label-text">Staff Member</span> 
+              </label>
+            </div>
+            <div className="flex items-center">
+              <label 
+                htmlFor="is_staff"
+                className='label cursor-pointer'
+              >
+                
+                <input type="checkbox" 
+                name='is_superuser' 
+                className='rounded-xl toggle toggle-accent mr-2'
+                onChange={handleChange}
+                checked={formData.is_superuser ? true : false} 
+              />
+                <span className="label-text">Administrator</span> 
+              </label>
+            </div>
+          </fieldset>
+          <fieldset className="form-control rounded-md flex flex-col w-1/2 space-y-2 p-2 border border-slate-200" >
+            <legend className='text-sm'>{formData.id ? 'New Password (optional)' : 'Password'}</legend>
+            <div className="w-full mt-0">
+              <label 
+                htmlFor="password"
+                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  name="password"
+                  className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                  onChange={handleChange}
+                  type={passwordVisible ? "text" : "password"}
+                />
+                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+              </div>
+              
+              
+            </div>
+            <div className="w-full mt-0">
+              <label 
+                htmlFor="password_check"
+                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+              >
+                Repeat password
+              </label>
+              <div className="relative">
+                <input
+                  name="password_check"
+                  className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                  onChange={handleChange}
+                  type={passwordVisible ? "text" : "password"}
+                />
+                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                  
+              </div>
+              {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
+              
+            </div>
+          </fieldset>
         </div>
         {/* Submit button */}
         
@@ -337,5 +375,6 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     </div>
   );
 }
+
 
 export default withAuth(CompanyForm);
