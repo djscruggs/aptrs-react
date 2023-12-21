@@ -246,7 +246,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
           </div>
         </div>
-        <fieldset className="flex flex-col w-1/2 space-y-4 pl-4 border border-slate-200" >
+        <fieldset className="form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
           <legend className='text-sm'>User Status</legend>
           <div className="flex items-center">
           <label 
@@ -256,7 +256,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             
             <input type="checkbox" 
               name='is_active' 
-              className='toggle toggle-accent mr-2'
+              className='rounded-xl toggle toggle-accent mr-2'
               onChange={handleChange}
               checked={formData.is_active ? true : false} 
             />
@@ -272,7 +272,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             >
               <input type="checkbox" 
               name='is_staff' 
-              className='toggle toggle-accent mr-2'
+              className='rounded-xl toggle toggle-accent mr-2'
               onChange={handleChange}
               checked={formData.is_staff ? true : false} 
             />
@@ -287,7 +287,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
               
               <input type="checkbox" 
               name='is_superuser' 
-              className='toggle toggle-accent mr-2'
+              className='rounded-xl toggle toggle-accent mr-2'
               onChange={handleChange}
               checked={formData.is_superuser ? true : false} 
             />

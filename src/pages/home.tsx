@@ -2,6 +2,7 @@ import AcmeLogo from '../components/acme-logo';
 import {ArrowRightIcon} from '@heroicons/react/24/outline';
 import { Link } from "react-router-dom";
 import Login from './login';
+import React from 'react';
 
 
 export default function Home() {
@@ -26,7 +27,7 @@ export default function Home() {
             <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
           </Link> */}
         </div>
-        <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
+        <div className="flex items-center justify-center align-top p-6 md:w-3/5 md:px-28 md:py-12">
           {/* Add Hero Images Here */}
           <img
             src="/hero-desktop.png"
@@ -36,7 +37,7 @@ export default function Home() {
             alt="Screensots of the dahboard project shwoing desktop version"
           />
           <img
-            src="/hero-mobile.png"
+            src="/hero-desktop.png"
             width={560}
             height={620}
             className='block md:hidden'
