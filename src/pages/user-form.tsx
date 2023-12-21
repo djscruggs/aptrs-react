@@ -13,6 +13,7 @@ import {
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
+import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
@@ -172,19 +173,18 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     setBtnDisabled(false);
   }
   
-  if(loading) return <FormSkeleton numInputs={6}/>
+  if(loading) return <FormSkeleton numInputs={5}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading user"} />
 
   
   return (
     <div className="max-w-lg flex-1 rounded-lg">
-      
-      <h1 className="mb-3 text-2xl">
-        {id ? "Edit" : "Create"} User
-      </h1>
+      <PageTitle title={id ? "Edit User" : "Create User"} />
       {saveError && <FormErrorMessage message={saveError} />}
+      
       <form onSubmit={handleSubmit} id="projectForm" method="POST">
-        {/* Form inputs */}
+        <div className="grid grid-cols-2 gap-3"> 
+        <div>
         <div className="w-full mb-4">
           <label 
             htmlFor="full_name"
@@ -239,6 +239,42 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
           </div>
         </div>
+        </div>
+        <div>
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="name"
+            className={StyleLabel}>
+            Phone number
+          </label>
+          <div className="relative">
+            <input
+              name="company"
+              className={StyleTextfield}
+              value={formData.number}
+              onChange={handleChange}
+              type="text"
+            />
+            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
+          </div>
+        </div>
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="name"
+            className={StyleLabel}>
+            Position
+          </label>
+          <div className="relative">
+            <input
+              name="company"
+              className={StyleTextfield}
+              value={formData.position}
+              onChange={handleChange}
+              type="text"
+            />
+            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
+          </div>
+        </div>
         <div className="w-full mb-4">
           <label 
             htmlFor="name"
@@ -256,6 +292,8 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             />
             {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
           </div>
+        </div>
+        </div>
         </div>
         <div className="flex">
           <fieldset className="mr-4 form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
