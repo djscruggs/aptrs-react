@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
-import { fetchProject } from '../lib/data/api';
+import { getProject } from '../lib/data/api';
 import { Project } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
@@ -35,7 +35,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       if (id) {
         setLoading(true);
         try {
-          const projectData = await fetchProject(id) as Project;
+          const projectData = await getProject(id) as Project;
           setProject(projectData as Project);
         } catch (error) {
           console.error("Error fetching project data:", error);

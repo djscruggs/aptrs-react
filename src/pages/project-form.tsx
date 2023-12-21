@@ -14,7 +14,7 @@ import {
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
-import { fetchProject } from '../lib/data/api';
+import { getProject } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
 import { Project } from '../lib/data/definitions'
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -89,7 +89,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
       if (id) {
         setLoading(true);
         try {
-          const projectData = await fetchProject(id) as Project;
+          const projectData = await getProject(id) as Project;
           console.log(projectData)
           setFormData(projectData);
         } catch (error) {

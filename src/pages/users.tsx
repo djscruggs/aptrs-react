@@ -6,7 +6,7 @@ import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
-import CompanyForm from './company-form';
+import UserForm from './user-form';
 import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
@@ -99,7 +99,7 @@ export function Users() {
     },
     {
       name: 'Admin?',
-      selector: (row: User) => row.is_superuser
+      selector: (row: User) => row.is_superuser ? "Yes" : "No"
     },
   ];
   interface UserWithActions extends User {
@@ -170,8 +170,8 @@ export function Users() {
             </Button>
           </form>
           <Modal.Body>
-          {userId   && <CompanyForm id={userId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          {!userId && <CompanyForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {userId   && <UserForm id={userId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {!userId && <UserForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           </Modal.Body>
         </Modal>
         }

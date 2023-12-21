@@ -81,13 +81,13 @@ export type Column = { //used for data tables
   omit?: boolean
 };
 export type User = {
-  id: number;
-  username: string;
-  full_name: string;
-  email: string;
-  is_staff: boolean;
-  is_active: boolean;
-  is_superuser: boolean;
+  id?: number;
+  username?: string;
+  full_name?: string;
+  email?: string;
+  is_staff?: boolean;
+  is_active?: boolean;
+  is_superuser?: boolean;
   profilepic?: string;
   number?: string;
   company?: string;

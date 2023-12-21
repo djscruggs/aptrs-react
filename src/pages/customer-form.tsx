@@ -13,7 +13,7 @@ import {
 } from '../lib/formstyles'
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
-import { fetchCustomer } from '../lib/data/api';
+import { getCustomer } from '../lib/data/api';
 import { fetchCompanies } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
@@ -98,7 +98,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       setLoading(true);
       if (id) {
         try {
-          const customerData = await fetchCustomer(id) as Customer;
+          const customerData = await getCustomer(id) as Customer;
           setFormData(customerData);          
         } catch (error) {
           console.error("Error fetching customer data:", error);

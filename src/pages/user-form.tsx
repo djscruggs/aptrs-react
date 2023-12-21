@@ -5,7 +5,7 @@ import React, {
   FormEvent,
   RefObject
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import {
   StyleTextfield,
   StyleLabel,
@@ -15,38 +15,51 @@ import {
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
-import { getCompany } from '../lib/data/api';
-import { upsertCompany} from '../lib/data/api';
-import { Company } from '../lib/data/definitions'
+import { getUser } from '../lib/data/api';
+import { upsertUser} from '../lib/data/api';
+import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
-  name?: {
+  username?: {
     message: string;
   };
-  address?: {
+  email?: {
     message: string;
   };
-  img?: {
+  full_name?: {
+    message: string;
+  };
+  position?: {
+    message: string;
+  };
+  company?: {
     message: string;
   };
 }
 
-interface CompanyFormProps {
+interface UserFormProps {
   id?: string; // Make the ID parameter optional
   forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
   onClose: () => void;
 }
-function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: CompanyFormProps): JSX.Element {
-  const [id, setId] = useState(companyId)
+function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormProps): JSX.Element {
+  const [id, setId] = useState(userId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [formData, setFormData] = useState<Company>({
-    name: '',
-    address: '',
-    // img: '',
+  const [formData, setFormData] = useState<User>({
+    username: '',
+    full_name: '',
+    email: '',
+    is_staff: false,
+    is_active: false,
+    is_superuser: false,
+    number: '',
+    company: '',
+    position: '',
+    groups: [],
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
@@ -85,11 +98,11 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
       if (id) {
         setLoading(true);
         try {
-          const companyData = await getCompany(id) as Company;
+          const userData = await getUser(id) as User;
           
-          setFormData(companyData);
+          setFormData(userData);
         } catch (error) {
-          console.error("Error fetching company data:", error);
+          console.error("Error fetching user data:", error);
           setLoadingError(true);
           // Handle error fetching data
         } finally {
@@ -101,13 +114,16 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     loadData();
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
+      console.log('name', name)
+      console.log('checked', checked)
+    // Check the type of input - checkboxes don't have a value attribute
+    const inputValue = type === 'checkbox' ? checked : value;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value,
+      [name]: inputValue,
     }));
   };
-  const navigate = useNavigate()
   const closeModal = () =>  {
     setId('')
     if(forwardedRef?.current ) {
@@ -121,16 +137,16 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
-    if (formData.name && formData.name.length < 3) {
-      newErrors.name = { message: 'Name should be at least three characters' };
+    if (formData.email && formData.email.length < 3) {
+      newErrors.email = { message: 'Name should be at least three characters' };
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        const response = await upsertCompany(formData as Company);
-        toast.success('Company saved.')
+        const response = await upsertUser(formData as User);
+        toast.success('User saved.')
         if(setRefresh){
           setRefresh(true)
         }
@@ -146,54 +162,139 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   }
   
   if(loading) return <FormSkeleton numInputs={3}/>
-  if (loadingError) return <ModalErrorMessage message={"Error loading company"} />
+  if (loadingError) return <ModalErrorMessage message={"Error loading user"} />
 
 
   return (
     <div className="max-w-lg flex-1 rounded-lg">
       
       <h1 className="mb-3 text-2xl">
-        {id ? "Edit" : "Create"} Company
+        {id ? "Edit" : "Create"} User
       </h1>
       {saveError && <FormErrorMessage message={saveError} />}
       <form onSubmit={handleSubmit} id="projectForm" method="POST">
         {/* Form inputs */}
         <div className="w-full mb-4">
           <label 
-            htmlFor="name"
+            htmlFor="full_name"
             className={StyleLabel}>
-            Company Name
+            Full name
           </label>
           <div className="relative">
             <input
               name="name"
               className={StyleTextfield}
-              value={formData.name}
+              value={formData.full_name}
               onChange={handleChange}
               type="text"
               required
             />
-            {errors.name?.message && <FormErrorMessage message={errors.name.message} />}
+            {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+          </div>
+        </div>
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="username"
+            className={StyleLabel}>
+            Username
+          </label>
+          <div className="relative">
+            <input
+              name="name"
+              className={StyleTextfield}
+              value={formData.username}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
           </div>
         </div>
         <div className="w-full mb-4">
           <label 
             className={StyleLabel}
-            htmlFor="address">
-              Address
+            htmlFor="email">
+              Email
           </label>
           <div className="relative">
             <input
               name="address"
               className={StyleTextfield}
-              value={formData.address}
+              value={formData.email}
               onChange={handleChange}
               type="text"
               required
             />
-            {errors.address?.message && <FormErrorMessage message={errors.address.message} />}
+            {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
           </div>
         </div>
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="name"
+            className={StyleLabel}>
+            Company
+          </label>
+          <div className="relative">
+            <input
+              name="company"
+              className={StyleTextfield}
+              value={formData.username}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
+          </div>
+        </div>
+        <fieldset className="flex flex-col w-1/2 space-y-4 pl-4 border border-slate-200" >
+          <legend className='text-sm'>User Status</legend>
+          <div className="flex items-center">
+          <label 
+              htmlFor="is_active"
+              className='label cursor-pointer text-left'
+            >
+            
+            <input type="checkbox" 
+              name='is_active' 
+              className='toggle toggle-accent mr-2'
+              onChange={handleChange}
+              checked={formData.is_active ? true : false} 
+            />
+            
+              <span className="label-text text-left">Active</span> 
+            </label>  
+            
+          </div>
+          <div className="flex items-center">
+            <label 
+              htmlFor="is_staff"
+              className='label cursor-pointer'
+            >
+              <input type="checkbox" 
+              name='is_staff' 
+              className='toggle toggle-accent mr-2'
+              onChange={handleChange}
+              checked={formData.is_staff ? true : false} 
+            />
+             <span className="label-text">Staff Member</span> 
+            </label>
+          </div>
+          <div className="flex items-center">
+            <label 
+              htmlFor="is_staff"
+              className='label cursor-pointer'
+            >
+              
+              <input type="checkbox" 
+              name='is_superuser' 
+              className='toggle toggle-accent mr-2'
+              onChange={handleChange}
+              checked={formData.is_superuser ? true : false} 
+            />
+              <span className="label-text">Administrator</span> 
+            </label>
+          </div>
+        </fieldset>
         <div className="w-full mb-4">
           <label 
               className={StyleLabel}

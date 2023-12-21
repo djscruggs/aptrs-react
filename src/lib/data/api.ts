@@ -57,7 +57,7 @@ export async function fetchCustomers() {
   }
  
 }
-export async function fetchCustomer(id: string | undefined) {
+export async function getCustomer(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`customer/customer/${id}/`);
   try {
@@ -89,7 +89,7 @@ export async function fetchProjects() {
     throw e;
   }
 }
-export async function fetchProject(id: string | undefined) {
+export async function getProject(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/get-project/${id}/`);
   try {
@@ -122,7 +122,7 @@ export async function fetchCompanies(limit=[0,10], page=0) {
   }
  
 }
-export async function fetchCompany(id: string | undefined) {
+export async function getCompany(id: string | undefined) {
   if (!id) return null;
   
   return new Promise((resolve, reject) => {
@@ -202,4 +202,16 @@ export async function deleteUsers(ids: any[]): Promise<any> {
   } catch (error) {
     throw error;
   }
+}
+export async function getUser(id: string | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`project/get-project/${id}/`);
+  try {
+    const response = await axios.get(url, authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+}
+export async function upsertUser(formData: User): Promise<any> {
 }
