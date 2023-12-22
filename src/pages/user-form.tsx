@@ -19,7 +19,7 @@ import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
 import { FormSkeleton } from '../components/skeletons'
 import { getUser } from '../lib/data/api';
-import { upsertUser} from '../lib/data/api';
+import { upsertUser, AuthUser} from '../lib/data/api';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
@@ -35,18 +35,17 @@ interface FormErrors {
   position?: {
     message: string;
   };
-  company?: {
+  number?: {
     message: string;
   };
 }
-
 interface UserFormProps {
   id?: string; // Make the ID parameter optional
   forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
   onClose: () => void;
 }
-function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormProps): JSX.Element {
+function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormProps): JSX.Element {
   const [id, setId] = useState(userId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
@@ -65,7 +64,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     is_active: false,
     is_superuser: false,
     number: '',
-    company: '',
+    company: AuthUser().company,
     position: '',
     password: '',
     password_check: '',
@@ -127,6 +126,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     const { name, value, type, checked } = event.target;
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
+    console.log(name, value)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: inputValue,
@@ -146,6 +146,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
+    console.log(formData)
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
@@ -193,7 +194,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
           </label>
           <div className="relative">
             <input
-              name="name"
+              name="full_name"
               className={StyleTextfield}
               value={formData.full_name}
               onChange={handleChange}
@@ -249,13 +250,13 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
           </label>
           <div className="relative">
             <input
-              name="company"
+              name="number"
               className={StyleTextfield}
               value={formData.number}
               onChange={handleChange}
               type="text"
             />
-            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
+            {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
           </div>
         </div>
         <div className="w-full mb-4">
@@ -266,13 +267,13 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
           </label>
           <div className="relative">
             <input
-              name="company"
+              name="position"
               className={StyleTextfield}
               value={formData.position}
               onChange={handleChange}
               type="text"
+              
             />
-            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
           </div>
         </div>
         <div className="w-full mb-4">
@@ -285,12 +286,12 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
             <input
               name="company"
               className={StyleTextfield}
-              value={formData.username}
+              value={formData.company}
               onChange={handleChange}
               type="text"
-              required
+              disabled = {true}
             />
-            {errors.company?.message && <FormErrorMessage message={errors.company.message} />}
+            
           </div>
         </div>
         </div>
@@ -298,51 +299,64 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
         <div className="flex">
           <fieldset className="mr-4 form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
             <legend className='text-sm'>User Status</legend>
-            <div className="flex items-center">
-            <label 
-                htmlFor="is_active"
-                className='label cursor-pointer text-left'
-              >
-              
-              <input type="checkbox" 
-                name='is_active' 
-                className='rounded-xl toggle toggle-accent mr-2'
-                onChange={handleChange}
-                checked={formData.is_active ? true : false} 
-              />
-              
-                <span className="label-text text-left">Active</span> 
-              </label>  
+              <div className="flex items-center">
+                <label 
+                    htmlFor="is_active"
+                    className='label cursor-pointer text-left'
+                  >
+                    <input type="checkbox" 
+                      name='is_active' 
+                      className='rounded-xl toggle toggle-accent mr-2'
+                      onChange={handleChange}
+                      checked={formData.is_active ? true : false} 
+                      disabled = {AuthUser().username == formData.username }
+                    />
+                    {AuthUser().username === formData.username &&
+                      <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
+                        <span className="label-text">Active</span> 
+                      </div>
+                    }
+                    {AuthUser().username != formData.username &&
+                      <span className="label-text">Active</span> 
+                    }
+                  </label>  
+              </div>
+              <div className="flex items-center">
+                <label 
+                  htmlFor="is_staff"
+                  className='label cursor-pointer'
+                >
+                  <input type="checkbox" 
+                  name='is_staff' 
+                  className='rounded-xl toggle toggle-accent mr-2'
+                  onChange={handleChange}
+                  checked={formData.is_staff ? true : false} 
+                  />
+                  <span className="label-text">Staff Member</span> 
+                </label>
               
             </div>
             <div className="flex items-center">
-              <label 
-                htmlFor="is_staff"
-                className='label cursor-pointer'
-              >
-                <input type="checkbox" 
-                name='is_staff' 
-                className='rounded-xl toggle toggle-accent mr-2'
-                onChange={handleChange}
-                checked={formData.is_staff ? true : false} 
-              />
-              <span className="label-text">Staff Member</span> 
-              </label>
-            </div>
-            <div className="flex items-center">
-              <label 
-                htmlFor="is_staff"
-                className='label cursor-pointer'
-              >
-                
-                <input type="checkbox" 
-                name='is_superuser' 
-                className='rounded-xl toggle toggle-accent mr-2'
-                onChange={handleChange}
-                checked={formData.is_superuser ? true : false} 
-              />
-                <span className="label-text">Administrator</span> 
-              </label>
+                <label 
+                  htmlFor="is_staff"
+                  className='label cursor-pointer'
+                >
+                  <input type="checkbox" 
+                  name='is_superuser' 
+                  className='rounded-xl toggle toggle-accent mr-2'
+                  onChange={handleChange}
+                  checked={formData.is_superuser ? true : false} 
+                  disabled = {AuthUser().username == formData.username || AuthUser().isAdmin == false  }
+                />
+                {AuthUser().username === formData.username &&
+                  <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
+                    <span className="label-text">Administrator</span> 
+                  </div>
+                }
+                {AuthUser().username != formData.username &&
+                  <span className="label-text">Administrator</span> 
+                }
+                </label>
             </div>
           </fieldset>
           <fieldset className="form-control rounded-md flex flex-col w-1/2 space-y-2 p-2 border border-slate-200" >
@@ -415,4 +429,4 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
 }
 
 
-export default withAuth(CompanyForm);
+export default withAuth(UserForm);
