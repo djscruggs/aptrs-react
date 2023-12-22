@@ -27,6 +27,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { sortByPropertyName } from '../lib/utilities';
 
 interface FormErrors {
   name?: {
@@ -108,7 +109,8 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
       }
       fetchUsers()
       .then((data) => {
-        setUsers(data)
+        const sorted = sortByPropertyName(data, 'full_name')
+        setUsers(sorted)
       }).catch((error) => {
         setSaveError(error)
       })

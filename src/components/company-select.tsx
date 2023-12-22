@@ -4,6 +4,7 @@ import {  useState, useEffect } from 'react';
 import { StyleTextfield } from '../lib/formstyles';
 import { StyleTextfieldError } from '../lib/formstyles';
 import {SingleInputSkeleton} from './skeletons'
+import {sortByPropertyName} from '../lib/utilities'
 
 interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   name: string
@@ -19,7 +20,8 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
     const loadCompanies = async () => {
       try {
         const companiesData = await fetchCompanies()
-        setCompanies(companiesData as Company[]);
+        const sorted = sortByPropertyName(companiesData,'name')
+        setCompanies(sorted as Company[]);
       } catch (error) {
         console.error("Error fetching companies list:", error);
       }
