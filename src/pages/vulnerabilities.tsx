@@ -18,10 +18,7 @@ const Vulnerabilities = () => {
   const navigate = useNavigate()
 
   const handleSelectedChange = (event: any) => {
-    console.log(event)
     const ids = event.selectedRows.map((item:any) => item.id);
-    console.log('ids selected ', ids)
-    console.log(event.selectedCount)
     setSelected(ids)
     
   }

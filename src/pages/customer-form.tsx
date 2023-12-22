@@ -94,8 +94,9 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
 
   useEffect(() => {
     const loadCustomer = async () => {
-      setLoading(true);
+      
       if (id) {
+        setLoading(true);
         try {
           const customerData = await getCustomer(id) as Customer;
           setFormData(customerData); 
@@ -103,6 +104,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         } catch (error) {
           console.error("Error fetching customer data:", error);
           setLoadingError(true);
+          setLoading(false);
           // Handle error fetching data
         } 
       }

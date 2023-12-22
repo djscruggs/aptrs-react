@@ -211,8 +211,6 @@ export async function getUser(id: string | undefined) {
 export async function upsertUser(formData: User): Promise<any> {
   let temp = formData;
   delete(temp.profilepic)
-  console.log('temp is')
-  console.log(temp)
   let url = apiUrl(`auth/adduser`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`auth/edituser/${formData['id']}`);

@@ -77,7 +77,6 @@ export function Companies() {
     if(!confirm('Are you sure?')){
       return false;
     }
-    console.log()
     let count = ids.length
     deleteCompanies(ids)
       .then((data) => {

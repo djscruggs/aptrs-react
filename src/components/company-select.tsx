@@ -1,6 +1,6 @@
 import { fetchCompanies } from '../lib/data/api';
 import { Company } from  '../lib/data/definitions'
-import { ChangeEvent, useState } from 'react';
+import {  useState, useEffect } from 'react';
 import { StyleTextfield } from '../lib/formstyles';
 import { StyleTextfieldError } from '../lib/formstyles';
 import {SingleInputSkeleton} from './skeletons'
@@ -15,15 +15,18 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
   
   const [companies, setCompanies] = useState<Company[]>();
 
-  const loadCompanies = async () => {
-    try {
-      const companiesData = await fetchCompanies()
-      setCompanies(companiesData as Company[]);
-    } catch (error) {
-      console.error("Error fetching companies list:", error);
-    } 
-  }
-  loadCompanies()
+  useEffect(() => {
+    const loadCompanies = async () => {
+      try {
+        const companiesData = await fetchCompanies()
+        setCompanies(companiesData as Company[]);
+      } catch (error) {
+        console.error("Error fetching companies list:", error);
+      }
+      return null;
+    }
+    loadCompanies()
+  }, []);
   if(typeof companies == 'undefined'){
     return (<SingleInputSkeleton />)
   }

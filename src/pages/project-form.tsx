@@ -66,7 +66,6 @@ interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
   isModal?: boolean
 }
-console.log(AuthUser())
 function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JSX.Element {
   const params = useParams()
   const { id: routeId } = params;
