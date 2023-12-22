@@ -14,6 +14,9 @@ export function InputSkeleton() {
       </div>
   )
 }
+export function SingleInputSkeleton() {
+  return (<div className="skeleton h-10 w-100 bg-gray-100 dark:bg-gray-70"></div>)
+}
 interface FormSkeletonProps {
   numInputs?: number;
 }

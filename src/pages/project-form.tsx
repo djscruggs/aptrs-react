@@ -13,9 +13,10 @@ import {
 } from '../lib/formstyles'
 
 import PageTitle from '../components/page-title';
+import CompanySelect from '../components/company-select';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
-import { FormSkeleton } from '../components/skeletons'
+import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
     AuthUser, 
     getProject, 
@@ -222,14 +223,13 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                     Company
                   </label>
                   <div className="relative">
-                    <input
-                      name="company"
-                      value = {formData.companyname}
-                      onChange={handleChange}
-                      className={StyleTextfield}
-                      type="text"
-                      required
+                    <CompanySelect 
+                      name="companyname" 
+                      value={formData.companyname} 
+                      changeHandler={handleChange} 
+                      error={errors.companyname ? true : false}
                     />
+                    
                     {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
                   </div>
                 </div>
@@ -346,7 +346,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                             onChange={handleChange}
                             className={StyleTextfield}
                     >
-                  
+                        {!users && <SingleInputSkeleton />}
                         {users && users.map(user =>
                           <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
                         )};

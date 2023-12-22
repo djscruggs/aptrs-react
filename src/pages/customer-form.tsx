@@ -12,9 +12,9 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import Button from '../components/button';
+import CompanySelect from '../components/company-select';
 import { FormSkeleton } from '../components/skeletons'
 import { getCustomer } from '../lib/data/api';
-import { fetchCompanies } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
 import { Company } from '../lib/data/definitions'
@@ -49,7 +49,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  const [companies, setCompanies] = useState<Company[]>();
   
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Customer>({
@@ -99,7 +98,8 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       if (id) {
         try {
           const customerData = await getCustomer(id) as Customer;
-          setFormData(customerData);          
+          setFormData(customerData); 
+          setLoading(false);         
         } catch (error) {
           console.error("Error fetching customer data:", error);
           setLoadingError(true);
@@ -108,22 +108,8 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       }
     };
     loadCustomer();
-    loadCompanies();
   }, [id]);
-  //load companies list for <select>
-  const loadCompanies = async () => {
-    setLoading(true);
-    try {
-      const companiesData = await fetchCompanies()
-      setCompanies(companiesData as Company[]);
-    } catch (error) {
-      console.error("Error fetching companies list:", error);
-      setLoadingError(true);
-    } finally {
-      setLoading(false);
-    }
-  }
-  // loadCompanies()
+  
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     
@@ -246,21 +232,17 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
           <div className="mt-4">
             <label
               className={StyleLabel}
-              htmlFor="company"
+              htmlFor="companyname"
             >
               Company
             </label>
             <div className="relative">
-              <select name="company"
-                      value={formData.company} 
-                      onChange={handleChange}
-                      className={StyleTextfield}
-              >
-            
-                  {companies && companies.map(company =>
-                    <option key={company.id} value={company.name}>{company.name}</option>
-                  )};
-              </select>
+              <CompanySelect 
+                  name="companyname" 
+                  value={formData.company} 
+                  changeHandler={handleChange} 
+                  error={errors.company ? true : false}
+                />
               {errors.company?.message && <FormErrorMessage message={errors.company.message as string} />} 
             </div>
           </div>

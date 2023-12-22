@@ -173,7 +173,7 @@ function CompanyForm({ id: userId, forwardedRef, setRefresh, onClose }: UserForm
     setBtnDisabled(false);
   }
   
-  if(loading) return <FormSkeleton numInputs={5}/>
+  if(loading) return <FormSkeleton numInputs={6}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading user"} />
 
   
