@@ -124,18 +124,13 @@ export async function fetchCompanies(limit=[0,10], page=0) {
 }
 export async function getCompany(id: string | undefined) {
   if (!id) return null;
-  
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      const url = apiUrl(`customer/company/${id}/`);
-      try {
-        const response = await axios.get(url,authHeaders())
-        resolve(response.data);
-      } catch (error) {
-        reject(error);
-      }
-    }, 1500); // Simulate 1.5 seconds delay
-  });
+  const url = apiUrl(`customer/company/${id}/`);
+  try {
+    const response = await axios.get(url, authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }  
 }
 
 

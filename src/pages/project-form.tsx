@@ -11,12 +11,17 @@ import {
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
+
+import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
-import { getProject } from '../lib/data/api';
+import { 
+    AuthUser, 
+    getProject, 
+    fetchUsers } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
-import { Project } from '../lib/data/definitions'
+import { Project, User } from '../lib/data/definitions'
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import DatePicker from "react-datepicker";
@@ -60,6 +65,7 @@ interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
   isModal?: boolean
 }
+console.log(AuthUser())
 function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JSX.Element {
   const params = useParams()
   const { id: routeId } = params;
@@ -79,10 +85,11 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
     testingtype: '',
     projectexception: '',
     companyname: '',
-    owner: '',
+    owner: AuthUser().username,
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
+  const [users, setUsers] = useState<User[]>();
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,7 +97,6 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
         setLoading(true);
         try {
           const projectData = await getProject(id) as Project;
-          console.log(projectData)
           setFormData(projectData);
         } catch (error) {
           console.error("Error fetching project data:", error);
@@ -100,11 +106,18 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
           setLoading(false);
         }
       }
+      fetchUsers()
+      .then((data) => {
+        setUsers(data)
+      }).catch((error) => {
+        setSaveError(error)
+      })
     };
-
+    
     loadData();
   }, [id]);
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -153,72 +166,97 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
   if(loading) return <FormSkeleton numInputs={3}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
-
   return (
-          <div className="max-w-lg flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+          <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+          {saveError && <FormErrorMessage message={saveError} />}
           <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
-            <h1 className="mb-3 text-2xl">
-              {id ? "Edit" : "Create"} Project
-            </h1>
-            <div className="w-full mb-4">
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="name"
-                >
-                  Name
-                </label>
-                
-                <div className="relative">
-                  <input
-                    name="name"
-                    value = {formData.name}
-                    className={StyleTextfield}
-                    onChange={handleChange}
-                    type="text"
-                    required
-                  />
-                  {errors.name?.message && <p>{errors.name.message as string}</p>} 
+          <PageTitle title={id ? "Edit Project" : "Create Project"} />
+      
+          <div className='grid grid-cols-2'>
+            <div className="w-full p-4 pl-0">
+              
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="name"
+                  >
+                    Name
+                  </label>
+                  
+                  <div className="relative">
+                    <input
+                      name="name"
+                      value = {formData.name}
+                      className={StyleTextfield}
+                      onChange={handleChange}
+                      type="text"
+                      required
+                    />
+                    {errors.name?.message && <p>{errors.name.message as string}</p>} 
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="projecttype"
-                >
-                  Type
-                </label>
-                <div className="relative">
-                  <input
-                    name="projecttype"
-                    value = {formData.projecttype}
-                    onChange={handleChange}
-                    className={StyleTextfield}
-                    type="text"
-                    required
-                  />
-                  {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="projecttype"
+                  >
+                    Type
+                  </label>
+                  <div className="relative">
+                    <input
+                      name="projecttype"
+                      value = {formData.projecttype}
+                      onChange={handleChange}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="companyname"
-                >
-                  Company
-                </label>
-                <div className="relative">
-                  <input
-                    name="company"
-                    value = {formData.companyname}
-                    onChange={handleChange}
-                    className={StyleTextfield}
-                    type="text"
-                    required
-                  />
-                  {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="companyname"
+                  >
+                    Company
+                  </label>
+                  <div className="relative">
+                    <input
+                      name="company"
+                      value = {formData.companyname}
+                      onChange={handleChange}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
+                  </div>
                 </div>
-              </div>
+                <div className="mt-4 min-h-full">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="description"
+                  >
+                    Description
+                  </label>
+                  <div className="relative">
+                    <CKEditor
+                      data = {formData.description}
+                      onReady={ editor => {
+                            if (formData.description) editor.setData(formData.description)
+                        }}
+                      
+                      editor={ClassicEditor}
+                      
+                    />
+                      
+                      {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
+                  </div>
+                </div>
+              
+            </div>
+            <div className="w-full p-4">
               <div className='grid grid-cols-2'>
                 <div className="mt-4">
                   <label
@@ -293,25 +331,51 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                   {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
                 </div>
               </div>
+              
               <div className="mt-4">
                 <label
                   className={StyleLabel}
-                  htmlFor="description"
+                  htmlFor="owner"
                 >
-                  Description
+                  Project Owner
                 </label>
                 <div className="relative">
-                  <CKEditor
-                    onReady={ editor => {
-                          if (formData.description) editor.setData(formData.description)
-                      }}
-                    editor={ClassicEditor}                        
-                  />
-                    
-                    {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
+                  {AuthUser()?.isAdmin  &&
+                    <select name="owner"
+                            value={formData.owner} 
+                            onChange={handleChange}
+                            className={StyleTextfield}
+                    >
+                  
+                        {users && users.map(user =>
+                          <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
+                        )};
+                  
+                    </select>
+                  }
+                  {!AuthUser()?.isAdmin  &&
+                    <>
+                    <input
+                      value = {AuthUser().username}
+                      onChange={handleChange}
+                      className={StyleTextfield}
+                      type="text"
+                      placeholder={AuthUser().username} 
+                      disabled={true}
+                    />
+                    <input
+                      name="owner"
+                      value = {formData.owner}
+                      type="hidden"
+                    />
+                    </>
+                  }
+                  {errors.owner?.message && <FormErrorMessage message={errors.owner.message as string} />} 
                 </div>
               </div>
+              
             </div>
+          </div>
             <Button 
               type="submit" 
               className="mt-4 w-sm bg-primary"
