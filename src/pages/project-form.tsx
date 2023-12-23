@@ -383,20 +383,24 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
               
             </div>
           </div>
-            <Button 
-              type="submit" 
-              className="mt-4 w-sm bg-primary"
-              disabled = {btnDisabled}
-            >
-                Save
-            </Button>
-            <Button 
-              className="bg-red-500 ml-1"
-              onClick = {handleCancel}
-              disabled={btnDisabled}>
-                Cancel
-            </Button>
-          </form>
+          <div className="p-2 flex">
+            <div className="w-1/2 flex justify-left mt-4">
+              <Button 
+                type="submit" 
+                className=" w-sm bg-primary"
+                disabled = {btnDisabled}
+              >
+                  Save
+              </Button>
+              <Button 
+                className="bg-red-500 ml-2"
+                onClick = {handleCancel}
+                disabled={btnDisabled}>
+                  Cancel
+              </Button>
+            </div>
+          </div>
+        </form>
       </div>
   );
 }
