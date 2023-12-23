@@ -23,7 +23,6 @@ import { upsertUser, AuthUser} from '../lib/data/api';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import PermissionGroupSelect from '../components/permission-group-select';
-import CompanySelect from '../components/company-select';
 interface FormErrors {
   username?: {
     message: string;
@@ -347,63 +346,47 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               </div>
           </fieldset>
           <div className="flex flex-col w-1/2">
-            {AuthUser().isAdmin  && 
-              <div className="mt-0 mb-6">
+            <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
+              <legend className='text-sm'>{formData.id ? 'New Password (optional)' : 'Password'}</legend>
+              <div className="w-full mt-0">
                 <label 
-                  htmlFor="company"
-                  className='mb-1 mt-0 block text-xs font-medium text-gray-900'>
-                  Company
+                  htmlFor="password"
+                  className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+                >
+                  Password
                 </label>
-                <CompanySelect 
-                  name="company" 
-                  value={formData.company} 
-                  changeHandler={handleChange} 
-                  error={errors.company ? true : false}
-                />
+                <div className="relative">
+                  <input
+                    name="password"
+                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    onChange={handleChange}
+                    type={passwordVisible ? "text" : "password"}
+                  />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                </div>
+                
+                
               </div>
-            }
-          <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
-            <legend className='text-sm'>{formData.id ? 'New Password (optional)' : 'Password'}</legend>
-            <div className="w-full mt-0">
-              <label 
-                htmlFor="password"
-                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
-              >
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  name="password"
-                  className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
-                  onChange={handleChange}
-                  type={passwordVisible ? "text" : "password"}
-                />
-                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+              <div className="w-full mt-0">
+                <label 
+                  htmlFor="password_check"
+                  className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+                >
+                  Repeat password
+                </label>
+                <div className="relative">
+                  <input
+                    name="password_check"
+                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    onChange={handleChange}
+                    type={passwordVisible ? "text" : "password"}
+                  />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                    
+                </div>
+                {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
               </div>
-              
-              
-            </div>
-            <div className="w-full mt-0">
-              <label 
-                htmlFor="password_check"
-                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
-              >
-                Repeat password
-              </label>
-              <div className="relative">
-                <input
-                  name="password_check"
-                  className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
-                  onChange={handleChange}
-                  type={passwordVisible ? "text" : "password"}
-                />
-                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
-                  
-              </div>
-              {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
-              
-            </div>
-          </fieldset>
+            </fieldset>
           </div>
         </div>
         
