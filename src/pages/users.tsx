@@ -21,10 +21,7 @@ export function Users() {
   if(!AuthUser().isAdmin){
     navigate('/access-denied')
   }
-  
   const [users, setUsers] = useState<User[]>();
-  
-  
   const [selected, setSelected] = useState([])
   const [error, setError] = useState(false);
   
@@ -106,6 +103,10 @@ export function Users() {
     actions: JSX.Element;
   }
   const handleDelete = (ids: any[]) => {
+    if(ids.includes(AuthUser().id)){
+      toast.error("You cannot delete your own account")
+      return false
+    }
     if(!confirm('Are you sure?')){
       return false;
     }
