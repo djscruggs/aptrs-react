@@ -22,6 +22,8 @@ import { getUser } from '../lib/data/api';
 import { upsertUser, AuthUser} from '../lib/data/api';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
+import PermissionGroupSelect from '../components/permission-group-select';
+import CompanySelect from '../components/company-select';
 interface FormErrors {
   username?: {
     message: string;
@@ -35,7 +37,13 @@ interface FormErrors {
   position?: {
     message: string;
   };
+  company?: {
+    message: string;
+  };
   number?: {
+    message: string;
+  };
+  groups?: {
     message: string;
   };
 }
@@ -122,11 +130,10 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
     loadData();
   }, [id]);
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
-    console.log(name, value)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: inputValue,
@@ -186,66 +193,43 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       <form onSubmit={handleSubmit} id="projectForm" method="POST">
         <div className="grid grid-cols-2 gap-3"> 
         <div>
-        <div className="w-full mb-4">
-          <label 
-            htmlFor="full_name"
-            className={StyleLabel}>
-            Full name
-          </label>
-          <div className="relative">
-            <input
-              name="full_name"
-              className={StyleTextfield}
-              value={formData.full_name}
-              onChange={handleChange}
-              type="text"
-              required
-            />
-            {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+          <div className="w-full mb-4">
+            <label 
+              htmlFor="full_name"
+              className={StyleLabel}>
+              Full name
+            </label>
+            <div className="relative">
+              <input
+                name="full_name"
+                className={StyleTextfield}
+                value={formData.full_name}
+                onChange={handleChange}
+                type="text"
+                required
+              />
+              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+            </div>
           </div>
-        </div>
-        <div className="w-full mb-4">
-          <label 
-            htmlFor="username"
-            className={StyleLabel}>
-            Username
-          </label>
-          <div className="relative">
-            {AuthUser().username === formData.username &&
-              <div className="tooltip tooltip-right" data-tip="You cannot change username"> 
-                <span className="label-text">Active</span> 
-              </div>
-            }
-            <input
-              name="name"
-              className={StyleTextfield}
-              value={formData.username}
-              onChange={handleChange}
-              type="text"
-              disabled = {AuthUser().username === formData.username}
-              required
-            />
-            {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+       
+          <div className="w-full mb-4">
+            <label 
+              className={StyleLabel}
+              htmlFor="email">
+                Email
+            </label>
+            <div className="relative">
+              <input
+                name="address"
+                className={StyleTextfield}
+                value={formData.email}
+                onChange={handleChange}
+                type="text"
+                required
+              />
+              {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+            </div>
           </div>
-        </div>
-        <div className="w-full mb-4">
-          <label 
-            className={StyleLabel}
-            htmlFor="email">
-              Email
-          </label>
-          <div className="relative">
-            <input
-              name="address"
-              className={StyleTextfield}
-              value={formData.email}
-              onChange={handleChange}
-              type="text"
-              required
-            />
-            {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
-          </div>
-        </div>
         </div>
         <div>
         <div className="w-full mb-4">
@@ -282,24 +266,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             />
           </div>
         </div>
-        <div className="w-full mb-4">
-          <label 
-            htmlFor="name"
-            className={StyleLabel}>
-            Company
-          </label>
-          <div className="relative">
-            <input
-              name="company"
-              className={StyleTextfield}
-              value={formData.company}
-              onChange={handleChange}
-              type="text"
-              disabled = {true}
-            />
-            
-          </div>
-        </div>
+        
         </div>
         </div>
         <div className="flex">
@@ -342,7 +309,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 </label>
               
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center mb-0 pb-0">
                 <label 
                   htmlFor="is_staff"
                   className='label cursor-pointer'
@@ -364,8 +331,38 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 }
                 </label>
             </div>
+            <div className="relative pr-2 pt-1">
+                <label 
+                  htmlFor="groups"
+                  className='label pt-0'
+                >
+                  <span className="label-text">Permission Groups</span>
+                </label>
+                <PermissionGroupSelect 
+                  name='groups'
+                  value={formData.groups}
+                  changeHandler={handleChange}
+                  error={errors.groups ? true : false}
+                />
+              </div>
           </fieldset>
-          <fieldset className="form-control rounded-md flex flex-col w-1/2 space-y-2 p-2 border border-slate-200" >
+          <div className="flex flex-col w-1/2">
+            {AuthUser().isAdmin  && 
+              <div className="mt-0 mb-6">
+                <label 
+                  htmlFor="company"
+                  className='mb-1 mt-0 block text-xs font-medium text-gray-900'>
+                  Company
+                </label>
+                <CompanySelect 
+                  name="company" 
+                  value={formData.company} 
+                  changeHandler={handleChange} 
+                  error={errors.company ? true : false}
+                />
+              </div>
+            }
+          <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
             <legend className='text-sm'>{formData.id ? 'New Password (optional)' : 'Password'}</legend>
             <div className="w-full mt-0">
               <label 
@@ -407,8 +404,8 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               
             </div>
           </fieldset>
+          </div>
         </div>
-        {/* Submit button */}
         
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">

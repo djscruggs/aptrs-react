@@ -62,7 +62,6 @@ export async function fetchCustomers() {
   } catch (e) {
     throw e;
   }
- 
 }
 export async function getCustomer(id: string | undefined) {
   if(!id) return null;
@@ -236,5 +235,15 @@ export async function upsertUser(formData: User): Promise<any> {
     return response.data;    
   } catch (error) {
     throw error;
+  }
+}
+
+export async function fetchPermissionGroups() {
+  const url = apiUrl('auth/groups/list/');
+  try {
+    const response = await axios.get(url,authHeaders());
+    return response.data;
+  } catch (e) {
+    throw e;
   }
 }
