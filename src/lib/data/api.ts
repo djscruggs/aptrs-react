@@ -29,24 +29,35 @@ export function AuthUser(): any | undefined {
 
 export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
-  const response = await axios.post(url, { email, password })
-  const result = response.data;
-  if(!result?.access){
-    return null;
-  } else {
-    const user = result as LoginUser;
-    user.email = email;
-    setAuthUser(user)
-    //now get the profile info
-    const profile = await getMyProfile()
-    const mergedUser: User = {
-      ...user,
-      ...profile
+  try {
+    const response = await axios.post(url, { email, password })
+    const result = response.data;
+    if(!result?.access){
+      return false;
+    } else {
+      const user = result as LoginUser;
+      user.email = email;
+      setAuthUser(user)
+      //now get the profile info
+      const profile = await getMyProfile()
+      const mergedUser: User = {
+        ...user,
+        ...profile
+      }
+      setAuthUser(mergedUser)
+      return result;
     }
-    setAuthUser(mergedUser)
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log('AxiosError')
+      console.error(error.response);
+    } else {
+      console.error(error);
+    }
+    return false;
   }
 
-  return result;
+  
  
 }
 
@@ -62,7 +73,6 @@ export async function fetchCustomers() {
   } catch (e) {
     throw e;
   }
- 
 }
 export async function getCustomer(id: string | undefined) {
   if(!id) return null;
@@ -236,5 +246,15 @@ export async function upsertUser(formData: User): Promise<any> {
     return response.data;    
   } catch (error) {
     throw error;
+  }
+}
+
+export async function fetchPermissionGroups() {
+  const url = apiUrl('auth/groups/list/');
+  try {
+    const response = await axios.get(url,authHeaders());
+    return response.data;
+  } catch (e) {
+    throw e;
   }
 }

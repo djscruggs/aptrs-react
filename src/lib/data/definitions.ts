@@ -62,6 +62,13 @@ export type Profile = {
   user: number; //user id
 }
 
+export type PermissionGroup = {
+  id?: number;
+  name: string
+  description: string;
+  list_of_permissions: string;
+}
+
 //react data table types
 export type Column = { //used for data tables
   name: string;
