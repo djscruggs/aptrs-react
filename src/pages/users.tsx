@@ -111,7 +111,7 @@ export function Users() {
     }
     const count = ids.length
     deleteUsers(ids)
-      .then((data) => {
+      .then(() => {
         setRefresh(true)
         let msg:string;
         if(count == 1) {
