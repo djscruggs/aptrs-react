@@ -37,6 +37,13 @@ export async function login(email: string, password:string) {
     const user = result as LoginUser;
     user.email = email;
     setAuthUser(user)
+    //now get the profile info
+    const profile = await getMyProfile()
+    const mergedUser: User = {
+      ...user,
+      ...profile
+    }
+    setAuthUser(mergedUser)
   }
 
   return result;
@@ -201,6 +208,15 @@ export async function deleteUsers(ids: any[]): Promise<any> {
 export async function getUser(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`auth/user/${id}`);
+  try {
+    const response = await axios.get(url, authHeaders())
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+}
+export async function getMyProfile() {
+  const url = apiUrl(`auth/myprofile`);
   try {
     const response = await axios.get(url, authHeaders())
     return response.data;

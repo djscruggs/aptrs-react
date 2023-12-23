@@ -11,16 +11,6 @@ export type Vulnerability = {
   cvssscore: number;
   cvssvector: string;
 };
-export type LoginUser = {
-  email?: string;
-  refresh?: string;
-  access?: string;
-  Status?: string;
-  username?: string;
-  Pic?: string;
-  isAdmin?: boolean;
-  permissions?: string[];
-};
 
 export type Props = {
   children: ReactNode;
@@ -93,4 +83,12 @@ export type User = {
   company?: string;
   position?: string;
   groups?: string[];
+};
+export type LoginUser = User & {
+  refresh?: string;
+  access?: string;
+  Status?: string;
+  Pic?: string;
+  isAdmin?: boolean;
+  permissions?: string[];
 };

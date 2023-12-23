@@ -15,3 +15,13 @@ export function sortByPropertyName<T extends ObjectWithProperty>(arr: T[], varia
     return 0; // properties are equal
   });
 }
+
+export function getInitials(name: string): string {
+  if (name.trim() === '') {
+    return '?'; // Return '?' for an empty string
+  }
+  const nameParts = name.split(' ').filter(part => part !== ''); // Split the name into parts and remove empty parts
+  const initials = nameParts.map(part => part.charAt(0)).join(''); // Get the first character of each part
+
+  return initials.toUpperCase(); // Convert initials to uppercase and return
+}

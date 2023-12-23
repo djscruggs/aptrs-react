@@ -16,6 +16,7 @@ import Dashboard from './pages/dashboard'; // Replace with your protected page c
 import Users from './pages/users'
 import ErrorPage from './pages/error-page';
 import AccessDenied from './pages/access-denied';
+import Profile from './pages/profile';
 
 
 
@@ -41,6 +42,7 @@ const App: React.FC = () => {
             <Route path="/vulnerabilities/:id/edit" element={<CompanyForm />} />
             <Route path="/vulnerabilities/new" element={<CompanyForm />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="/error" element={<ErrorPage />} />
             
