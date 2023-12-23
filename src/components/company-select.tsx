@@ -11,7 +11,7 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   value: any,
   changeHandler: React.ChangeEventHandler | undefined
   error?: boolean
-};
+}
 export default function CompanySelect(props: React.PropsWithChildren<CompanySelectProps>) {
   
   const [companies, setCompanies] = useState<Company[]>();

@@ -226,43 +226,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
             </div>
           </div>
-          <div className="w-full mb-4">
-            <label 
-              htmlFor="full_name"
-              className={StyleLabel}>
-              Full name
-            </label>
-            <div className="relative">
-              <input
-                name="full_name"
-                className={StyleTextfield}
-                value={formData.full_name}
-                onChange={handleChange}
-                type="text"
-                required
-              />
-              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
-            </div>
-          </div>
-       
-          <div className="w-full mb-4">
-            <label 
-              className={StyleLabel}
-              htmlFor="email">
-                Email
-            </label>
-            <div className="relative">
-              <input
-                name="address"
-                className={StyleTextfield}
-                value={formData.email}
-                onChange={handleChange}
-                type="text"
-                required
-              />
-              {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
-            </div>
-          </div>
         </div>
         <div>
         <div className="w-full mb-4">
@@ -306,44 +269,43 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         <div className="flex">
           <fieldset className="mr-4 form-control rounded-md flex flex-col w-1/2 space-y-4 pb-4 pl-4 border border-slate-200" >
             <legend className='text-sm'>User Status</legend>
-              <div className="flex items-center">
-                <label 
-                    htmlFor="is_active"
-                    className='label cursor-pointer text-left'
-                  >
-                    <input type="checkbox" 
-                      name='is_active' 
-                      className='rounded-xl toggle toggle-accent mr-2'
-                      onChange={handleChange}
-                      checked={formData.is_active ? true : false} 
-                      disabled = {AuthUser().username == formData.username }
-                    />
-                    {AuthUser().username === formData.username &&
-                      <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
-                        <span className="label-text">Active</span> 
-                      </div>
-                    }
-                    {AuthUser().username != formData.username &&
-                      <span className="label-text">Active</span> 
-                    }
-                  </label>  
-              </div>
-              <div className="flex items-center">
-                <label 
-                  htmlFor="is_staff"
-                  className='label cursor-pointer'
+            <div className="flex items-center">
+              <label 
+                  htmlFor="is_active"
+                  className='label cursor-pointer text-left'
                 >
                   <input type="checkbox" 
-                  name='is_staff' 
-                  className='rounded-xl toggle toggle-accent mr-2'
-                  onChange={handleChange}
-                  checked={formData.is_staff ? true : false} 
+                    name='is_active' 
+                    className='rounded-xl toggle toggle-accent mr-2'
+                    onChange={handleChange}
+                    checked={formData.is_active ? true : false} 
+                    disabled = {AuthUser().username == formData.username }
                   />
-                  <span className="label-text">Staff Member</span> 
-                </label>
-              
+                  {AuthUser().username === formData.username &&
+                    <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
+                      <span className="label-text">Active</span> 
+                    </div>
+                  }
+                  {AuthUser().username != formData.username &&
+                    <span className="label-text">Active</span> 
+                  }
+                </label>  
             </div>
-            <div className="flex items-center mb-0 pb-0">
+            <div className="flex items-center">
+              <label 
+                htmlFor="is_staff"
+                className='label cursor-pointer'
+              >
+                <input type="checkbox" 
+                name='is_staff' 
+                className='rounded-xl toggle toggle-accent mr-2'
+                onChange={handleChange}
+                checked={formData.is_staff ? true : false} 
+                />
+                <span className="label-text">Staff Member</span> 
+              </label>
+            
+            </div>
             <div className="flex items-center mb-0 pb-0">
                 <label 
                   htmlFor="is_staff"
@@ -379,22 +341,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   changeHandler={handleChange}
                   error={errors.groups ? true : false}
                 />
-              </div>
             </div>
-            <div className="relative pr-2 pt-1">
-                <label 
-                  htmlFor="groups"
-                  className='label pt-0'
-                >
-                  <span className="label-text">Permission Groups</span>
-                </label>
-                <PermissionGroupSelect 
-                  name='groups'
-                  value={formData.groups}
-                  changeHandler={handleChange}
-                  error={errors.groups ? true : false}
-                />
-              </div>
           </fieldset>
           <div className="flex flex-col w-1/2">
             <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >

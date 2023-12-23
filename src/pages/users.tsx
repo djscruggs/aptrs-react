@@ -35,7 +35,7 @@ export function Users() {
   
   const ref = useRef<HTMLDialogElement>(null);
   
-  const openModal = useCallback((id: string ='') => {
+  const openModal = useCallback((id = '') => {
     setUserId(id)
     setShowModal(true)
     ref.current?.showModal();
@@ -109,7 +109,7 @@ export function Users() {
     if(!confirm('Are you sure?')){
       return false;
     }
-    let count = ids.length
+    const count = ids.length
     deleteUsers(ids)
       .then((data) => {
         setRefresh(true)
@@ -131,7 +131,7 @@ export function Users() {
   useEffect(() => {
     fetchUsers()
       .then((data) => {
-        let temp: any = []
+        const temp: any = []
         data.forEach((row: UserWithActions) => {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>

@@ -1,7 +1,7 @@
 interface ShowPasswordButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   passwordVisible: boolean
   clickHandler: React.MouseEventHandler<HTMLButtonElement>
-};
+}
 function ShowPasswordButton({passwordVisible = false, clickHandler}: ShowPasswordButtonProps) {
   
   return(

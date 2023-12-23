@@ -10,7 +10,7 @@ interface PermissionGroupProps extends React.SelectHTMLAttributes<HTMLSelectElem
   value: string[] | undefined,
   changeHandler: React.ChangeEventHandler | undefined
   error?: boolean
-};
+}
 export default function PermissionGroupSelect(props: React.PropsWithChildren<PermissionGroupProps>) {
   
   const [permissionGroups, setPermissionGroups] = useState<PermissionGroup[]>();
