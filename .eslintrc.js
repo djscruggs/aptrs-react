@@ -36,6 +36,7 @@ module.exports = {
         "react/prop-types": "off",
         "no-useless-catch": "off",
         "prefer-const":"off",
+        "no-unused-vars": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-extra-semi":"off",
         "@typescript-eslint/ban-types" : "off",
