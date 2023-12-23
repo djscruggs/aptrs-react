@@ -39,7 +39,13 @@ interface FormErrors {
   company?: {
     message: string;
   };
+  company?: {
+    message: string;
+  };
   number?: {
+    message: string;
+  };
+  groups?: {
     message: string;
   };
   groups?: {
@@ -129,6 +135,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
     loadData();
   }, [id]);
+  const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
   const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
     // Check the type of input - checkboxes don't have a value attribute
@@ -229,6 +236,43 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
             </div>
           </div>
+          <div className="w-full mb-4">
+            <label 
+              htmlFor="full_name"
+              className={StyleLabel}>
+              Full name
+            </label>
+            <div className="relative">
+              <input
+                name="full_name"
+                className={StyleTextfield}
+                value={formData.full_name}
+                onChange={handleChange}
+                type="text"
+                required
+              />
+              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+            </div>
+          </div>
+       
+          <div className="w-full mb-4">
+            <label 
+              className={StyleLabel}
+              htmlFor="email">
+                Email
+            </label>
+            <div className="relative">
+              <input
+                name="address"
+                className={StyleTextfield}
+                value={formData.email}
+                onChange={handleChange}
+                type="text"
+                required
+              />
+              {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+            </div>
+          </div>
         </div>
         <div>
         <div className="w-full mb-4">
@@ -265,6 +309,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             />
           </div>
         </div>
+        
         
         </div>
         </div>
@@ -309,6 +354,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               
             </div>
             <div className="flex items-center mb-0 pb-0">
+            <div className="flex items-center mb-0 pb-0">
                 <label 
                   htmlFor="is_staff"
                   className='label cursor-pointer'
@@ -329,6 +375,21 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   <span className="label-text">Administrator</span> 
                 }
                 </label>
+            </div>
+            <div className="relative pr-2 pt-1">
+                <label 
+                  htmlFor="groups"
+                  className='label pt-0'
+                >
+                  <span className="label-text">Permission Groups</span>
+                </label>
+                <PermissionGroupSelect 
+                  name='groups'
+                  value={formData.groups}
+                  changeHandler={handleChange}
+                  error={errors.groups ? true : false}
+                />
+              </div>
             </div>
             <div className="relative pr-2 pt-1">
                 <label 
