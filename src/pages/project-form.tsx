@@ -167,7 +167,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (
-          <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+          <div className="flex-1 rounded-lg  px-6 pb-4 pt-8">
           {saveError && <FormErrorMessage message={saveError} />}
           <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
           <PageTitle title={id ? "Edit Project" : "Create Project"} />
