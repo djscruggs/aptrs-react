@@ -36,16 +36,7 @@ interface FormErrors {
   position?: {
     message: string;
   };
-  company?: {
-    message: string;
-  };
-  company?: {
-    message: string;
-  };
   number?: {
-    message: string;
-  };
-  groups?: {
     message: string;
   };
   groups?: {
@@ -135,7 +126,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
     loadData();
   }, [id]);
-  const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
   const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
     // Check the type of input - checkboxes don't have a value attribute
