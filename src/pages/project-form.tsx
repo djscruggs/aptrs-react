@@ -65,9 +65,8 @@ interface FormErrors {
 
 interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
-  isModal?: boolean
 }
-function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JSX.Element {
+function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const params = useParams()
   const { id: routeId } = params;
   const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
@@ -91,7 +90,6 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
   
   const [errors, setErrors] = useState<FormErrors>({});
   const [users, setUsers] = useState<User[]>();
-
   useEffect(() => {
     const loadData = async () => {
       if (id) {
@@ -153,7 +151,7 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
       console.log('Form failed validation:', newErrors);
     } else {
       try {
-        const response = await upsertProject(formData as Project);
+        await upsertProject(formData as Project);
         
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
@@ -223,13 +221,21 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
                   >
                     Company
                   </label>
+                  
+                  
                   <div className="relative">
-                    <CompanySelect 
-                      name="companyname" 
-                      value={formData.companyname} 
-                      changeHandler={handleChange} 
-                      error={errors.companyname ? true : false}
-                    />
+                    {/* only show company select for new objects */}
+                    {!formData.id  &&
+                      <CompanySelect 
+                        name="companyname" 
+                        value={formData.companyname} 
+                        changeHandler={handleChange} 
+                        error={errors.companyname ? true : false}
+                      />
+                    }
+                    {formData.id &&
+                      <span>{formData.companyname}</span>
+                    }
                     
                     {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
                   </div>
@@ -383,6 +389,12 @@ function ProjectForm({ id: externalId, isModal: isModal }: ProjectFormProps): JS
               disabled = {btnDisabled}
             >
                 Save
+            </Button>
+            <Button 
+              className="bg-red-500 ml-1"
+              onClick = {handleCancel}
+              disabled={btnDisabled}>
+                Cancel
             </Button>
           </form>
       </div>
