@@ -19,8 +19,6 @@ const Login: React.FC = () => {
     setBtnDisabled(true)
     
     const result = await login(email,password)
-    //api returns login errors like so:
-    // {detail:"No active account found with the given credentials"}
     if(!result){
       //bad email & password
       setLoginError(true)

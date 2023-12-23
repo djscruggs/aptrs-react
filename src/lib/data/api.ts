@@ -29,24 +29,35 @@ export function AuthUser(): any | undefined {
 
 export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
-  const response = await axios.post(url, { email, password })
-  const result = response.data;
-  if(!result?.access){
-    return null;
-  } else {
-    const user = result as LoginUser;
-    user.email = email;
-    setAuthUser(user)
-    //now get the profile info
-    const profile = await getMyProfile()
-    const mergedUser: User = {
-      ...user,
-      ...profile
+  try {
+    const response = await axios.post(url, { email, password })
+    const result = response.data;
+    if(!result?.access){
+      return false;
+    } else {
+      const user = result as LoginUser;
+      user.email = email;
+      setAuthUser(user)
+      //now get the profile info
+      const profile = await getMyProfile()
+      const mergedUser: User = {
+        ...user,
+        ...profile
+      }
+      setAuthUser(mergedUser)
+      return result;
     }
-    setAuthUser(mergedUser)
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log('AxiosError')
+      console.error(error.response);
+    } else {
+      console.error(error);
+    }
+    return false;
   }
 
-  return result;
+  
  
 }
 
