@@ -211,12 +211,18 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             Username
           </label>
           <div className="relative">
+            {AuthUser().username === formData.username &&
+              <div className="tooltip tooltip-right" data-tip="You cannot change username"> 
+                <span className="label-text">Active</span> 
+              </div>
+            }
             <input
               name="name"
               className={StyleTextfield}
               value={formData.username}
               onChange={handleChange}
               type="text"
+              disabled = {AuthUser().username === formData.username}
               required
             />
             {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
