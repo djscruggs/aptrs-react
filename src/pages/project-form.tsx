@@ -186,6 +186,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <div className="relative">
                     <input
                       name="name"
+                      id="name"
                       value = {formData.name}
                       className={StyleTextfield}
                       onChange={handleChange}
@@ -205,6 +206,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <div className="relative">
                     <input
                       name="projecttype"
+                      id="projecttype"
                       value = {formData.projecttype}
                       onChange={handleChange}
                       className={StyleTextfield}
@@ -227,7 +229,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {/* only show company select for new objects */}
                     {!formData.id  &&
                       <CompanySelect 
-                        name="companyname" 
+                        name="companyname"
+                        id="companyname"
                         value={formData.companyname} 
                         changeHandler={handleChange} 
                         error={errors.companyname ? true : false}
@@ -249,6 +252,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                     <CKEditor
+                      id="description"
                       data = {formData.description}
                       onReady={ editor => {
                             if (formData.description) editor.setData(formData.description)
@@ -274,6 +278,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                       <DatePicker
+                        id="startdate"
                         placeholderText='Select date'
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
@@ -291,6 +296,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                     <DatePicker
+                      id="enddate"
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
                       onChange={(date:string) => handleDatePicker('enddate', date)}
@@ -310,6 +316,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 <div className="relative">
                   <input
                     name="testingtype"
+                    id="testingtype"
                     value = {formData.testingtype}
                     onChange={handleChange}
                     className={StyleTextfield}
@@ -329,6 +336,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 <div className="relative">
                   <input
                     name="projectexception"
+                    id="projectexception"
                     value = {formData.projectexception}
                     onChange={handleChange}
                     className={StyleTextfield}
@@ -349,6 +357,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 <div className="relative">
                   {AuthUser()?.isAdmin  &&
                     <select name="owner"
+                            id="owner"
                             value={formData.owner} 
                             onChange={handleChange}
                             className={StyleTextfield}

@@ -198,6 +198,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             <div className="relative">
               <input
                 name="full_name"
+                id="full_name"
                 className={StyleTextfield}
                 value={formData.full_name}
                 onChange={handleChange}
@@ -217,6 +218,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             <div className="relative">
               <input
                 name="address"
+                id="email"
                 className={StyleTextfield}
                 value={formData.email}
                 onChange={handleChange}
@@ -237,6 +239,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
           <div className="relative">
             <input
               name="number"
+              id="name"
               className={StyleTextfield}
               value={formData.number}
               onChange={handleChange}
@@ -247,13 +250,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         </div>
         <div className="w-full mb-4">
           <label 
-            htmlFor="name"
+            htmlFor="position"
             className={StyleLabel}>
             Position
           </label>
           <div className="relative">
             <input
               name="position"
+              id="position"
               className={StyleTextfield}
               value={formData.position}
               onChange={handleChange}
@@ -276,6 +280,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 >
                   <input type="checkbox" 
                     name='is_active' 
+                    id="is_active"
                     className='rounded-xl toggle toggle-accent mr-2'
                     onChange={handleChange}
                     checked={formData.is_active ? true : false} 
@@ -298,6 +303,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               >
                 <input type="checkbox" 
                 name='is_staff' 
+                id="is_staff"
                 className='rounded-xl toggle toggle-accent mr-2'
                 onChange={handleChange}
                 checked={formData.is_staff ? true : false} 
@@ -308,11 +314,12 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             </div>
             <div className="flex items-center mb-0 pb-0">
                 <label 
-                  htmlFor="is_staff"
+                  htmlFor="is_superuser"
                   className='label cursor-pointer'
                 >
                   <input type="checkbox" 
-                  name='is_superuser' 
+                  name='is_superuser'
+                  id="is_superuser"
                   className='rounded-xl toggle toggle-accent mr-2'
                   onChange={handleChange}
                   checked={formData.is_superuser ? true : false} 
@@ -337,6 +344,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 </label>
                 <PermissionGroupSelect 
                   name='groups'
+                  id="groups"
                   value={formData.groups}
                   changeHandler={handleChange}
                   error={errors.groups ? true : false}
@@ -356,6 +364,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 <div className="relative">
                   <input
                     name="password"
+                    id="password"
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}
@@ -375,6 +384,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 <div className="relative">
                   <input
                     name="password_check"
+                    id="password_check"
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}

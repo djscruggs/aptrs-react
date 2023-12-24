@@ -167,6 +167,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
           <div className="relative">
             <input
               name="name"
+              id="name"
               className={StyleTextfield}
               value={formData.name}
               onChange={handleChange}
@@ -185,6 +186,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
           <div className="relative">
             <input
               name="address"
+              id="address"
               className={StyleTextfield}
               value={formData.address}
               onChange={handleChange}
@@ -203,6 +205,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
           {/* <div className="relative">
             <input
               name="img"
+              id="img"
               className={StyleTextfield}
               value={formData.img}
               onChange={handleChange}

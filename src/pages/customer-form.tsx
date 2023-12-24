@@ -184,6 +184,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             <div className="relative">
               <input
                 name="name"
+                id="name"
                 value = {formData.name}
                 onChange={handleChange}
                 className={StyleTextfield}
@@ -203,6 +204,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             <div className="relative">
               <input
                 name="email"
+                id="email"
                 value = {formData.email}
                 className={StyleTextfield}
                 onChange={handleChange}
@@ -222,6 +224,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             <div className="relative">
               <input
                 name="phoneNumber"
+                id="phoneNumber"
                 value = {formData.phoneNumber}
                 onChange={handleChange}
                 className={StyleTextfield}
@@ -241,6 +244,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             <div className="relative">
               <CompanySelect 
                   name="companyname" 
+                  id="companyName"
                   value={formData.company} 
                   changeHandler={handleChange} 
                   error={errors.company ? true : false}
@@ -258,6 +262,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             <div className="relative">
               <input
                 name="position"
+                id="position"
                 value = {formData.position}
                 onChange={handleChange}
                 className={StyleTextfield}
