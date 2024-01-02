@@ -13,11 +13,11 @@ function authHeaders(): { headers: Record<string, string> } {
 
 export function setAuthUser(user: LoginUser): void {
   const jsonUser = JSON.stringify(user);
-  sessionStorage.setItem('user', jsonUser);
+  localStorage.setItem('user', jsonUser);
 }
 
 export function AuthUser(): any | undefined {
-  const jsonUser = sessionStorage.getItem('user');
+  const jsonUser = localStorage.getItem('user');
   if(jsonUser !== null) {
     return JSON.parse(jsonUser) as LoginUser;
   }
@@ -46,7 +46,7 @@ export async function login(email: string, password:string) {
 }
 
 export function logout() {
-  sessionStorage.removeItem('user');
+  localStorage.removeItem('user');
 }
 
 export async function fetchCustomers() {
