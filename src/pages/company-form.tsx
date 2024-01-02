@@ -5,7 +5,6 @@ import React, {
   FormEvent,
   RefObject
 } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
@@ -68,7 +67,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
       }
     }
     //set flag to true if an input eleent
-    function handleInputChange(e: Event){
+    function handleInputChange(){
       editing = true;
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -107,7 +106,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
       [name]: value,
     }));
   };
-  const navigate = useNavigate()
+  
   const closeModal = () =>  {
     setId('')
     if(forwardedRef?.current ) {
@@ -129,7 +128,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        const response = await upsertCompany(formData as Company);
+        await upsertCompany(formData as Company);
         toast.success('Company saved.')
         if(setRefresh){
           setRefresh(true)

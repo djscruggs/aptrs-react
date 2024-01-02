@@ -17,7 +17,6 @@ import { FormSkeleton } from '../components/skeletons'
 import { getCustomer } from '../lib/data/api';
 import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
-import { Company } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 
 interface FormErrors {
@@ -80,7 +79,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       }
     }
     //set flag to true if an input eleent
-    function handleInputChange(e: Event){
+    function handleInputChange(){
       editing = true;
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -145,7 +144,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        const response = await upsertCustomer(formData as Customer);
+        await upsertCustomer(formData as Customer);
         toast.success('Customer saved.')
         if(setRefresh){
           setRefresh(true)

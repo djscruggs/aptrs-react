@@ -94,7 +94,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       }
     }
     //set flag to true if an input eleent
-    function handleInputChange(e: Event){
+    function handleInputChange(){
       editing = true;
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -153,15 +153,18 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
-    if (formData.email && formData.email.length < 3) {
-      newErrors.email = { message: 'Name should be at least three characters' };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(String(formData?.email))) {
+      newErrors.email = { message: 'Enter a valid email address' };
     }
+    
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        const response = await upsertUser(formData as User);
+        await upsertUser(formData as User);
         toast.success('User saved.')
         if(setRefresh){
           setRefresh(true)
