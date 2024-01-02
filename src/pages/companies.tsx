@@ -79,7 +79,7 @@ export function Companies() {
     }
     let count = ids.length
     deleteCompanies(ids)
-      .then((data) => {
+      .then(() => {
         setRefresh(true)
         let msg:string;
         if(count == 1) {

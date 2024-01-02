@@ -1,15 +1,13 @@
 import {Vulnerability, Column} from '../lib/data/definitions'
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { fetchCompanies, deleteCompanies, fetchVulnerabilities } from "../lib/data/api";
+import {  fetchVulnerabilities } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
-import { Modal } from 'react-daisyui'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
-import { toast } from 'react-hot-toast';
 const Vulnerabilities = () => {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>();
   const [selected, setSelected] = useState([])
@@ -45,6 +43,7 @@ const Vulnerabilities = () => {
   }, [refresh]);
 
   const handleDelete = (ids: any[]) => {
+    console.log(ids)
     alert('not implemented yet')
   }
   // Title: The title of the vulnerability.
@@ -78,7 +77,7 @@ const Vulnerabilities = () => {
     },
     {
       name: 'Status',
-      selector: (row: VulnWithActions) => 'Status does not exist in api',
+      selector: () => 'Status does not exist in api',
       maxWidth: '5em'
     },
     {

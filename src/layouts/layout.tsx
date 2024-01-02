@@ -3,14 +3,14 @@ import { Toaster } from 'react-hot-toast';
 import { AuthUser } from '../lib/data/api';
 import {getInitials} from '../lib/utilities'
 import { Link } from 'react-router-dom';
+import {authenticated} from '../lib/authcontext'
+import { useContext } from 'react';
 
 interface LayoutProps {
-
   children: React.ReactNode;
-  isAuthenticated?: boolean;
-  // Other props if applicable
 }
-const Layout: React.FC<LayoutProps> = ({isAuthenticated = false, children}) => {
+const Layout: React.FC<LayoutProps> = ({ children}) => {
+  const isAuthenticated = authenticated()
   return (
     <>
     <Toaster />

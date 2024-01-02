@@ -1,12 +1,9 @@
 import React, { 
   useState, 
   useEffect,
-  ChangeEvent, 
-  FormEvent
 } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
-import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { getProject } from '../lib/data/api';
 import { Project } from '../lib/data/definitions'

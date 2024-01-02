@@ -22,7 +22,11 @@ import { getUser } from '../lib/data/api';
 import { upsertUser, AuthUser} from '../lib/data/api';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 import PermissionGroupSelect from '../components/permission-group-select';
+
+
 interface FormErrors {
   username?: {
     message: string;
@@ -43,6 +47,7 @@ interface FormErrors {
     message: string;
   };
 }
+
 interface UserFormProps {
   id?: string; // Make the ID parameter optional
   forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
@@ -50,6 +55,7 @@ interface UserFormProps {
   onClose: () => void;
 }
 function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormProps): JSX.Element {
+  
   const [id, setId] = useState(userId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
@@ -74,7 +80,8 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     password_check: '',
     groups: [],
   });
-  
+  //used in phone number input
+  const defaultCountry = AuthUser().location.country 
   const [errors, setErrors] = useState<FormErrors>({});
   
   useEffect(() => {
@@ -108,11 +115,11 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('loading')
       if (id) {
         setLoading(true);
         try {
           const userData = await getUser(id) as User;
-          
           setFormData(userData);
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -126,8 +133,16 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
     loadData();
   }, [id]);
-  const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
+  //needed a customer handler for phone number
+  const handlePhoneInputChange = (value:string) => {
+    setFormData({
+      ...formData,
+      number:value
+    })    
+  };
+  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
+    
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
     setFormData((prevFormData) => ({
@@ -149,16 +164,19 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
     event.preventDefault();
-    console.log(formData)
-    // Perform your form validation here
-    const newErrors: FormErrors = {};
-    // Example validation logic (replace with your own)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
+    // FORM VALIDATION
+    const newErrors: FormErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(String(formData?.email))) {
       newErrors.email = { message: 'Enter a valid email address' };
     }
-    
+    const phoneRegex = /^(\+[1-9]\d{0,2}-)?\d{1,14}$/;
+    if (!phoneRegex.test(String(formData?.number))) {
+      newErrors.number = { message: 'Enter a valid phone number with country code' };
+    } else {
+      console.log('phone number passed ', String(formData?.number))
+    }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
@@ -220,7 +238,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             </label>
             <div className="relative">
               <input
-                name="address"
+                name="email"
                 id="email"
                 className={StyleTextfield}
                 value={formData.email}
@@ -240,14 +258,22 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             Phone number
           </label>
           <div className="relative">
-            <input
+          <PhoneInput
+              value={formData.number}
+              onChange={handlePhoneInputChange}
+              name="number"
+              defaultCountry={defaultCountry}
+              id="number"
+              
+              />
+            {/* <input
               name="number"
               id="name"
               className={StyleTextfield}
               value={formData.number}
               onChange={handleChange}
               type="text"
-            />
+            /> */}
             {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
           </div>
         </div>

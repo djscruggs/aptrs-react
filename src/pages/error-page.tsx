@@ -24,6 +24,6 @@ export function ErrorPage({ is404 = false }: React.PropsWithChildren<ErrorPagePr
     </div>
 </div>
   );
-};
+}
 
 export default ErrorPage;

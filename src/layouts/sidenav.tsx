@@ -4,13 +4,16 @@ import NavLinks from './navlinks';
 import { PowerIcon } from '@heroicons/react/24/outline';
 import {logout} from '../lib/data/api'
 import Button from '../components/button';
-
-const SideNav: React.FC = (isAuthenticated = false) => {
+import {authenticated} from '../lib/authcontext'
+import { useContext, useState } from 'react';
+import { useNavigate } from "react-router-dom";
+const SideNav: React.FC = () => {
+  const isAuthenticated = authenticated()
   
+  const navigate = useNavigate();
   const handleSignOut = () => {
     logout();
-    document.location = "/";
-    
+    document.location = '/'
   }
 
   return (

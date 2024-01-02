@@ -1,7 +1,7 @@
 import { withAuth } from "../lib/authutils";
 import { Projects } from "./projects";
 
-import { DashboardSkeleton } from '../components/skeletons';
+
 const Dashboard = () => {
   const searchBar = () => {
 

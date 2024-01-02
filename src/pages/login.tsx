@@ -8,11 +8,14 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
 import { login } from '../lib/data/api';
 import { StyleLabel } from '../lib/formstyles'
+import { Navigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [loginResult, setLoginResult] = useState(false)
+  const [redirect, setRedirect]= useState('/dashboard')
   const [btnDisabled, setBtnDisabled] = useState(false);
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -24,16 +27,19 @@ const Login: React.FC = () => {
       setLoginError(true)
       setBtnDisabled(false)
     } else {
+      setLoginResult(true)
       //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
-      const redirect = localStorage.getItem('redirect')
-      if(redirect){
+      const storedRedirect = localStorage.getItem('redirect')
+      if(storedRedirect){
         localStorage.removeItem('redirect')
-        document.location = redirect;
-      } else {
-        document.location = "/dashboard";
+        setRedirect(storedRedirect)
+
       }
     } 
   };
+  if(loginResult){
+    return <Navigate to={redirect} />
+  }
   return (
           
             <div className="max-w-sm flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -88,10 +94,10 @@ const Login: React.FC = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="bg-primary"
+                    className="bg-primary disabled:bg-gray-300"
                     disabled = {btnDisabled}
                   >
-                      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+                      {btnDisabled ? 'Please wait' : 'Log in'} <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
                   </Button>
                   {loginError &&
                     <div className="flex h-8 mt-1em items-end space-x-1" aria-live="polite" aria-atomic="true">

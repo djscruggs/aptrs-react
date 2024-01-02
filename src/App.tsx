@@ -23,11 +23,10 @@ import VulnerabilityForm from './pages/vulnerability-form';
 
 
 const App: React.FC = () => {
-  const isAuthenticated = authenticated(); // Fallback to false if context is undefined
   return (
     <AuthProvider>
       <Router>
-        <Layout isAuthenticated={isAuthenticated}>
+        <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

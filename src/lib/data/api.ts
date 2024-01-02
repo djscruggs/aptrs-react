@@ -1,5 +1,6 @@
-import {Company, Project, User, LoginUser} from './definitions'
+import {Company, Project, User, LoginUser, IPAddressInfo} from './definitions'
 import axios from 'axios'
+
 
 
 function apiUrl(endpoint = ''): string {
@@ -33,6 +34,9 @@ export async function login(email: string, password:string) {
   } else {
     const user = result as LoginUser;
     user.email = email;
+    //now get the user's location
+    const location = await getUserLocation()
+    user.location = location as IPAddressInfo
     setAuthUser(user)
     //now get the profile info
     const profile = await getMyProfile()
@@ -40,6 +44,8 @@ export async function login(email: string, password:string) {
       ...user,
       ...profile
     }
+    console.log('mergedUser')
+    console.log(mergedUser)
     setAuthUser(mergedUser)
     return result;
   }
@@ -53,6 +59,10 @@ export async function fetchCustomers() {
   const url = apiUrl('customer/all-customer');
   const response = await axios.get(url,authHeaders());
   return response.data;
+}
+export async function getUserLocation(){ 
+    const response = await axios.get("https://ipapi.co/json/")
+    return response.data
 }
 export async function getCustomer(id: string | undefined) {
   if(!id) return null;

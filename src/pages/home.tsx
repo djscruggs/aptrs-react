@@ -1,11 +1,15 @@
 import AcmeLogo from '../components/acme-logo';
-import {ArrowRightIcon} from '@heroicons/react/24/outline';
-import { Link } from "react-router-dom";
 import Login from './login';
-import React from 'react';
+import { AuthUser } from '../lib/data/api';
+import { Navigate } from 'react-router-dom';
 
 
 export default function Home() {
+  //if logged in, redirect to dashboard
+  if(AuthUser()){
+    return <Navigate to={"/dashboard"} />
+  }
+  
   return (
     <main className="flex min-h-screen flex-col p-6">
       <div className="bg-primary flex h-20 shrink-0 items-end rounded-lg bg-primary-500 color-primary p-4 md:h-52">
