@@ -21,22 +21,27 @@ const Login: React.FC = () => {
     e.preventDefault()
     setBtnDisabled(true)
     
-    const result = await login(email,password)
-    if(!result){
-      //bad email & password
-      setLoginError(true)
-      setBtnDisabled(false)
-    } else {
-      setLoginResult(true)
-      //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
-      const storedRedirect = localStorage.getItem('redirect')
-      if(storedRedirect){
-        localStorage.removeItem('redirect')
-        setRedirect(storedRedirect)
-
+    try {
+      const result = await login(email,password)
+      if(!result){
+        //bad email & password
+        setLoginError(true)
+        setBtnDisabled(false)
+      } else {
+        setLoginResult(true)
+        //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
+        const storedRedirect = localStorage.getItem('redirect')
+        if(storedRedirect){
+          localStorage.removeItem('redirect')
+          setRedirect(storedRedirect)
+        }
       }
-    } 
-  };
+    } catch(error) {
+      console.log(error)
+    } finally {
+      setBtnDisabled(false)
+    }
+  }
   if(loginResult){
     return <Navigate to={redirect} />
   }
