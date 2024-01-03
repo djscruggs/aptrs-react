@@ -24,32 +24,39 @@ import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
+import { phoneRegex, emailRegex, usernameRegex } from '../lib/utilities';
 import PermissionGroupSelect from '../components/permission-group-select';
 
 
 interface FormErrors {
   username?: {
     message: string;
-  };
+  }
   email?: {
     message: string;
-  };
+  }
   full_name?: {
     message: string;
-  };
+  }
   position?: {
     message: string;
-  };
+  }
   number?: {
     message: string;
-  };
+  }
   groups?: {
     message: string;
-  };
+  }
+  password?:{
+    message: string;
+  }
+  password_check?:{
+    message: string;
+  }
 }
 
 interface UserFormProps {
-  id?: string; // Make the ID parameter optional
+  id?: string;
   forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
   onClose: () => void;
@@ -123,7 +130,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         } catch (error) {
           console.error("Error fetching user data:", error);
           setLoadingError(true);
-          // Handle error fetching data
         } finally {
           setLoading(false);
         }
@@ -162,19 +168,32 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
+    setErrors({})
     event.preventDefault();
     
     // FORM VALIDATION
     const newErrors: FormErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(String(formData?.email))) {
       newErrors.email = { message: 'Enter a valid email address' };
     }
-    const phoneRegex = /^(\+[1-9]\d{0,2}-)?\d{1,14}$/;
-    if (!phoneRegex.test(String(formData?.number))) {
-      newErrors.number = { message: 'Enter a valid phone number with country code' };
-    } else {
-      console.log('phone number passed ', String(formData?.number))
+    // const phoneRegex = /^(\+[1-9]\d{0,2}-)?\d{1,14}$/;
+    if(formData?.number){
+      if (!phoneRegex.test(String(formData?.number))) {
+        newErrors.number = { message: 'Enter a valid phone number' };
+      }
+    }
+    if (!usernameRegex.test(String(formData?.username))) {
+      newErrors.email = { message: 'Username must be alphanumeric' };
+    }
+    if(formData.password != formData.password_check){
+      newErrors.password_check = { message: 'Passwords do not match' };
+    }
+    if(!id && !formData.password){
+      newErrors.password = { message: 'Password is required' };
+    }
+    console.log(Array.isArray(formData.groups))
+    if(!Array.isArray(formData.groups) || formData.groups?.length < 1){
+      newErrors.groups = { message: 'Select at least on group' };
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
@@ -223,9 +242,9 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 value={formData.full_name}
                 onChange={handleChange}
                 type="text"
-                required
+                required={true}
               />
-              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+              {errors.full_name?.message && <FormErrorMessage message={errors.full_name.message} />}
             </div>
           </div>
        
@@ -243,9 +262,29 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 value={formData.email}
                 onChange={handleChange}
                 type="text"
-                required
+                required={true}
               />
               {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+            </div>
+          </div>
+          <div className="w-full mb-4">
+            <label 
+              className={StyleLabel}
+              htmlFor="email">
+                Username
+            </label>
+            <div className="relative">
+              <input
+                name="username"
+                id="username"
+                className={StyleTextfield}
+                value={formData.username}
+                onChange={handleChange}
+                type="text"
+                maxLength={20}
+                required={true}
+              />
+              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
             </div>
           </div>
         </div>
@@ -262,17 +301,11 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               onChange={handlePhoneInputChange}
               name="number"
               defaultCountry={defaultCountry}
-              id="number"
-              
-              />
-            {/* <input
-              name="number"
-              id="name"
               className={StyleTextfield}
-              value={formData.number}
-              onChange={handleChange}
-              type="text"
-            /> */}
+              id="number"
+              required={true}
+              />
+            
             {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
           </div>
         </div>
@@ -373,10 +406,12 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 <PermissionGroupSelect 
                   name='groups'
                   id="groups"
+                  multiple={true}
                   value={formData.groups}
                   changeHandler={handleChange}
                   error={errors.groups ? true : false}
                 />
+                 {errors.groups?.message && <FormErrorMessage message={errors.groups.message} />}
             </div>
           </fieldset>
           <div className="flex flex-col w-1/2">
@@ -396,6 +431,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}
+                    required={id ? false : true}
                   />
                   <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
                 </div>
@@ -416,6 +452,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}
+                    required={id ? false : true}
                   />
                   <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
                     

@@ -20,7 +20,7 @@ export const ModalErrorMessage: React.FC<FormErrorMessageProps> = ({ message }) 
   return (
     <>
       <p className='text-lg text-red-500'>
-        <ExclamationCircleIcon className='inline h-5 w-5 mr-1 text-red-500' />
+        <ExclamationCircleIcon className='inline w-5 mr-1 text-red-500' />
         {message}
       </p>
     </>
