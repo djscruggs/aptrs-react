@@ -9,7 +9,7 @@ import {Button} from '../components/button'
 import { login } from '../lib/data/api';
 import { StyleLabel } from '../lib/formstyles'
 import { Navigate } from 'react-router-dom';
-
+import ShowPasswordButton from '../components/show-password-button'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +18,10 @@ const Login: React.FC = () => {
   const [loginResult, setLoginResult] = useState(false)
   const [redirect, setRedirect]= useState('/dashboard')
   const [btnDisabled, setBtnDisabled] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  function togglePasswordVisibility() {
+    setPasswordVisible((prevState) => !prevState);
+  }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setBtnDisabled(true)
@@ -78,7 +82,7 @@ const Login: React.FC = () => {
                         <input
                           className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
                           id="password"
-                          type="password"
+                          type={passwordVisible ? "text" : "password"}
                           name="password"
                           placeholder="Enter password"
                           required
@@ -87,6 +91,7 @@ const Login: React.FC = () => {
                           onChange={(e) => setPassword(e.target.value)}
                         />
                         <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                        <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
                       </div>
                     </div>
                   </div>
