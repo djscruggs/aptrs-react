@@ -2,7 +2,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Layout from './layouts/layout';
-import { AuthProvider, authenticated } from './lib/authcontext';
 import Home from './pages/home';
 import Login from './pages/login';
 import Vulnerabilities from './pages/vulnerabilities';
@@ -22,9 +21,12 @@ import VulnerabilityForm from './pages/vulnerability-form';
 
 
 
+
+
 const App: React.FC = () => {
+  
+  
   return (
-    <AuthProvider>
       <Router>
         <Layout>
           <Routes>
@@ -52,7 +54,7 @@ const App: React.FC = () => {
           </Routes>
         </Layout>
       </Router>
-    </AuthProvider>
+  
   );
 };
 

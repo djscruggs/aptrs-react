@@ -10,6 +10,7 @@ import { login } from '../lib/data/api';
 import { StyleLabel } from '../lib/formstyles'
 import { Navigate } from 'react-router-dom';
 
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,38 +21,30 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setBtnDisabled(true)
-    
-    try {
-      const result = await login(email,password)
-      if(!result){
-        //bad email & password
-        setLoginError(true)
-        setBtnDisabled(false)
-      } else {
-        setLoginResult(true)
-        //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
-        const storedRedirect = localStorage.getItem('redirect')
-        if(storedRedirect){
-          localStorage.removeItem('redirect')
-          setRedirect(storedRedirect)
-        }
-      }
-    } catch(error) {
-      console.log(error)
-    } finally {
+    const result = await login(email,password)
+    if(!result){
+      //bad email & password
+      setLoginError(true)
       setBtnDisabled(false)
+    }  else {
+      setLoginResult(true)
+      //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
+      const storedRedirect = localStorage.getItem('redirect')
+      if(storedRedirect){
+        localStorage.removeItem('redirect')
+        setRedirect(storedRedirect)
+      }
     }
+    
   }
   if(loginResult){
-    return <Navigate to={redirect} />
+      document.location='/'
   }
   return (
           
             <div className="max-w-sm flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                 <form action="" onSubmit={handleLogin} id="loginForm">
-                  {/* <h1 className="mb-3 text-2xl">
-                    Please log in to continue.
-                  </h1> */}
+                  
                   <div className="w-full mb-4">
                     <div>
                       <label

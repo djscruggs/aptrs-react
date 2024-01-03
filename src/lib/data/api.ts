@@ -1,5 +1,5 @@
 import {Company, Project, User, LoginUser, IPAddressInfo} from './definitions'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 
 
@@ -27,8 +27,20 @@ export function AuthUser(): any | undefined {
 
 export async function login(email: string, password:string) {
   const url = apiUrl('auth/login/');
-  const response = await axios.post(url, { email, password })
-  const result = response.data;
+  // login failure throws a 401 unauthorized exception
+  // catch it here and return boolean; otherwise throw error
+  let result
+  try {
+    const response = await axios.post(url, { email, password })
+    result = response.data;
+  } catch (error: any | unknown){
+    if (axios.isAxiosError(error)) {
+      if(error.response?.status == 401) {
+        return false;
+      } 
+    }
+    throw error;
+  }
   if(!result?.access){
     return false;
   } else {

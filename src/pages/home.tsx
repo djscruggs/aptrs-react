@@ -1,10 +1,13 @@
 import AcmeLogo from '../components/acme-logo';
 import Login from './login';
 import { AuthUser } from '../lib/data/api';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 
 export default function Home() {
+  const location = useLocation()
+  //is this a relogin after session expiration? set in WithAuth in authutils
+  const isRelogin = location.state?.relogin
   //if logged in, redirect to dashboard
   if(AuthUser()){
     return <Navigate to={"/dashboard"} />
@@ -23,6 +26,9 @@ export default function Home() {
           <p className='text-xl text-gray-800 md:text-3xl md:leading-normal'>
             <strong>Welcome!</strong>
           </p>
+          {isRelogin && 
+            <p>Please login to proceed.</p>
+          }
           <Login />
         </div>
         <div className="flex items-center justify-center align-top p-6 md:w-3/5 md:px-28 md:py-12">
