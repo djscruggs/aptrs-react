@@ -56,8 +56,6 @@ export async function login(email: string, password:string) {
       ...user,
       ...profile
     }
-    console.log('mergedUser')
-    console.log(mergedUser)
     setAuthUser(mergedUser)
     return result;
   }

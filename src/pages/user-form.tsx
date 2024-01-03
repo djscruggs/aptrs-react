@@ -115,7 +115,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
   useEffect(() => {
     const loadData = async () => {
-      console.log('loading')
       if (id) {
         setLoading(true);
         try {
