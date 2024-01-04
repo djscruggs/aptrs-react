@@ -2,14 +2,14 @@
 import{ ReactNode } from 'react';
 
 export type Vulnerability = {
-  id: number;
+  id?: number | null;
   vulnerabilityname: string;
-  vulnerabilityseverity: string;
-  vulnerabilitydescription: string;
-  vulnerabilitysolution: string;
-  vulnerabilityreferlnk: string;
-  cvssscore: number;
-  cvssvector: string;
+  vulnerabilityseverity?: string;
+  vulnerabilitydescription?: string;
+  vulnerabilitysolution?: string;
+  vulnerabilityreferlnk?: string;
+  cvssscore?: number;
+  cvssvector?: string;
 };
 
 export type Props = {
