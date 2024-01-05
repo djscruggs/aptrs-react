@@ -7,6 +7,9 @@
       "esnext"
     ],
     "allowJs": true,
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+    },
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
