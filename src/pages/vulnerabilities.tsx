@@ -107,7 +107,7 @@ const Vulnerabilities = () => {
         <div className="mt-6 flow-root">
         <Button 
             className='btn btn-primary float-right m-2' 
-            onClick={()=> navigate('vulnerabilities/new')}
+            onClick={()=> navigate('/vulnerabilities/new')}
           >
               New
         </Button>
