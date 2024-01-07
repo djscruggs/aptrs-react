@@ -1,4 +1,9 @@
-import {Company, Project, User, LoginUser, IPAddressInfo} from './definitions'
+import {  Company, 
+          Project, 
+          User, 
+          LoginUser, 
+          IPAddressInfo,
+          Vulnerability} from './definitions'
 import axios, { AxiosError } from 'axios'
 
 
@@ -145,6 +150,22 @@ export async function deleteCompanies(ids: any[]): Promise<any> {
 export async function fetchVulnerabilities() {
   const url = apiUrl('vulndb/all-vulndb');
   const response = await axios.get(url, authHeaders());
+  return response.data;
+}
+export async function getVulnerability(id: string | undefined) {
+  if (!id) return null;
+  const url = apiUrl(`vulndb/${id}/`);
+  const response = await axios.get(url, authHeaders());
+  console.log(response.data)
+  return response.data;
+}
+
+export async function upsertVulnerability(formData: Vulnerability): Promise<any> {
+  let url = apiUrl(`vulndb/add-vulndb`);
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`vulndb/edit-vulndb/${formData['id']}/`);
+  }
+  const response = await axios.post(url, formData, authHeaders());
   return response.data;
 }
 

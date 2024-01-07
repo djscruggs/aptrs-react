@@ -8,8 +8,8 @@ export type Vulnerability = {
   vulnerabilitydescription?: string;
   vulnerabilitysolution?: string;
   vulnerabilityreferlnk?: string;
-  cvssscore?: number;
-  cvssvector?: string;
+  cvssscore?: number | string | null;
+  cvssvector?: string | null;
 };
 
 export type Props = {
