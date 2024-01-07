@@ -163,7 +163,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     setBtnDisabled(false);
     
   }
-  if(loading) return <FormSkeleton numInputs={3}/>
+  // if(loading) return <FormSkeleton numInputs={3}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (

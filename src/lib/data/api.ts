@@ -156,7 +156,6 @@ export async function getVulnerability(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`vulndb/${id}/`);
   const response = await axios.get(url, authHeaders());
-  console.log(response.data)
   return response.data;
 }
 
