@@ -65,8 +65,8 @@ const Vulnerabilities = () => {
       maxWidth: '10em'
     },
     {
-      name: 'Description',
-      selector: (row: VulnWithActions) => row.vulnerabilitydescription,
+      name: 'Severity',
+      selector: (row: VulnWithActions) => row.vulnerabilityseverity,
       sortable: true,
       maxWidth: '20em'
     },
@@ -75,21 +75,7 @@ const Vulnerabilities = () => {
       selector: (row: VulnWithActions) => row.cvssscore,
       maxWidth: '5em'
     },
-    {
-      name: 'Status',
-      selector: () => 'Status does not exist in api',
-      maxWidth: '5em'
-    },
-    {
-      name: 'Solution',
-      selector: (row: VulnWithActions) => row.vulnerabilitysolution,
-      maxWidth: '5em'
-    },
-    {
-      name: 'Reference Link',
-      selector: (row: VulnWithActions) => row.vulnerabilityreferlnk,
-      maxWidth: '5em'
-    },
+    
   ]
   const deleteMultiple = () => {
     return handleDelete(selected)
@@ -119,6 +105,7 @@ const Vulnerabilities = () => {
           Delete
         </Button>
         {typeof(vulnerabilities) == "object" &&
+            <div className='max-w-lg'>
             <DataTable
                 columns={columns}
                 data={vulnerabilities}
@@ -127,6 +114,7 @@ const Vulnerabilities = () => {
                 striped
                 onSelectedRowsChange={handleSelectedChange}
             />
+            </div>
           }
         </div>
     </>
