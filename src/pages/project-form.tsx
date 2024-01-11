@@ -219,6 +219,27 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 <div className="mt-4">
                   <label
                     className={StyleLabel}
+                    htmlFor="status"
+                  >
+                    Status
+                  </label>
+                  <div className="relative">
+                    <select name="status"
+                        value={formData.status} 
+                        onChange={handleChange}
+                        className={StyleTextfield}
+                      >
+                      {[' Vulnerable', 'Confirm Fixed','Accepted Risk'].map((status =>
+                          <option key={status} value={status}>{status}</option>
+                    ))}
+                    </select>
+                    {errors.status?.message && <p>{errors.status.message as string}</p>} 
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <label
+                    className={StyleLabel}
                     htmlFor="companyname"
                   >
                     Company
@@ -341,7 +362,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     onChange={handleChange}
                     className={StyleTextfield}
                     type="text"
-                    required
                   />
                   {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
                 </div>

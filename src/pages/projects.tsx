@@ -56,6 +56,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
       sortable: true,
     },
     {
+      name: 'Status',
+      selector: (row: Project) => row.status,
+    },
+    {
       name: 'Description',
       selector: (row: Project) => row.description.length > 50 ? row.description.substring(0, 50) + '...' : row.description,
     },
