@@ -136,6 +136,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     navigate(-1)
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
+    console.log('submit called')
     setBtnDisabled(true);
     event.preventDefault();
     // Perform your form validation here
@@ -152,7 +153,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     } else {
       try {
         await upsertProject(formData as Project);
-        
+        navigate('/projects')
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -229,7 +230,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         onChange={handleChange}
                         className={StyleTextfield}
                       >
-                      {[' Vulnerable', 'Confirm Fixed','Accepted Risk'].map((status =>
+                      {['Upcoming', 'In Progress','Delay','Completed'].map((status =>
                           <option key={status} value={status}>{status}</option>
                     ))}
                     </select>
