@@ -209,7 +209,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         value={formData.projecttype} 
                         onChange={handleChange}
                         className={StyleTextfield}
+                        required
                       >
+                      <option value=''>Select...</option>
                       {['Web', 'Android','Mobile','Thick Client'].map((type =>
                           <option key={`type-${type}`} value={`${type} Application Penetration Testing`}>{`${type} Application Penetration Testing`}</option>
                     ))}
@@ -340,6 +342,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     name="testingtype"
                     id="testingtype"
                     value = {formData.testingtype}
+                    placeholder='Black Box, White Box etc'
                     onChange={handleChange}
                     className={StyleTextfield}
                     type="text"
