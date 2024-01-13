@@ -231,7 +231,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         value={formData.status} 
                         onChange={handleChange}
                         className={StyleTextfield}
+                        required
                       >
+                      <option value=''>Select...</option>
                       {['Upcoming', 'In Progress','Delay','Completed'].map((status =>
                           <option key={status} value={status}>{status}</option>
                     ))}
@@ -380,18 +382,21 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 </label>
                 <div className="relative">
                   {AuthUser()?.isAdmin  &&
+                  <>
+                    {!users && <SingleInputSkeleton />}
                     <select name="owner"
                             id="owner"
                             value={formData.owner} 
                             onChange={handleChange}
                             className={StyleTextfield}
                     >
-                        {!users && <SingleInputSkeleton />}
+                        
                         {users && users.map(user =>
                           <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
                         )};
                   
                     </select>
+                    </>
                   }
                   {!AuthUser()?.isAdmin  &&
                     <>

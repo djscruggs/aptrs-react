@@ -29,7 +29,7 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
     }
     loadCompanies()
   }, []);
-  if(typeof companies == 'undefined'){
+  if(typeof companies === 'undefined'){
     return (<SingleInputSkeleton />)
   }
   return (

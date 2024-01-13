@@ -8601,9 +8601,9 @@ react-daisyui@^5.0.0:
   integrity sha512-j1cugAxALmIbihycGBh7P9H3UXrfsvqu84qM6O55l7nOKST43IjUkZjmNav/7s0ZaUpa9Y+52mFchUb2zvon1A==
 
 react-data-table-component@^7.6.1:
-  version "7.6.1"
-  resolved "https://registry.npmjs.org/react-data-table-component/-/react-data-table-component-7.6.1.tgz"
-  integrity sha512-2GOd58swPGWEoTnUX9O6DVTL1gQWSb7CPqUXbG0AhyC3Ua1K9JUc5bsHPB4p17iisQY5SkUpaRvs7Qz9xXCw9w==
+  version "7.6.2"
+  resolved "https://registry.npmjs.org/react-data-table-component/-/react-data-table-component-7.6.2.tgz"
+  integrity sha512-nHe7040fmtrJyQr/ieGrTfV0jBflYGK4sLokC6/AFOv3ThjmA9WzKz8Z8/2wMxzRqLU+Rn0CVFg+8+frKLepWQ==
   dependencies:
     deepmerge "^4.3.1"
 

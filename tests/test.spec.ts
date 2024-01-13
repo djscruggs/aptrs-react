@@ -31,8 +31,8 @@ test('login success', async ({ page }) => {
 
 });
 
-// test('next', async ({ page }) => {
-//   await page.getByRole('heading', { name: 'Dashboard' }).click();
+test('nav links', async ({ page }) => {
+await page.getByRole('link', { name: 'Dashboard' }).click();
 //   await page.getByRole('link', { name: 'Dashboard' }).click();
 //   await page.getByRole('link', { name: 'Companies' }).click();
 //   await page.getByRole('link', { name: 'Customers' }).click();
