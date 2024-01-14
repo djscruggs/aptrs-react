@@ -16,7 +16,6 @@
     "axios": "^1.6.2",
     "clsx": "^2.0.0",
     "react": "^18.2.0",
-    "react-daisyui": "^5.0.0",
     "react-data-table-component": "^7.6.1",
     "react-datepicker": "^4.24.0",
     "react-dom": "^18.2.0",
@@ -57,7 +56,6 @@
     "@playwright/test": "^1.40.1",
     "@testing-library/react": "^14.1.2",
     "@types/react-datepicker": "^4.19.3",
-    "daisyui": "^4.4.19",
     "eslint": "^8.56.0",
     "react-router-dom": "^6.20.0"
   }

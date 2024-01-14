@@ -7,7 +7,7 @@ import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import CompanyForm from './company-form';
-import { Modal } from 'react-daisyui'
+import { Dialog, DialogBody } from '@material-tailwind/react'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
@@ -129,17 +129,17 @@ export function Companies() {
       )}
       {/* modal content */}
         {showModal &&
-        <Modal ref={ref}  className="modal-box bg-white w-full  p-4 rounded-md" >
+        <Dialog handler={clearModal} open={showModal} className="modal-box bg-white w-full  p-4 rounded-md" >
           <form method="dialog" onSubmit={clearModal}>
             <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
               <span className="text-gray-400 hover:text-white-900">x</span>
             </Button>
           </form>
-          <Modal.Body>
+          <DialogBody>
           {companyId   && <CompanyForm id={companyId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           {!companyId && <CompanyForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          </Modal.Body>
-        </Modal>
+          </DialogBody>
+        </Dialog>
         }
         
         {/* END modal content */}

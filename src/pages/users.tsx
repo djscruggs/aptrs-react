@@ -7,7 +7,7 @@ import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import UserForm from './user-form';
-import { Modal } from 'react-daisyui'
+import { Dialog, DialogBody } from '@material-tailwind/react'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
@@ -46,6 +46,10 @@ export function Users() {
     }
   },[showModal])
   const clearModal = () => {
+    setShowModal(false);
+    setUserId('')
+  }
+  const hideModal = () => {    
     setUserId('')
     setShowModal(false);
   }
@@ -162,17 +166,17 @@ export function Users() {
       )}
       {/* modal content */}
         {showModal &&
-        <Modal ref={ref}  className="modal-box bg-white  w-full  p-4 rounded-md" >
-          <form method="dialog" onSubmit={clearModal}>
+        <Dialog handler={clearModal} open={showModal} className="modal-box bg-white  w-full  p-4 rounded-md" >
+          <form method="dialog" onSubmit={hideModal}>
             <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
               <span className="text-gray-400 hover:text-white-900">x</span>
             </Button>
           </form>
-          <Modal.Body className='min-w-[400px] '>
+          <DialogBody className='min-w-[400px] '>
           {userId   && <UserForm id={userId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           {!userId && <UserForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          </Modal.Body>
-        </Modal>
+          </DialogBody>
+        </Dialog>
         }
         
         {/* END modal content */}
