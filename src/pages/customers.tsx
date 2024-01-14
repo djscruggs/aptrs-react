@@ -142,7 +142,7 @@ export function Customers() {
               <span className="text-gray-400 hover:text-white-900">x</span>
             </Button>
           </form>
-          <Modal.Body>
+          <Modal.Body className='min-w-[400px]'>
           {customerId   && <CustomerForm id={customerId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           {!customerId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           </Modal.Body>
