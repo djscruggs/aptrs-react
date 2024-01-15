@@ -167,7 +167,15 @@ export async function upsertVulnerability(formData: Vulnerability): Promise<any>
   const response = await axios.post(url, formData, authHeaders());
   return response.data;
 }
-
+export async function deleteVulnerabilities(ids: any[]): Promise<any> {
+  const url = apiUrl('vulndb/delete-vulndb');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  return response.data;
+}
 export async function fetchUsers() {
   const url = apiUrl('auth/users');
   const response = await axios.get(url, authHeaders());

@@ -1,7 +1,7 @@
 import {Vulnerability, Column} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import {  fetchVulnerabilities } from "../lib/data/api";
+import {  fetchVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { withAuth } from "../lib/authutils";
@@ -9,6 +9,7 @@ import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { useVulnerabilityColor } from '../lib/customHooks';
+import { toast } from 'react-hot-toast';
 const Vulnerabilities = () => {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>();
   const [selected, setSelected] = useState([])
@@ -48,10 +49,32 @@ const Vulnerabilities = () => {
   }, [refresh]);
 
   const handleDelete = (ids: any[]) => {
-    console.log(ids)
-    alert('not implemented yet')
-  }
-  // Title: The title of the vulnerability.
+    if (!confirm('Are you sure?')) {
+      return false;
+    }
+    const count = ids.length;
+    deleteVulnerabilities(ids)
+      .then(() => {
+        setRefresh(true);
+        let msg: string;
+        if (count === 1) {
+          msg = 'Vulnerability deleted';
+        } else {
+          msg = `${count} vulnerabilities deleted`;
+        }
+        toast.success(msg);
+        return true;
+      })
+      .catch((error) => {
+        console.error(error);
+        setError(error);
+      });
+    setRefresh(false);
+    return false;
+  };
+  
+  
+      // Title: The title of the vulnerability.
   // Description: A description of the vulnerability.
   // CVSS 3.1: The CVSS 3.1 score for the vulnerability.
   // Status: The status of the vulnerability (i.e., Vulnerable, Confirmed Fixed, Accepted Risk).
