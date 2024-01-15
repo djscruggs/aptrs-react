@@ -13,7 +13,7 @@ export function useVulnerabilityColor(scoreOrText: string | number | null){
         meaning = 'None'
     }
     const scoreColors: { [key: string]: string } = {
-      'None': '3399FF',
+      'None': '#3399FF',
       'Low' : '#20B803',
       'Medium': '#FBBC02',
       'High': '#F66E09',
