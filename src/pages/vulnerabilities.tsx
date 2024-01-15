@@ -8,6 +8,7 @@ import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
+import { useVulnerabilityColor } from '../lib/customHooks';
 const Vulnerabilities = () => {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>();
   const [selected, setSelected] = useState([])
@@ -22,10 +23,12 @@ const Vulnerabilities = () => {
   }
   interface VulnWithActions extends Vulnerability {
     actions: JSX.Element;
+    severity:JSX.Element;
   }
   useEffect(() => {
     fetchVulnerabilities()
       .then((data) => {
+        
         let temp: any = []
         data.forEach((row: VulnWithActions) => {
           row.actions = (<>
@@ -33,6 +36,8 @@ const Vulnerabilities = () => {
                         
                         <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                         </>)
+          const [meaning, color] = useVulnerabilityColor(row.vulnerabilityseverity as string)
+          row.severity = (<span className={`text-[${color}]`}>{meaning}</span>)
           temp.push(row)
         });
         setVulnerabilities(temp as VulnWithActions[]);
@@ -66,7 +71,7 @@ const Vulnerabilities = () => {
     },
     {
       name: 'Severity',
-      selector: (row: VulnWithActions) => row.vulnerabilityseverity,
+      selector: (row: VulnWithActions) => row.severity,
       sortable: true,
       maxWidth: '20em'
     },
