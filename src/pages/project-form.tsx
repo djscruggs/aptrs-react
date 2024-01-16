@@ -259,6 +259,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         id="companyname"
                         value={formData.companyname} 
                         changeHandler={handleChange} 
+                        required={true}
                         error={errors.companyname ? true : false}
                       />
                     }

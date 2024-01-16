@@ -250,17 +250,18 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
           <div className="mt-4">
             <label
               className={StyleLabel}
-              htmlFor="companyname"
+              htmlFor="company"
             >
               Company
             </label>
             <div className="relative">
               <CompanySelect 
-                  name="companyname" 
-                  id="companyName"
+                  name="company" 
+                  id="company"
                   value={formData.company} 
                   changeHandler={handleChange} 
                   error={errors.company ? true : false}
+                  required={true}
                 />
               {errors.company?.message && <FormErrorMessage message={errors.company.message as string} />} 
             </div>
@@ -290,7 +291,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">
                 <Button 
-                className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+                className="cursor-pointer bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
                 disabled={btnDisabled}
                 type="submit">
                   Save

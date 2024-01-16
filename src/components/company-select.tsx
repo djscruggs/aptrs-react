@@ -11,11 +11,12 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   value: any,
   changeHandler: React.ChangeEventHandler | undefined
   error?: boolean
+  required?:boolean
 }
 export default function CompanySelect(props: React.PropsWithChildren<CompanySelectProps>) {
   
   const [companies, setCompanies] = useState<Company[]>();
-
+console.log('required is', props.required)
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -39,8 +40,10 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
             <select name={props.name}
               value={props.value} 
               onChange={props.changeHandler}
+              required={props.required}
               className={props.error ? `${StyleTextfieldError}` :`${StyleTextfield}`}
             >
+              <option key='' value=''>Select...</option>
             {companies && companies.map((company =>
                 <option key={company.id} value={company.name}>{company.name}</option>
            ))}
