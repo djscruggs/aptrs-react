@@ -18,7 +18,6 @@ import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
-    AuthUser, 
     getProject, 
     fetchUsers } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
@@ -28,6 +27,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { sortByPropertyName } from '../lib/utilities';
+import { useCurrentUser } from '../lib/customHooks';
 
 interface FormErrors {
   name?: {
@@ -73,7 +73,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  
+  const currentUser = useCurrentUser()
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Project>({
     name: '',
@@ -85,7 +85,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     testingtype: '',
     projectexception: '',
     companyname: '',
-    owner: AuthUser().username,
+    owner: currentUser.username,
   });
   
   const [errors, setErrors] = useState<FormErrors>({});
@@ -381,7 +381,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   Project Owner
                 </label>
                 <div className="relative">
-                  {AuthUser()?.isAdmin  &&
+                  {currentUser?.isAdmin  &&
                   <>
                     {!users && <SingleInputSkeleton />}
                     <select name="owner"
@@ -398,14 +398,14 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     </select>
                     </>
                   }
-                  {!AuthUser()?.isAdmin  &&
+                  {!currentUser?.isAdmin  &&
                     <>
                     <input
-                      value = {AuthUser().username}
+                      value = {currentUser.username}
                       onChange={handleChange}
                       className={StyleTextfield}
                       type="text"
-                      placeholder={AuthUser().username} 
+                      placeholder={currentUser.username} 
                       disabled={true}
                     />
                     <input

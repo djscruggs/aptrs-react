@@ -4,11 +4,11 @@ import NavLinks from './navlinks';
 import { PowerIcon } from '@heroicons/react/24/outline';
 import {logout} from '../lib/data/api'
 import Button from '../components/button';
-import {authenticated} from '../lib/authcontext'
+import { useCurrentUser } from '../lib/customHooks';
 
 const SideNav: React.FC = () => {
+  const currentUser = useCurrentUser()
   
-  const isAuthenticated = authenticated();
   const handleSignOut = () => {
     logout();
 
@@ -17,12 +17,12 @@ const SideNav: React.FC = () => {
   
   return (
     <>
-      {isAuthenticated &&
+      {currentUser &&
         <div className="flex h-full flex-col px-3 py-4 md:px-2">
           <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
             <NavLinks />
             <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
-            {isAuthenticated && (
+            {currentUser && (
               <Button
                 className="bg-primary "
                 onClick={handleSignOut}

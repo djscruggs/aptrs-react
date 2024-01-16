@@ -11,14 +11,15 @@ import { Dialog, DialogBody } from '@material-tailwind/react'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
-import {AuthUser} from '../lib/data/api'
+import { useCurrentUser } from '../lib/customHooks';
 
 
 
 export function Users() {
   //super user check to prevent url tampering
   const navigate = useNavigate()
-  if(!AuthUser().isAdmin){
+  const currentUser = useCurrentUser()
+  if(!currentUser.isAdmin){
     navigate('/access-denied')
   }
   const [users, setUsers] = useState<User[]>();
@@ -107,7 +108,7 @@ export function Users() {
     actions: JSX.Element;
   }
   const handleDelete = (ids: any[]) => {
-    if(ids.includes(AuthUser().id)){
+    if(ids.includes(currentUser.id)){
       toast.error("You cannot delete your own account")
       return false
     }
@@ -166,13 +167,13 @@ export function Users() {
       )}
       {/* modal content */}
         {showModal &&
-        <Dialog handler={clearModal} open={showModal} className="modal-box bg-white  w-full  p-4 rounded-md" >
+        <Dialog handler={clearModal} open={showModal} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
           <form method="dialog" onSubmit={hideModal}>
             <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
               <span className="text-gray-400 hover:text-white-900">x</span>
             </Button>
           </form>
-          <DialogBody className='min-w-[400px] '>
+          <DialogBody className='max-w-[600px] '>
           {userId   && <UserForm id={userId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           {!userId && <UserForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
           </DialogBody>

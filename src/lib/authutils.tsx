@@ -1,27 +1,26 @@
 // authUtils.tsx
 import { Navigate } from 'react-router-dom';
-import {authenticated} from '../lib/authcontext'
+import { useCurrentUser } from './customHooks';
 import { useNavigate } from 'react-router-dom';
 
 export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
   const WithAuth: React.FC<any> = (props) => {
-    const isAuthenticated = authenticated();
-    const navigate = useNavigate()
+    const currentUser = useCurrentUser()
     
-    if (!isAuthenticated) {
+    // Redirect to the login page if currentUser does not exist
+    if (!currentUser) {
       //capture the current path in localStorage to redirect to after auth
       localStorage.setItem('redirect',document.location.pathname)
-      // Redirect to the login page if not authenticated
+      
       const relogin = true;
       return <Navigate to="/" replace={true} state={{ relogin }} />;
-      
     }
 
-    // Render the component if authenticated
+    // Render the component if currentUser exists
     return (
             <>
-            {isAuthenticated &&
-            <Component {...props} />
+            {currentUser &&
+              <Component {...props} />
             }
             </>)
   };

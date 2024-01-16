@@ -19,7 +19,8 @@ import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
 import { FormSkeleton } from '../components/skeletons'
 import { getUser } from '../lib/data/api';
-import { upsertUser, AuthUser} from '../lib/data/api';
+import { upsertUser} from '../lib/data/api';
+import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import PhoneInput from 'react-phone-number-input'
@@ -68,6 +69,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const currentUser = useCurrentUser()
   //extend User type to support password fields
   type UserForm = User & {
     password?: string;
@@ -81,14 +83,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     is_active: false,
     is_superuser: false,
     number: '',
-    company: AuthUser().company,
+    company: currentUser.company,
     position: '',
     password: '',
     password_check: '',
     groups: [],
   });
   //used in phone number input
-  const defaultCountry = AuthUser().location.country 
+  const defaultCountry = currentUser.location.country 
   const [errors, setErrors] = useState<FormErrors>({});
   
   useEffect(() => {
@@ -345,14 +347,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     className='rounded-xl toggle toggle-accent mr-2'
                     onChange={handleChange}
                     checked={formData.is_active ? true : false} 
-                    disabled = {AuthUser().username == formData.username }
+                    disabled = {currentUser.username == formData.username }
                   />
-                  {AuthUser().username === formData.username &&
+                  {currentUser.username === formData.username &&
                     <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
                       <span className="label-text">Active</span> 
                     </div>
                   }
-                  {AuthUser().username != formData.username &&
+                  {currentUser.username != formData.username &&
                     <span className="label-text">Active</span> 
                   }
                 </label>  
@@ -384,14 +386,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   className='rounded-xl toggle toggle-accent mr-2'
                   onChange={handleChange}
                   checked={formData.is_superuser ? true : false} 
-                  disabled = {AuthUser().username == formData.username || AuthUser().isAdmin == false  }
+                  disabled = {currentUser.username == formData.username || currentUser.isAdmin == false  }
                 />
-                {AuthUser().username === formData.username &&
+                {currentUser.username === formData.username &&
                   <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
                     <span className="label-text">Administrator</span> 
                   </div>
                 }
-                {AuthUser().username != formData.username &&
+                {currentUser.username != formData.username &&
                   <span className="label-text">Administrator</span> 
                 }
                 </label>
