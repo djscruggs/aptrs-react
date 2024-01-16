@@ -16,7 +16,6 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 export default function CompanySelect(props: React.PropsWithChildren<CompanySelectProps>) {
   
   const [companies, setCompanies] = useState<Company[]>();
-console.log('required is', props.required)
   useEffect(() => {
     const loadCompanies = async () => {
       try {
