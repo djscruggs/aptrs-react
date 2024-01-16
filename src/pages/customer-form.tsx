@@ -19,14 +19,19 @@ import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 
+import { useCurrentUser } from '../lib/customHooks';
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
+
+
 interface FormErrors {
-  name?: {
+  full_name?: {
     message: string;
   };
   email?: {
     message: string;
   };
-  phoneNumber?: {
+  number?: {
     message: string;
   };
   position?: {
@@ -48,12 +53,13 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  
+  const currentUser = useCurrentUser()
+  const defaultCountry = currentUser.location.country //used by phone input
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Customer>({
-    name: '',
+    full_name: '',
     email: '',
-    phoneNumber: '',
+    number: '',
     position: '',
     company: '',
   });
@@ -120,6 +126,13 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       [name]: value,
     }));
   };
+  //needed a customer handler for phone number
+  const handlePhoneInputChange = (value:string) => {
+    setFormData({
+      ...formData,
+      number: value
+    })    
+  };
   //clean up the data to make sure the next instance is clean
   const closeModal = () =>  {
     setId('')
@@ -134,8 +147,8 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     // Perform your form validation here
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
-    if (formData.name && formData.name.length < 3) {
-      newErrors.name = { message: 'Name should be at least three characters' };
+    if (formData.full_name && formData.full_name.length < 3) {
+      newErrors.full_name = { message: 'Name should be at least three characters' };
     }
     // Add more validation for other fields if needed
       
@@ -144,6 +157,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       console.error('Form failed validation:', newErrors);
     } else {
       try {
+        console.log(formData)
         await upsertCustomer(formData as Customer);
         toast.success('Customer saved.')
         if(setRefresh){
@@ -182,15 +196,15 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
             </label>
             <div className="relative">
               <input
-                name="name"
-                id="name"
-                value = {formData.name}
+                name="full_name"
+                id="full_name"
+                value = {formData.full_name}
                 onChange={handleChange}
                 className={StyleTextfield}
                 type="text"
                 required
               />
-              {errors.name?.message && <p>{errors.name.message as string}</p>} 
+              {errors.full_name?.message && <p>{errors.full_name.message as string}</p>} 
             </div>
           </div>
           <div className="mt-4">
@@ -216,21 +230,21 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
           <div className="mt-4">
             <label
               className={StyleLabel}
-              htmlFor="phoneNumber"
+              htmlFor="number"
             >
               Phone number
             </label>
             <div className="relative">
-              <input
-                name="phoneNumber"
-                id="phoneNumber"
-                value = {formData.phoneNumber}
-                onChange={handleChange}
+              <PhoneInput
+                value={formData.number}
+                onChange={handlePhoneInputChange}
+                name="number"
+                defaultCountry={defaultCountry}
                 className={StyleTextfield}
-                type="text"
-                required
+                id="number"
+                required={true}
               />
-              {errors.phoneNumber?.message && <FormErrorMessage message={errors.phoneNumber.message as string} />} 
+              {errors.number?.message && <FormErrorMessage message={errors.number.message as string} />} 
             </div>
           </div>
           <div className="mt-4">

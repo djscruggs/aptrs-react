@@ -86,7 +86,7 @@ export function Customers() {
     },
     {
       name: 'Name',
-      selector: (row: Customer) => row.name,
+      selector: (row: Customer) => row.full_name,
       sortable: true,
     },
     {
@@ -105,7 +105,7 @@ export function Customers() {
     },
     {
       name: 'Phone',
-      selector: (row: Customer) => row.phoneNumber,
+      selector: (row: Customer) => row.number,
     },
   ];
   

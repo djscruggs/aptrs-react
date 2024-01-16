@@ -298,7 +298,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
             Phone number
           </label>
           <div className="relative">
-          <PhoneInput
+            <PhoneInput
               value={formData.number}
               onChange={handlePhoneInputChange}
               name="number"
@@ -306,8 +306,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               className={StyleTextfield}
               id="number"
               required={true}
-              />
-            
+            />
             {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
           </div>
         </div>

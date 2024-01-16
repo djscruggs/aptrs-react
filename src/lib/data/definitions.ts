@@ -41,9 +41,9 @@ export interface Company  {
 
 export interface Customer  {
   id?: number;
-  name?: string;
+  full_name?: string;
   email?: string;
-  phoneNumber?: string;
+  number?: string;
   position?: string;
   company?: string; 
 };
