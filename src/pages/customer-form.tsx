@@ -242,7 +242,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 defaultCountry={defaultCountry}
                 className={StyleTextfield}
                 id="number"
-                required={true}
               />
               {errors.number?.message && <FormErrorMessage message={errors.number.message as string} />} 
             </div>
