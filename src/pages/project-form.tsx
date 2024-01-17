@@ -11,7 +11,7 @@ import {
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
-
+import { CK_allowedTags, CK_toolbarItems } from '../lib/utilities';
 import PageTitle from '../components/page-title';
 import CompanySelect from '../components/company-select';
 import { withAuth } from "../lib/authutils";
@@ -28,7 +28,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { sortByPropertyName } from '../lib/utilities';
 import { useCurrentUser } from '../lib/customHooks';
+import { EditorConfig } from '@ckeditor/ckeditor5-core/src/editor/editorconfig'
 
+interface CustomEditorConfig extends EditorConfig {
+  allowedContent: string;
+}
 interface FormErrors {
   name?: {
     message: string;
@@ -188,7 +192,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     <input
                       name="name"
                       id="name"
-                      value = {formData.name}
+                      value = {formData.name || ''}
                       className={StyleTextfield}
                       onChange={handleChange}
                       type="text"
@@ -228,7 +232,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                     <select name="status"
-                        value={formData.status} 
+                        value={formData.status || ''} 
                         onChange={handleChange}
                         className={StyleTextfield}
                         required
@@ -257,7 +261,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       <CompanySelect 
                         name="companyname"
                         id="companyname"
-                        value={formData.companyname} 
+                        value={formData.companyname || ''} 
                         changeHandler={handleChange} 
                         required={true}
                         error={errors.companyname ? true : false}
@@ -270,28 +274,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
                   </div>
                 </div>
-                <div className="mt-4 min-h-full">
-                  <label
-                    className={StyleLabel}
-                    htmlFor="description"
-                  >
-                    Description
-                  </label>
-                  <div className="relative">
-                    <CKEditor
-                      id="description"
-                      data = {formData.description}
-                      onReady={ editor => {
-                            if (formData.description) editor.setData(formData.description)
-                        }}
-                      
-                      editor={ClassicEditor}
-                      
-                    />
-                      
-                      {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
-                  </div>
-                </div>
+                
               
             </div>
             <div className="w-full p-4">
@@ -306,6 +289,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <div className="relative">
                       <DatePicker
                         id="startdate"
+                        name="startdate"
                         placeholderText='Select date'
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
@@ -324,6 +308,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <div className="relative">
                     <DatePicker
                       id="enddate"
+                      name="enddate"
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
                       onChange={(date:string) => handleDatePicker('enddate', date)}
@@ -344,7 +329,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <input
                     name="testingtype"
                     id="testingtype"
-                    value = {formData.testingtype}
+                    value = {formData.testingtype || ''}
                     placeholder='Black Box, White Box etc'
                     onChange={handleChange}
                     className={StyleTextfield}
@@ -365,7 +350,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   <input
                     name="projectexception"
                     id="projectexception"
-                    value = {formData.projectexception}
+                    value = {formData.projectexception || ''}
                     onChange={handleChange}
                     className={StyleTextfield}
                     type="text"
@@ -400,33 +385,56 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     </>
                   }
                   {!currentUser?.isAdmin  &&
-                    <>
                     <input
-                      value = {currentUser.username}
+                      name='owner'
+                      value = {formData.owner}
                       onChange={handleChange}
                       className={StyleTextfield}
                       type="text"
                       placeholder={currentUser.username} 
                       disabled={true}
                     />
-                    <input
-                      name="owner"
-                      value = {formData.owner}
-                      type="hidden"
-                    />
-                    </>
+
                   }
                   {errors.owner?.message && <FormErrorMessage message={errors.owner.message as string} />} 
                 </div>
               </div>
               
             </div>
+            
+          </div>
+
+          <div className="mt-4 min-h-[200px] w-full">
+            <label
+              className={StyleLabel}
+              htmlFor="description"
+            >
+              Description
+            </label>
+            <div className="relative">
+              <CKEditor
+                id="description"
+                data = {formData.description}
+                onReady={ editor => {
+                      if (formData.description) editor.setData(formData.description)
+                  }}
+                  config={{
+                    height:400,
+                    format_tags: 'p;h2;h3;pre',
+                    allowedContent: CK_allowedTags.join(' ')
+                  } as CustomEditorConfig}
+                editor={ClassicEditor}
+                
+              />
+                
+                {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
+            </div>
           </div>
           <div className="p-2 flex">
             <div className="w-1/2 flex justify-left mt-4">
               <Button 
                 type="submit" 
-                className=" w-sm bg-primary"
+                className="w-sm bg-primary"
                 disabled = {btnDisabled}
               >
                   Save
