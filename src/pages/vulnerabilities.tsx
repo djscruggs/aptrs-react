@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import {  fetchVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
+import SearchBar from '../components/searchbar';
 import { withAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
@@ -16,7 +17,9 @@ const Vulnerabilities = () => {
   const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const navigate = useNavigate()
-
+  const handleSearch = (term='') => {
+    console.log('search for', term)
+  }
   const handleSelectedChange = (event: any) => {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
@@ -74,12 +77,6 @@ const Vulnerabilities = () => {
   };
   
   
-      // Title: The title of the vulnerability.
-  // Description: A description of the vulnerability.
-  // CVSS 3.1: The CVSS 3.1 score for the vulnerability.
-  // Status: The status of the vulnerability (i.e., Vulnerable, Confirmed Fixed, Accepted Risk).
-  // Solution: A description of the solution for the vulnerability.
-  // Reference Link: A link to the reference documentation for the vulnerability.
   const columns: Column[] = [
     {
       name: 'Action',
@@ -117,10 +114,13 @@ const Vulnerabilities = () => {
   }
   return(
     <>
+       <div className='-mt-8 mb-8'>
+        <SearchBar onSearch={handleSearch}/>
+       </div>
        <PageTitle title='Vulnerabilities' />
-        <div className="mt-6 flow-root">
+        <div className="mt-6 flow-root max-w-lg">
         <Button 
-            className='btn btn-primary float-right m-2' 
+            className='btn btn-primary float-right m-2 mr-0' 
             onClick={()=> navigate('/vulnerabilities/new')}
           >
               New
