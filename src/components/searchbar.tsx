@@ -41,7 +41,7 @@ export default function SearchBar({ onSearch }: SearchBarProps){
   }
 
   return(
-    <div className='w-[40rem] relative flex flex-items-center overflow-visible'>
+    <div className='w-[30rem] relative flex flex-items-center overflow-visible'>
     
       {/* <input type='text' className='p-2 w-md rounded-md border border-1 border-blue-gray-100' name='search' value={searchValue} onChange={handleInputChange} /> */}
       <Input variant="outlined" 
@@ -52,7 +52,7 @@ export default function SearchBar({ onSearch }: SearchBarProps){
       onFocus={handleFocus}
       label="Search"
       placeholder="Search"></Input>
-      <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[18%] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
+      <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
       
       <Button type="submit" className="bg-primary ml-2" onClick={handleSearch}>Search</Button>
       

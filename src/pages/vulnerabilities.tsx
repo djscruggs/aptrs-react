@@ -114,7 +114,7 @@ const Vulnerabilities = () => {
   }
   return(
     <>
-       <div className='-mt-8 mb-8'>
+       <div className='-mt-8 mb-8 max-w-lg'>
         <SearchBar onSearch={handleSearch}/>
        </div>
        <PageTitle title='Vulnerabilities' />
