@@ -153,9 +153,10 @@ const Vulnerabilities = () => {
         {searchTerm &&
         <p>
           Results for &quot;{searchTerm}&quot;
-          <span className="text-xs underline text-blue-600" onClick={clearSearch}>(clear search results)</span>
+          <span className="text-xs">(<span className="underline text-blue-600" onClick={clearSearch}>clear search</span>)</span>
         </p>
         }
+        {loading && 'Searching'}
         {typeof(vulnerabilities) == "object" &&
             <div className='max-w-lg'>
             <DataTable

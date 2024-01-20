@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {Button, Input} from '@material-tailwind/react'
 
 type SearchBarProps = {
@@ -9,7 +9,9 @@ type SearchBarProps = {
 
 export default function SearchBar({ onSearch, searchTerm="", placeHolder='' }: SearchBarProps){
   const [searchValue, setSearchValue] = useState(searchTerm);
-  const [showShorcut, setShowShorcut] = useState(true)
+  const [showShortcut, setShowShortcut]= useState(true)
+  const searchRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search');
@@ -18,10 +20,22 @@ export default function SearchBar({ onSearch, searchTerm="", placeHolder='' }: S
     }
   }, []);
   useEffect(() => {
+    const isActive = () =>{
+      return document.activeElement === document.getElementById('searchInput')
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'k') {
-        // Focus on the search input when cmd/meta + k is pressed
-        document.getElementById('searchInput')?.focus();
+      // Focus on the search input when cmd/meta + k is pressed
+      if (event.key === 'k' && event.metaKey) {
+        (searchRef.current?.children[0] as HTMLInputElement)?.focus();
+      }
+      //blur the element when escape is pressed
+      if(event.key === 'Escape' && isActive()){
+        (searchRef.current?.children[0] as HTMLInputElement)?.blur()
+      }
+      //trigger a search if focused and active
+      if(event.key === 'Enter' && isActive()){
+        console.log('calling search')
+        handleSearch();
       }
     };
   
@@ -39,19 +53,15 @@ export default function SearchBar({ onSearch, searchTerm="", placeHolder='' }: S
   const handleSearch = () => {
     onSearch(searchValue);
   }
-  const enterToSearch = (event: KeyboardEvent) => {
-    console.log('enter', event.key)
-    if (event.key === 'Enter') {
-      // Focus on the search input when cmd/meta + k is pressed
-      handleSearch()
-    }
-  };
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select()
-    setShowShorcut(false)
+    console.log('focus called')
+    setShowShortcut(false)
+    
   }
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    setShowShorcut(true)
+    console.log('blur called')
+    setShowShortcut(true)
   }
 
   return(
@@ -65,9 +75,10 @@ export default function SearchBar({ onSearch, searchTerm="", placeHolder='' }: S
       onFocus={handleFocus}
       onBlur={handleBlur}
       value={searchValue}
+      ref={searchRef}
       label="Search"
       placeholder={placeHolder || 'Search'}></Input>
-      {showShorcut &&
+      {(!searchValue && showShortcut) &&
         <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
       }
       <Button className="bg-primary ml-2" onClick={handleSearch}>Search</Button>
