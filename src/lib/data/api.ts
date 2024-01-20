@@ -152,6 +152,12 @@ export async function fetchVulnerabilities() {
   const response = await axios.get(url, authHeaders());
   return response.data;
 }
+export async function searchVulnerabilities(term:string) {
+  const url = apiUrl(`vulndb/filter/?search=${term}`);
+  const response = await axios.get(url, authHeaders());
+  return response.data;
+}
+
 export async function getVulnerability(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`vulndb/${id}/`);
