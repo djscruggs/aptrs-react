@@ -2,7 +2,7 @@ import {Vulnerability, Column} from '../lib/data/definitions'
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import {  fetchVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
-import { TableSkeleton } from '../components/skeletons'
+import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import SearchBar from '../components/searchbar';
 import { withAuth } from "../lib/authutils";
@@ -26,7 +26,7 @@ const Vulnerabilities = () => {
   const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [searchTerm, setSearchTerm] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   async function handleSearch(term='') {
     const value = term.trim()
@@ -38,9 +38,12 @@ const Vulnerabilities = () => {
       setVulnerabilities(temp as VulnWithActions[]);
     }).catch((error) => {
       setError(error)
-    })
-    setLoading(false)
-    setRefresh(false)
+    }).finally(()=>{
+      setLoading(false)
+      setRefresh(false)
+    });
+    
+    
     
     
   }
@@ -62,15 +65,17 @@ const Vulnerabilities = () => {
         setVulnerabilities(temp as VulnWithActions[]);
       }).catch((error) => {
         setError(error)
-      })
-      setRefresh(false)
-      setLoading(false)
+      }).finally(()=>{
+        setLoading(false)
+        setRefresh(false)
+      });
   }, [refresh]);
 
   const handleDelete = (ids: any[]) => {
     if (!confirm('Are you sure?')) {
       return false;
     }
+    setLoading(true)
     const count = ids.length;
     deleteVulnerabilities(ids)
       .then(() => {
@@ -87,8 +92,10 @@ const Vulnerabilities = () => {
       .catch((error) => {
         console.error(error);
         setError(error);
+      }).finally(()=>{
+        setLoading(false)
+        setRefresh(false)
       });
-    setRefresh(false);
     return false;
   };
   
@@ -125,18 +132,14 @@ const Vulnerabilities = () => {
     console.error(error)
     navigate('/error')
   }
-  console.log('loading', loading)
-  if(loading){
-    return (<TableSkeleton />)
-  }
-  console.log('searchTerm is', searchTerm)
   return(
     <>
        <div className='-mt-8 mb-8 max-w-lg'>
         <SearchBar onSearch={handleSearch} searchTerm={searchTerm} placeHolder='Search vulnerabilities'/>
        </div>
        <PageTitle title='Vulnerabilities' />
-        <div className="mt-6 flow-root max-w-lg">
+       
+        <div className="-mt-8 flow-root max-w-lg">
         <Button 
             className='btn btn-primary float-right m-2 mr-0' 
             onClick={()=> navigate('/vulnerabilities/new')}
@@ -156,9 +159,10 @@ const Vulnerabilities = () => {
           <span className="text-xs">(<span className="underline text-blue-600" onClick={clearSearch}>clear search</span>)</span>
         </p>
         }
-        {loading && 'Searching'}
-        {typeof(vulnerabilities) == "object" &&
-            <div className='max-w-lg'>
+        
+        
+            <div className='mt-20 max-w-lg'>
+            {loading ? <RowsSkeleton numRows={10} /> : (vulnerabilities &&
             <DataTable
                 columns={columns}
                 data={vulnerabilities}
@@ -168,9 +172,12 @@ const Vulnerabilities = () => {
                 striped
                 onSelectedRowsChange={handleSelectedChange}
             />
+            )}
             </div>
-          }
+          
+          
         </div>
+       
     </>
        
     );

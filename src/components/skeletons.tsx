@@ -105,6 +105,20 @@ export function TableSkeleton() {
     </div>
   );
 }
+interface RowsSkeletonProps {
+  numRows?: number;
+}
+export const RowsSkeleton: React.FC<RowsSkeletonProps> = ({ numRows = 3 }) => {
+  let rowSkeletons = []
+  for (let i = 0; i < numRows; i++) {
+    rowSkeletons.push(<RowSkeleton key={i} />);
+  }
+  return(
+    <div className="bg-white ">
+      {rowSkeletons}
+    </div>
+  )
+}
 
 export function DashboardSkeleton() {
   return (
