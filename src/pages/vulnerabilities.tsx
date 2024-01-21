@@ -59,6 +59,7 @@ const Vulnerabilities = () => {
   
   useEffect(() => {
     setLoading(true)
+    setSearchTerm('')
     fetchVulnerabilities()
       .then((data) => {
         let temp = formatRows(data, handleDelete, navigate)
@@ -135,7 +136,7 @@ const Vulnerabilities = () => {
   return(
     <>
        <div className='-mt-8 mb-8 max-w-lg'>
-        <SearchBar onSearch={handleSearch} searchTerm={searchTerm} placeHolder='Search vulnerabilities'/>
+        <SearchBar onSearch={handleSearch} onClear={()=>setRefresh(true)} searchTerm={searchTerm} placeHolder='Search vulnerabilities'/>
        </div>
        <PageTitle title='Vulnerabilities' />
        
@@ -154,14 +155,14 @@ const Vulnerabilities = () => {
           Delete
         </Button>
         {searchTerm &&
-        <p>
-          Results for &quot;{searchTerm}&quot;
-          <span className="text-xs">(<span className="underline text-blue-600" onClick={clearSearch}>clear search</span>)</span>
-        </p>
+          <p className="mt-8">
+            Results for &quot;{searchTerm}&quot;
+            <span className="text-xs">(<span className="underline text-blue-600" onClick={clearSearch}>clear search</span>)</span>
+          </p>
         }
         
         
-            <div className='mt-20 max-w-lg'>
+            <div className='mt-20 max-w-md'>
             {loading ? <RowsSkeleton numRows={10} /> : (vulnerabilities &&
             <DataTable
                 columns={columns}
