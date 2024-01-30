@@ -19,7 +19,6 @@ interface ProjectsProps {
   refresh: boolean | undefined
 }
 export function Projects(props:ProjectsProps): JSX.Element {
-  console.log(props)
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
   const [refresh, setRefresh] = useState(Boolean(props.refresh))
@@ -28,7 +27,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
     actions: JSX.Element;
   }
   useEffect(() => {
-    console.log('useEffect')
     if(props.searchTerm && !refresh){
       return searchForProjects()
     } else {
@@ -77,6 +75,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
       }).catch((error) => {
         setError(error)})
   }
+  const onRowClicked = (row:any) => (navigate(`/projects/${row.id}`));
+
   const columns: Column[] = [
     {
       name: 'Action',
@@ -153,6 +153,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
                 columns={columns}
                 data={projects}
                 selectableRows
+                onRowClicked={onRowClicked}
                 pagination
                 striped
                 onSelectedRowsChange={handleSelectedChange}

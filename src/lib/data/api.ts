@@ -108,7 +108,6 @@ export async function getProject(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/get-project/${id}/`);
   const response = await axios.get(url, authHeaders())
-  console.log(response)
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {

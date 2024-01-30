@@ -136,7 +136,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   }
   
   const navigate = useNavigate()
-  const handleCancel = () =>  {
+  const handleCancel = (event:any) =>  {
+    event.preventDefault()
     navigate(-1)
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {

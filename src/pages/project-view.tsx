@@ -2,7 +2,7 @@ import React, {
   useState, 
   useEffect,
 } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
 import { getProject } from '../lib/data/api';
@@ -25,7 +25,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [project, setProject] = useState<Project>()
   const [loadingError, setLoadingError] = useState(false);
-  
+  const navigate = useNavigate();
   
   useEffect(() => {
     const loadData = async () => {
@@ -55,73 +55,81 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   return (
         <>
           {typeof(project) == 'object' && (
-            <div className="max-w-lg flex-1 rounded-lg bg-white px-6 pb-4 ">
+            <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
               <PageTitle title='Project Details' />
-              <div className="w-full mb-4">
-                <label className={StyleLabel}>
-                  Name
-                </label>
-                
-                <div className="relative">
-                  {project.name}
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className={StyleLabel}>
-                  Type
-                </label>
-                <div className="relative">
-                  {project.projecttype}
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className={StyleLabel}>
-                  Company
-                </label>
-                <div className="relative">
-                  {project.companyname} 
-                </div>
-              </div>
-              <div className='grid grid-cols-2'>
-                <div className="mt-4">
-                  <label className={StyleLabel}>
-                    Start Date
-                  </label>
-                  <div className="relative">
-                    {project.startdate} 
+              <Link className='text-primary underline' to={`/projects/${project.id}/edit`}>edit</Link>
+              <div className="grid grid-cols-2">
+                <div className='w-2/3'>
+                  <div className="w-full mb-4">
+                    <label className={StyleLabel}>
+                      Name
+                    </label>
+                    
+                    <div className="relative cursor-text">
+                      {project.name}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className={StyleLabel}>
+                      Type
+                    </label>
+                    <div className="relative cursor-text">
+                      {project.projecttype}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className={StyleLabel}>
+                      Company
+                    </label>
+                    <div className="relative cursor-text">
+                      {project.companyname} 
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2'>
+                    <div className="mt-4">
+                      <label className={StyleLabel}>
+                        Start Date
+                      </label>
+                      <div className="relative cursor-text">
+                        {project.startdate} 
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label className={StyleLabel}>
+                        End Date
+                      </label>
+                      <div className="relative cursor-text">
+                        {project.enddate}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className={StyleLabel}>
+                      Testing Type
+                    </label>
+                    <div className="relative cursor-text">
+                      {project.testingtype}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className={StyleLabel}>
+                      Project Exception
+                    </label>
+                    <div className="relative cursor-text">
+                      {project.projectexception}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className={StyleLabel} >
+                      Description
+                    </label>
+                    <div className="relative cursor-text">
+                      {project.description}
+                    </div>
                   </div>
                 </div>
-                <div className="mt-4">
-                  <label className={StyleLabel}>
-                    End Date
-                  </label>
-                  <div className="relative">
-                    {project.enddate}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className={StyleLabel}>
-                  Testing Type
-                </label>
-                <div className="relative">
-                  {project.testingtype}
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className={StyleLabel}>
-                  Project Exception
-                </label>
-                <div className="relative">
-                  {project.projectexception}
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className={StyleLabel} >
-                  Description
-                </label>
-                <div className="relative">
-                  {project.description}
+                <div className='w-1/3'>
+                  <h1>Vulnerabilities</h1>
                 </div>
               </div>
             </div>
