@@ -1,17 +1,20 @@
 import { withAuth } from "../lib/authutils";
+import { useState } from "react";
 import { Projects } from "./projects";
 import SearchBar from "../components/searchbar";
 
 
 const Dashboard = () => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [refresh, setRefresh] = useState(false)
   const handleSearch = (term='') => {
-    console.log('search for', term)
+    setSearchTerm(term)
   }
   return (
     <>
       <div className="w-full">
         <div className='-mt-8 mb-8 max-w-lg'>
-          <SearchBar onSearch={handleSearch} placeHolder="Search projects"/>
+        <SearchBar onSearch={handleSearch} onClear={()=>setRefresh(true)} searchTerm={searchTerm} />
         </div>
        
         <div className="w-full my-4">
@@ -20,7 +23,7 @@ const Dashboard = () => {
         
         </div>
         <div className="w-fullx">
-          <Projects pageTitle='' hideActions={true}/>
+          <Projects pageTitle='' hideActions={true} refresh={refresh} searchTerm={searchTerm}/>
         </div>
         
             

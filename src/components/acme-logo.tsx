@@ -6,7 +6,7 @@ export default function AcmeLogo() {
     <div
       className="flex flex-row items-center leading-none text-white"
     >
-      <GlobeAltIcon className="h-12 w-12 rotate-[15deg]" />
+      <img src="/android-chrome-192x192.png" height="192" width="192" />
       <p className="text-[44px]">APTRS</p>
     </div>
   );

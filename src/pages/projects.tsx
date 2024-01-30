@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { fetchProjects } from "../lib/data/api";
+import { fetchProjects, searchProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 
 import PageTitle from '../components/page-title';
@@ -14,16 +14,28 @@ import Button from '../components/button';
 
 interface ProjectsProps {
   pageTitle: string; 
+  searchTerm?: string
   hideActions?: boolean;
+  refresh: boolean | undefined
 }
 export function Projects(props:ProjectsProps): JSX.Element {
+  console.log(props)
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
+  const [refresh, setRefresh] = useState(Boolean(props.refresh))
   const [selected, setSelected] = useState([]); //flag to disable delete button
   interface ProjectWithActions extends Project {
     actions: JSX.Element;
   }
   useEffect(() => {
+    console.log('useEffect')
+    if(props.searchTerm && !refresh){
+      return searchForProjects()
+    } else {
+      return loadAllProjects()
+    }
+  }, []);
+  const loadAllProjects = () =>{
     fetchProjects()
       .then((data) => {
         let temp: any = []
@@ -41,8 +53,30 @@ export function Projects(props:ProjectsProps): JSX.Element {
         setProjects(temp as ProjectWithActions[])
       }).catch((error) => {
         setError(error)})
-  }, []);
-  
+  }
+  const searchForProjects = () =>{
+    if(!props.searchTerm){
+      console.error('No search term provided')
+      return;
+    }
+    searchProjects(props.searchTerm)
+      .then((data) => {
+        let temp: any = []
+        data.forEach((row: ProjectWithActions) => {
+          row.actions = (<>
+                          {!props.hideActions &&
+                          <>
+                          <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
+                          <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete(row.id)}/>
+                          </>
+                           }                     
+                        </>)
+          temp.push(row)
+        });
+        setProjects(temp as ProjectWithActions[])
+      }).catch((error) => {
+        setError(error)})
+  }
   const columns: Column[] = [
     {
       name: 'Action',

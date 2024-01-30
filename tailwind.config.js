@@ -11,8 +11,14 @@ module.exports = withMT({
     'text-[#FBBC02]',
     'text-[#20B803]'
   ],
+  
   theme: {
     extend: {},
+    colors: {
+      primary: '#0c5fd6',
+      secondary: '#D60C5F',
+      // ...
+    }
   },
   plugins: [],
 });

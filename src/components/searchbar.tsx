@@ -85,16 +85,18 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
   return(
     <div className='w-[30rem] relative flex flex-items-center overflow-visible'>
     
-      <Input variant="outlined" 
+      <Input 
       id='searchInput' 
       size='lg' 
-      className="w-min"
+      className="w-[200px]"
       onChange={handleInputChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
       value={searchValue}
       ref={searchRef}
-      label="Search"
+      labelProps={{
+        className: 'before:mr-0 after:ml-0 invisible',
+      }}
       placeholder={placeHolder || 'Search'}></Input>
       {(!searchValue && showShortcut) &&
         <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
