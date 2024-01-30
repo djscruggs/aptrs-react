@@ -5,12 +5,14 @@ import React, {
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject } from '../lib/data/api';
+import { getProject, searchVulnerabilities } from '../lib/data/api';
 import { Project } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
 import { StyleLabel } from '../lib/formstyles';
 import PageTitle from '../components/page-title';
+import { useDebounce } from '@uidotdev/usehooks';
+import { toast } from 'react-hot-toast';
 
 
 
@@ -20,13 +22,16 @@ interface ProjectViewProps {
 }
 function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const params = useParams()
+  
   const { id: routeId } = params;
   const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
   const [loading, setLoading] = useState(false);
   const [project, setProject] = useState<Project>()
   const [loadingError, setLoadingError] = useState(false);
-  const navigate = useNavigate();
   
+  const [searchValue, setSearchValue] = useState('')
+  const debouncedValue = useDebounce<string>(searchValue, 500)
+  const [searchResults, setSearchResults] = useState<{ vulnerabilityname: string }[]>([])
   useEffect(() => {
     const loadData = async () => {
       if (id) {
@@ -43,14 +48,25 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         }
       }
     };
-
     loadData();
   }, [id]);
-  
+  useEffect(() => {
+    console.log('debounced valued', debouncedValue)
+    if(debouncedValue){
+      searchVulnerabilities(debouncedValue).then((data) => {
+        setSearchResults(data);
+      }).catch((error) => {
+        toast.error(error)
+      });
+    }
+  }, [debouncedValue]);
+  const handleNameSearch = (event:any) => {
+    setSearchValue(event.target.value)
+  }
   
   if(loading) return <FormSkeleton numInputs={4}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
-
+  console.log(searchResults)
 
   return (
         <>
@@ -130,6 +146,13 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                 </div>
                 <div className='w-1/3'>
                   <h1>Vulnerabilities</h1>
+                  <input className="border border-gray-200 p-2 rounded-md" type="text" onChange={handleNameSearch} />
+                  <ul>
+                  { searchResults.map((item)=>{
+                      return <li key={item?.vulnerabilityname}>{item?.vulnerabilityname}</li>;
+                    })
+                  }
+                  </ul>
                 </div>
               </div>
             </div>
