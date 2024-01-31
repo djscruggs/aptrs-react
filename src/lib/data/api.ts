@@ -9,7 +9,7 @@ import axios, { AxiosError } from 'axios'
 
 
 function apiUrl(endpoint = ''): string {
-  return process.env.REACT_APP_API_URL + endpoint;
+  return import.meta.env.VITE_APP_API_URL + endpoint;
 }
 function authHeaders(): { headers: Record<string, string> } {
   const token = AuthUser()?.access;
