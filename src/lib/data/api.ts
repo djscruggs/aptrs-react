@@ -110,6 +110,12 @@ export async function getProject(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function getProjectFindings(id: string | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`project/findings/${id}/`);
+  const response = await axios.get(url, authHeaders())
+  return response.data;
+}
 export async function upsertProject(formData: Project): Promise<any> {
   let url = apiUrl(`project/add-project`);
   if (Object.keys(formData).includes('id')) {
@@ -170,6 +176,12 @@ export async function getVulnerability(id: string | undefined) {
   return response.data;
 }
 
+export async function getVulnerabilityByName(name: string | undefined) {
+  if (!name) return null;
+  const url = apiUrl(`vulndb/database/?title=${name}`);
+  const response = await axios.get(url, authHeaders());
+  return response.data;
+}
 export async function upsertVulnerability(formData: Vulnerability): Promise<any> {
   let url = apiUrl(`vulndb/add-vulndb`);
   if (Object.keys(formData).includes('id')) {
