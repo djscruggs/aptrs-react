@@ -5,7 +5,7 @@ import React, {
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectFindings, searchVulnerabilities, getVulnerabilityByName } from '../lib/data/api';
+import { getProject, getProjectFindings, deleteProjectFindings, searchVulnerabilities, getVulnerabilityByName } from '../lib/data/api';
 import { Project, Vulnerability } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
@@ -14,6 +14,7 @@ import PageTitle from '../components/page-title';
 import { useDebounce } from '@uidotdev/usehooks';
 import { toast } from 'react-hot-toast';
 import { List, ListItem, Spinner } from '@material-tailwind/react';
+import { XCircleIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
 
 
 
@@ -29,16 +30,16 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [project, setProject] = useState<Project>()
   const [findings, setFindings] = useState<Vulnerability[]>([])
   const [loadingError, setLoadingError] = useState(false);
-  
+  const [refresh, setRefresh] = useState(false) //setting to true refreshes the data
   const [searchValue, setSearchValue] = useState('')
-  const [searching, setSearching] = useState(false)
+  const [spinner, setSpinner] = useState(false) //shows spinner for vulnerability search
   const debouncedValue = useDebounce<string>(searchValue, 500)
   const [searchResults, setSearchResults] = useState<{ vulnerabilityname: string }[]>([])
   const [currentVulnerability, setCurrentVulnerability] = useState<Vulnerability | null >(null)
   const [showSearchResults, setShowSearchResults] = useState(false)
   useEffect(() => {
     const loadData = async () => {
-      if (id) {
+      if (id || refresh) {
         setLoading(true);
         try {
           const projectData = await getProject(id) as Project;
@@ -56,17 +57,24 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       }
     };
     loadData();
-  }, [id]);
+  }, [id, refresh]);
   useEffect(() => {
-    console.log('debounced valued', debouncedValue)
+    
     if(debouncedValue){
-      setSearching(true)
+      setSpinner(true)
       searchVulnerabilities(debouncedValue).then((data) => {
-        setSearchResults(data);
+        console.log(data)
+        console.log(findings)
+        //filter out the ones that are already in the project
+        const filteredData = data.filter((item: { vulnerabilityname: string }) => {
+          return !findings.some((finding) => finding.vulnerabilityname === item.vulnerabilityname);
+        });
+        setSearchResults(filteredData);
       }).catch((error) => {
-        toast.error(error)
+        console.error(error)
+        // toast.error(error.)
       }).finally(() => {
-        setSearching(false)
+        setSpinner(false)
       })
     }
   }, [debouncedValue]);
@@ -77,26 +85,43 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       setCurrentVulnerability(null)
     }
   }
+  async function deleteFinding(id:any): Promise<void> {
+    alert('deleting ' + id)
+    try {
+      await deleteProjectFindings([id])
+      setRefresh(true)
+    } catch(error){
+      console.log(error)
+      toast.error(String(error))
+    }
+    
+  }
+  
+  const navigate = useNavigate()
   const handleSelectedItem = (name:string) => {
-      setSearchValue(name.trim());
-      setShowSearchResults(false)
-      setSearchResults([])
-      if(name){
-        getVulnerabilityByName(name).then((data:any) => {
-          setCurrentVulnerability(data as Vulnerability)
-          console.log(data)
-        }).catch((error) => {
-          toast.error(error)
-        });
-      } else {
-        setCurrentVulnerability(null)
-      }
+    setSpinner(true)
+    setSearchValue(name.trim());
+    setShowSearchResults(false)
+    setSearchResults([])
+    console.log('selected is ', name)
+    if(name=='new'){
+      return navigate(`/projects/${id}/vulnerability/add`)
+    }
+    if(name){
+      getVulnerabilityByName(name).then((data:any) => {
+        navigate(`/projects/${id}/vulnerability/add/${data.id}`)
+      }).catch((error) => {
+        toast.error(error)
+        setSpinner(false)
+      });
+    } else {
+      setCurrentVulnerability(null)
+    }
   }
   
   
   if(loading) return <FormSkeleton numInputs={4}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
-  console.log(searchResults)
 
   return (
         <>
@@ -179,26 +204,27 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     { findings.map((v, index)=>{
                         return(
                         <div key={`finding-${index}`}>
-                          <span className='bg-secondary p-1 mr-1 my-1 rounded-lg text-xs text-white text-nowrap'>{v?.vulnerabilityname}
-                          <span className="text-white ml-2">{showXCircle()}</span>
+                          <span className='bg-secondary p-2 leading-10 mr-1 rounded-lg text-sm text-white text-nowrap'>{v?.vulnerabilityname}
+                          <span className="text-white ml-2 bg-secondary"><XCircleIcon onClick={()=>deleteFinding(v.id)}className="text-white w-6 h-6 bg-secondary inline" /></span>
                           </span>
                         </div>
                         )
                       })
                     }
                     <div className="relative">
-                      <input list="searchResults" placeholder='Add vulnerability' value={searchValue} onFocus={()=>setShowSearchResults(true)} onBlur={()=>setShowSearchResults(false)} className="border border-gray-200 p-2 rounded-md" type="text" onChange={handleNameSearch} />
-                      {searching && <Spinner className="h-4 w-4 absolute right-8 top-3" />}
+                      <input list="searchResults" placeholder='Search & add' value={searchValue} onFocus={()=>setShowSearchResults(true)} onBlur={()=>setShowSearchResults(false)} className="border border-gray-200 p-2 rounded-md w-full mb-2" type="text" onChange={handleNameSearch} />
+                      {spinner && <Spinner className="h-4 w-4 absolute right-2 top-3" />}
                     </div>
                   {searchResults.length > 0 &&
                     <List>
                       { searchResults.map((item, index)=>{
-                          return <ListItem  key={`search-${index}`} onClick={()=>handleSelectedItem(item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
+                          return <ListItem key={`search-${index}`} onClick={()=>handleSelectedItem(item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
                         })
                       }
-                      <ListItem key='addNew'>[Add new]</ListItem>
+                      
                     </List>
                   }
+                  <ListItem key='addNew' className="cursor-pointer" onClick={()=>handleSelectedItem('new')}><DocumentPlusIcon className="h-6 w-6 mr-1"/> Add New</ListItem>
                   {currentVulnerability &&
                       <div className="border-1 border-primary p-2" key={`current-${currentVulnerability.id}`}>
                         <p>Name: {currentVulnerability.vulnerabilityname}</p>
@@ -215,9 +241,11 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
 }
 function showXCircle(){
   return(
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+         <span className="text-xs">
+         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
+          </span>
           )
 
 }

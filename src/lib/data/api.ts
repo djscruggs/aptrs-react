@@ -116,6 +116,16 @@ export async function getProjectFindings(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function deleteProjectFindings(ids: any[]): Promise<any> {
+  const url = apiUrl('project/vulnerability/delete/instances/');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  console.log(response)
+  return response.data;
+}
 export async function upsertProject(formData: Project): Promise<any> {
   let url = apiUrl(`project/add-project`);
   if (Object.keys(formData).includes('id')) {
