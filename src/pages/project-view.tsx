@@ -34,7 +34,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [searchValue, setSearchValue] = useState('')
   const [spinner, setSpinner] = useState(false) //shows spinner for vulnerability search
   const debouncedValue = useDebounce<string>(searchValue, 500)
-  const [searchResults, setSearchResults] = useState<{ vulnerabilityname: string }[]>([])
+  const [searchResults, setSearchResults] = useState<{ id:number, vulnerabilityname: string }[]>([])
   const [currentVulnerability, setCurrentVulnerability] = useState<Vulnerability | null >(null)
   const [showSearchResults, setShowSearchResults] = useState(false)
   useEffect(() => {
@@ -98,22 +98,17 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   }
   
   const navigate = useNavigate()
-  const handleSelectedItem = (name:string) => {
-    setSpinner(true)
+  const handleSelectedItem = (vid:string | number, name: string = '') => {
     setSearchValue(name.trim());
+    setSpinner(true)
     setShowSearchResults(false)
     setSearchResults([])
-    console.log('selected is ', name)
-    if(name=='new'){
+    console.log('selected is ', vid)
+    if(vid=='new'){
       return navigate(`/projects/${id}/vulnerability/add`)
     }
-    if(name){
-      getVulnerabilityByName(name).then((data:any) => {
-        navigate(`/projects/${id}/vulnerability/add/${data.id}`)
-      }).catch((error) => {
-        toast.error(error)
-        setSpinner(false)
-      });
+    if(vid){
+        navigate(`/projects/${id}/vulnerability/add/${vid}`)
     } else {
       setCurrentVulnerability(null)
     }
@@ -218,7 +213,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                   {searchResults.length > 0 &&
                     <List>
                       { searchResults.map((item, index)=>{
-                          return <ListItem key={`search-${index}`} onClick={()=>handleSelectedItem(item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
+                          return <ListItem key={`search-${index}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
                         })
                       }
                       

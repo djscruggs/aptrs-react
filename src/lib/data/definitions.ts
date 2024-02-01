@@ -11,6 +11,15 @@ export type Vulnerability = {
   cvssscore?: number | string | null;
   cvssvector?: string | null;
 };
+export type ProjectVulnerability = Omit<Vulnerability, 'id'> & {
+  project: number | string;
+  poc?: string
+  instance?: { 
+    URL: string;
+    Parameter: string;
+    status: "Vulnerable" | "Confirm Fixed" | "Accepted Risk";
+  }[];
+};
 
 export type Props = {
   children: ReactNode;

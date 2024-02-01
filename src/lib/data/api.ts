@@ -3,7 +3,8 @@ import {  Company,
           User, 
           LoginUser, 
           IPAddressInfo,
-          Vulnerability} from './definitions'
+          Vulnerability,
+          ProjectVulnerability } from './definitions'
 import axios, { AxiosError } from 'axios'
 
 
@@ -134,6 +135,9 @@ export async function upsertProject(formData: Project): Promise<any> {
 
   const response = await axios.post(url, formData, authHeaders());
   return response.data;
+}
+export async function addProjectVulnerability(formData: ProjectVulnerability): Promise<any> {
+  // project/vulnerability/add/vulnerability/
 }
 
 export async function fetchCompanies() {
