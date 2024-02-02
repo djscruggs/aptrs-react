@@ -23,7 +23,7 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
   //   }
   // }, []);
   const isActive = () => {
-    return document.activeElement === document.getElementById('searchInput')
+    return document.activeElement === searchRef.current?.children[0]
   }
   const handleKeyDown = (event: KeyboardEvent) => {
     const inputElement = event.target as HTMLInputElement;
