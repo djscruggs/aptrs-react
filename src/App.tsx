@@ -23,7 +23,7 @@ import VulnerabilityForm from './pages/vulnerability-form';
 
 
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   
   
   return (

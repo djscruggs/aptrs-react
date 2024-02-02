@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <div className="bg-primary flex h-20 shrink-0 items-end rounded-lg bg-primary-500 color-primary p-4 md:h-52">
-        <div className="flex flex-row items-center leading-none text-white border border-red-200">
+        <div className="flex flex-row items-center leading-none text-white">
           <p className="text-[44px]">Automated Penetration Testing Reporting System</p>
         </div>
       </div>
