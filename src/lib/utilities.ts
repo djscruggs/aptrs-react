@@ -17,7 +17,7 @@ export function sortByPropertyName<T extends ObjectWithProperty>(arr: T[], varia
 }
 
 export function getInitials(name: string): string {
-  if (name.trim() === '') {
+  if (!name || name.trim() === '') {
     return '?'; // Return '?' for an empty string
   }
   const nameParts = name.split(' ').filter(part => part !== ''); // Split the name into parts and remove empty parts
