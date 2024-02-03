@@ -5,7 +5,7 @@ import React, {
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectFindings, deleteProjectFindings, searchVulnerabilities, getVulnerabilityByName } from '../lib/data/api';
+import { getProject, fetchProjectFindings, deleteProjectFindings, searchVulnerabilities} from '../lib/data/api';
 import { Project, Vulnerability } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
@@ -44,7 +44,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         try {
           const projectData = await getProject(id) as Project;
           setProject(projectData as Project);
-          const _findings = await getProjectFindings(id) as Vulnerability[]
+          const _findings = await fetchProjectFindings(id) as Vulnerability[]
           setFindings(_findings)
 
         } catch (error) {
@@ -112,6 +112,12 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     } else {
       setCurrentVulnerability(null)
     }
+  }
+  const editSelectedItem = (vid:string | number | undefined | null) => {
+    if(vid){
+      navigate(`/projects/${id}/vulnerability/edit/${vid}`)
+    }
+
   }
   
   
@@ -199,7 +205,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     { findings.map((v, index)=>{
                         return(
                         <div key={`finding-${index}`}>
-                          <span className='bg-secondary p-2 leading-10 mr-1 rounded-lg text-sm text-white text-nowrap'>{v?.vulnerabilityname}
+                          <span className='bg-secondary p-2 leading-10 mr-1 rounded-lg text-sm text-white text-nowrap' onClick={()=>editSelectedItem(v.id)}>{v?.vulnerabilityname}
                           <span className="text-white ml-2 bg-secondary"><XCircleIcon onClick={()=>deleteFinding(v.id)}className="text-white w-6 h-6 bg-secondary inline" /></span>
                           </span>
                         </div>

@@ -140,15 +140,15 @@ const Vulnerabilities = () => {
        </div>
        <PageTitle title='Vulnerabilities' />
        
-        <div className="-mt-8 flow-root max-w-lg">
+        <div className="flow-root max-w-lg">
         <Button 
-            className='btn btn-primary float-right m-2 mr-0' 
+            className='btn bg-primary float-right m-2 mr-0' 
             onClick={()=> navigate('/vulnerabilities/new')}
           >
               New
         </Button>
         <Button  
-          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+          className="bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
           disabled={selected.length == 0}
           onClick = {deleteMultiple}
         >

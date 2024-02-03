@@ -111,9 +111,15 @@ export async function getProject(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
-export async function getProjectFindings(id: string | undefined) {
+export async function fetchProjectFindings(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/findings/${id}/`);
+  const response = await axios.get(url, authHeaders())
+  return response.data;
+}
+export async function getProjectFinding(id: string | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`project/vulnerability/${id}/`);
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
