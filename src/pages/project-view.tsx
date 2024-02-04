@@ -85,7 +85,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       setCurrentVulnerability(null)
     }
   }
-  async function deleteFinding(id:any): Promise<void> {
+  async function deleteFinding(event:any, id:any): Promise<void> {
+    event.stopPropagation()
     alert('deleting ' + id)
     try {
       await deleteProjectFindings([id])
@@ -94,6 +95,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       console.log(error)
       toast.error(String(error))
     }
+
     
   }
   
@@ -121,7 +123,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   }
   
   
-  if(loading) return <FormSkeleton numInputs={4}/>
+  if(loading) return <FormSkeleton numInputs={4} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (
@@ -206,7 +208,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                         return(
                         <div key={`finding-${index}`}>
                           <span className='bg-secondary p-2 leading-10 mr-1 rounded-lg text-sm text-white text-nowrap' onClick={()=>editSelectedItem(v.id)}>{v?.vulnerabilityname}
-                          <span className="text-white ml-2 bg-secondary"><XCircleIcon onClick={()=>deleteFinding(v.id)}className="text-white w-6 h-6 bg-secondary inline" /></span>
+                          <span className="text-white ml-2 bg-secondary"><XCircleIcon onClick={(event)=>deleteFinding(event, v.id)}className="text-white w-6 h-6 bg-secondary inline" /></span>
                           </span>
                         </div>
                         )

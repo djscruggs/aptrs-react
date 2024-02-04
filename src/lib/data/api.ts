@@ -123,6 +123,23 @@ export async function getProjectFinding(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function fetchVulnerabilityInstances(id: string | number | undefined) {
+  if(!id) return null;
+  console.log('getting _instances for id', id)
+  const url = apiUrl(`project/vulnerability/instances/${id}/`);
+  const response = await axios.get(url, authHeaders())
+  return response.data;
+}
+export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
+  const url = apiUrl('project/vulnerability/delete/instances/');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  return response.data;
+}
+
 export async function deleteProjectFindings(ids: any[]): Promise<any> {
   const url = apiUrl('project/vulnerability/delete/instances/');
   const config = {
@@ -130,7 +147,6 @@ export async function deleteProjectFindings(ids: any[]): Promise<any> {
     data: ids,
   };
   const response = await axios.delete(url, config);
-  console.log(response)
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {

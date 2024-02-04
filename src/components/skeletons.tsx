@@ -14,13 +14,15 @@ export function InputSkeleton() {
       </div>
   )
 }
-export function SingleInputSkeleton() {
+export function SingleInputSkeleton(props:React.PropsWithChildren) {
   return (<div className="skeleton h-10 w-full bg-gray-100 dark:bg-gray-70"></div>)
 }
 interface FormSkeletonProps {
   numInputs?: number;
+  className?: string
 }
-export const FormSkeleton: React.FC<FormSkeletonProps> = ({ numInputs = 3 }) => {
+
+export const FormSkeleton: React.FC<FormSkeletonProps> = ({ numInputs = 3, className='' }) => {
   const inputSkeletons = [];
 
   for (let i = 0; i < numInputs; i++) {
@@ -28,7 +30,7 @@ export const FormSkeleton: React.FC<FormSkeletonProps> = ({ numInputs = 3 }) => 
   }
 
   return (
-    <div className='pt-8'>
+    <div className={`pt-8 ${className}`}>
       {inputSkeletons}
     </div>
   );

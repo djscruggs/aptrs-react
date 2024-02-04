@@ -32,7 +32,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     } else {
       return loadAllProjects()
     }
-  }, []);
+  }, [props.searchTerm, refresh]);
   const loadAllProjects = () =>{
     fetchProjects()
       .then((data) => {
