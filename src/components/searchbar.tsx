@@ -6,22 +6,13 @@ type SearchBarProps = {
   onClear?: () => void; //optional function to call if the search box is cleared
   searchTerm?: string
   placeHolder?: string
-
 }
 
 export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolder='' }: SearchBarProps){
   const [searchValue, setSearchValue] = useState(searchTerm);
   const [showShortcut, setShowShortcut]= useState(true)
-  const [hasSearched, setHasSearched] = useState(false) //flag to track whether the search has every happened, used later to trigger refresh if needed
+  const [hasSearched, setHasSearched] = useState(false) //flag to track whether the search has already happened, used later to trigger refresh if needed
   const searchRef = useRef<HTMLInputElement>(null)
-
-  // useEffect(() => {
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const searchParam = urlParams.get('search');
-  //   if (searchParam) {
-  //     setSearchValue(searchParam);
-  //   }
-  // }, []);
   const isActive = () => {
     return document.activeElement === searchRef.current?.children[0]
   }
@@ -81,10 +72,8 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     setShowShortcut(true)
   }
-  
   return(
     <div className='w-[30rem] relative flex flex-items-center overflow-visible'>
-    
       <Input 
       id='searchInput' 
       size='lg' 
@@ -102,8 +91,6 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
         <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
       }
       <Button className="bg-primary ml-2" onClick={()=> handleSearch()}>Search</Button>
-      
-      
-      </div>
+    </div>
   )
 }
