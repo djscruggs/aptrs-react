@@ -3,7 +3,7 @@
 
 aptrs-react is a React front end to the [Automated Penetration Testing Reporting System](https://github.com/Anof-cyber/APTRS)
 
-Written in TypeScript, this app uses no server resources except to deliver the JavScript bundle. The back end relies on the APTRS [API](https://www.postman.com/anof-cyber/workspace/aptrs/collection/24236036-131e5e02-32e5-45be-9c15-02c91fe9230a)
+Written in TypeScript, this app uses no server resources except to deliver the JavaScript bundle. The back end relies on the APTRS [API](https://www.postman.com/anof-cyber/workspace/aptrs/collection/24236036-131e5e02-32e5-45be-9c15-02c91fe9230a)
 
 
 ## Available Scripts
@@ -21,7 +21,7 @@ You will also see any lint errors in the console.
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
 
 ### `npm run build`
 
