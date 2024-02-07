@@ -14,13 +14,15 @@ export type Vulnerability = {
 export type ProjectVulnerability = Omit<Vulnerability, 'id'> & {
   project: number | string;
   poc?: string
-  instance?: { 
-    URL: string;
-    Parameter: string;
-    status: "Vulnerable" | "Confirm Fixed" | "Accepted Risk";
-  }[];
+  instance?:VulnerabilityInstance[];
 };
-
+export type VulnerabilityInstance =  { 
+  id?: string | number | undefined
+  URL: string;
+  Parameter?: string;
+  status: "Vulnerable" | "Confirm Fixed" | "Accepted Risk" | undefined;
+  error?: boolean;
+}
 export type Props = {
   children: ReactNode;
 };

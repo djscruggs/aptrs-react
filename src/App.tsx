@@ -39,9 +39,9 @@ export const App: React.FC = () => {
             <Route path="/projects/new" element={<ProjectForm />} />
             <Route path="/projects/:id" element={<ProjectView />} />
             <Route path="/projects/:id/edit" element={<ProjectForm />} />
-            <Route path="/projects/:projectId/vulnerability/add" element={<VulnerabilityForm />} />
-            <Route path="/projects/:projectId/vulnerability/add/:id" element={<VulnerabilityForm />} />
-            <Route path="/projects/:projectId/vulnerability/edit/:id" element={<VulnerabilityForm />} />
+            <Route path="/projects/:projectId/vulnerability/add" element={<VulnerabilityForm action='addToProject' />} />
+            <Route path="/projects/:projectId/vulnerability/add/:id" element={<VulnerabilityForm action='addToProject'/>} />
+            <Route path="/projects/:projectId/vulnerability/edit/:id" element={<VulnerabilityForm action='saveToProject'/>} />
             <Route path="/companies/:id/edit" element={<CompanyForm />} />
             <Route path="/companies/new" element={<CompanyForm />} />
             <Route path="/vulnerabilities" element={<Vulnerabilities />} />

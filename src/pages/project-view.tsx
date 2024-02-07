@@ -5,7 +5,7 @@ import React, {
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { withAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, fetchProjectFindings, deleteProjectFindings, searchVulnerabilities} from '../lib/data/api';
+import { getProject, fetchProjectFindings, deleteProjectVulnerabilities, searchVulnerabilities} from '../lib/data/api';
 import { Project, Vulnerability } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage } from '../lib/formstyles';
@@ -87,10 +87,10 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   }
   async function deleteFinding(event:any, id:any): Promise<void> {
     event.stopPropagation()
-    alert('deleting ' + id)
     try {
-      await deleteProjectFindings([id])
+      await deleteProjectVulnerabilities([id])
       setRefresh(true)
+      toast.success('Vulnerability deleted')
     } catch(error){
       console.log(error)
       toast.error(String(error))
@@ -123,7 +123,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   }
   
   
-  if(loading) return <FormSkeleton numInputs={4} className='max-w-lg'/>
+  if(loading) return <FormSkeleton numInputs={6} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (

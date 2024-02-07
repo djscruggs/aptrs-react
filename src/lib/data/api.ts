@@ -117,7 +117,7 @@ export async function fetchProjectFindings(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
-export async function getProjectFinding(id: string | undefined) {
+export async function getProjectVulnerability(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/vulnerability/${id}/`);
   const response = await axios.get(url, authHeaders())
@@ -140,13 +140,14 @@ export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
   return response.data;
 }
 
-export async function deleteProjectFindings(ids: any[]): Promise<any> {
-  const url = apiUrl('project/vulnerability/delete/instances/');
+export async function deleteProjectVulnerabilities(ids: any[]): Promise<any> {
+  const url = apiUrl('project/vulnerability/delete/vulnerability/');
   const config = {
     headers: authHeaders().headers,
     data: ids,
   };
   const response = await axios.delete(url, config);
+  console.log('response from delete', response)
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {
@@ -158,9 +159,46 @@ export async function upsertProject(formData: Project): Promise<any> {
   const response = await axios.post(url, formData, authHeaders());
   return response.data;
 }
-export async function addProjectVulnerability(formData: ProjectVulnerability): Promise<any> {
-  // project/vulnerability/add/vulnerability/
+export async function insertProjectVulnerability(formData: any): Promise<any> {
+  let url = apiUrl(`project/vulnerability/add/vulnerability/`)
+  //NEED TO CHECK FIRST IF PAIR OF projectId AND vulnerabilityname ALREADY EXIST
+  //convert key instances to instance - API is weird
+  let data = formData
+  if(formData.instances){
+    data.instance = formData.instances
+    delete data.instances
+  }
+  console.log('INSERT, posting data', data)
+  const response = await axios.post(url, data, authHeaders());
+  return response.data;
 }
+export async function updateProjectVulnerability(formData: any): Promise<any> {
+  let url = apiUrl(`project/vulnerability/edit/${formData.id}/`)
+  let data = formData
+  if(formData.instances){
+    data.instance = formData.instances
+    delete data.instances
+  }
+  console.log('UPDATE posting data', data)
+  const response = await axios.post(url, data, authHeaders());
+  console.log('response', response)
+  return response.data;
+}
+export async function updateProjectInstance(data: any): Promise<any> {
+  let url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
+  console.log('UPDATE instance posting data', data)
+  const response = await axios.post(url, data, authHeaders());
+  return response.data;
+}
+//pvid is the id of a ProjectVulnerability
+export async function insertProjectInstance(pvid: any, data: any[]): Promise<any> {
+  let url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
+  console.log('INSERT instance data', data)
+  const response = await axios.post(url, data, authHeaders());
+  console.log(response)
+  return response.data;
+}
+
 
 export async function fetchCompanies() {
   const url = apiUrl('customer/all-company');
