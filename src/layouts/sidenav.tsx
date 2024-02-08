@@ -24,7 +24,7 @@ const SideNav: React.FC = () => {
             <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
             {currentUser && (
               <Button
-                className="bg-primary "
+                className="bg-brand-light"
                 onClick={handleSignOut}
               >
                 <PowerIcon className="w-6" />
