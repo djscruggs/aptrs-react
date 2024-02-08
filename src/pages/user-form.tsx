@@ -19,7 +19,7 @@ import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
 import { FormSkeleton } from '../components/skeletons'
 import { getUser } from '../lib/data/api';
-import { upsertUser} from '../lib/data/api';
+import { upsertUser } from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';

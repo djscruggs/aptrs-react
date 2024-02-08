@@ -1,8 +1,7 @@
 import PageTitle from "../components/page-title";
-import { FormSkeleton } from "../components/skeletons";
 import ShowPasswordButton from '../components/show-password-button';
-import { getUser } from '../lib/data/api';
-import { upsertUser} from '../lib/data/api';
+
+import { updateProfile, changePassword} from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
@@ -16,44 +15,43 @@ import {
 } from '../lib/formstyles'
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { phoneRegex, emailRegex, usernameRegex } from '../lib/utilities';
+import { phoneRegex, emailRegex, passwordRegex } from '../lib/utilities';
 import { withAuth } from "../lib/authutils";
-import React, { 
+import { 
   useState, 
-  useEffect,
   ChangeEvent, 
-  FormEvent,
-  RefObject
+  FormEvent
 } from 'react';
 
 type Error = {message: string};
 interface FormErrors {
-  username?: Error
   email?: Error
   full_name?: Error
   position?: Error
   number?: Error
-  password?:Error
-  password_check?:Error
+  newpassword?:Error
+  newpassword_check?:Error
 }
 type UserForm = User & {
-  password?: string;
-  password_check?: string;
+  newpassword?: string;
+  newpassword_check?: string;
 };
 
 export const Profile = () => {
-  const [btnDisabled, setBtnDisabled] = useState(false)
   const currentUser = useCurrentUser()
+  const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(true)
   const defaults = {
-    username: currentUser.username,
+    id: currentUser.id,
     full_name: currentUser.full_name,
     email: currentUser.email,
     number: currentUser.number,
     position: currentUser.position,
-    password: '',
-    password_check: '',
+    groups: currentUser.groups,
+    oldpassword: '',
+    newpassword: '',
+    newpassword_check: '',
   }
   const [formData, setFormData] = useState<UserForm>(defaults);
   
@@ -71,14 +69,32 @@ export const Profile = () => {
     }));
   };
   const [passwordVisible, setPasswordVisible] = useState(false)
+  function togglePasswordVisibility() {
+    setPasswordVisible((prevState) => !prevState);
+  }
+  
   const handlePhoneInputChange = (value:string) => {
     setFormData({
       ...formData,
       number:value
     })    
   };
+
+  const validatePassword = ():boolean => {
+    return (validatePasswordLength( ) && validatePasswordCaps() && validatePasswordSpecial())
+  }
+  const validatePasswordLength = ():boolean => {
+    return formData?.newpassword.length > 9;
+  }
+  const validatePasswordCaps = ():boolean => {
+    return /[A-Z]/.test(formData?.newpassword);
+  }
+  const validatePasswordSpecial = ():boolean => {
+    return /[@#$%!^&*]/.test(formData?.newpassword);
+  }
   
   const handleSubmit  = async (event: FormEvent<HTMLFormElement>) => {
+    setSaveError('')
     setBtnDisabled(true);
     setErrors({})
     event.preventDefault();
@@ -94,21 +110,36 @@ export const Profile = () => {
         newErrors.number = { message: 'Enter a valid phone number' };
       }
     }
-    if (!usernameRegex.test(String(formData?.username))) {
-      newErrors.email = { message: 'Username must be alphanumeric' };
-    }
-    if(formData.password != formData.password_check){
-      newErrors.password_check = { message: 'Passwords do not match' };
+    //{"password":["This password is too short. It must contain at least 8 characters.",
+    //"This password is too common.",
+    // "The password must contain at least 1 uppercase letter, A-Z."
+    // ,"The password must contain at least 1 special character: @#$%!^&*",
+    // "This password must contain at least 10 characters."]}
+    if(formData.newpassword != formData.newpassword_check){
+      newErrors.newpassword_check = { message: 'Passwords do not match' };
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
-    } else {
+      setBtnDisabled(false);
+      return null
+    }
+    try {
+      await updateProfile(formData as User);
+      toast.success('Profile saved.')
+      //also update password
+      
+      
+      // Handle success (e.g., show success message, redirect, etc.)
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSaveError(String(error))
+      // Handle error (e.g., show error message)
+    }
+    if(formData.newpassword && formData.newpassword_check){
       try {
-        await upsertUser(formData as User);
-        toast.success('User saved.')
-        
-        // Handle success (e.g., show success message, redirect, etc.)
+      await changePassword(formData as User);
+      toast.success('Password updated')
       } catch (error) {
         console.error('Error submitting form:', error);
         setSaveError(String(error))
@@ -126,100 +157,56 @@ export const Profile = () => {
     <>
     <PageTitle title='Profile Page' />
     {saveError && <FormErrorMessage message={saveError} />}
-    <p className='underline text-blue-500' onClick={toggleEditing}>
-    {editing ? 'Cancel' : 'Edit'}
-    </p>
+    {! editing &&
+    <div className='underline text-blue-500' onClick={toggleEditing}>Edit</div>
+    }
     <form onSubmit={handleSubmit} id="projectForm" method="POST">
-          <div className="max-w-sm mb-4">
-            <label 
-              htmlFor="full_name"
-              className={StyleLabel}>
-              Name
-            </label>
-            <div className="relative">
-            {editing ?
-              (<input
-                name="full_name"
-                id="full_name"
-                className={StyleTextfield}
-                value={formData.full_name}
-                onChange={handleChange}
-                type="text"
-                required={true}
-              />) : <>{currentUser.full_name}</>
-            }
-
-              {errors.full_name?.message && <FormErrorMessage message={errors.full_name.message} />}
-            </div>
-          </div>
-       
-          <div className="max-w-sm mb-4">
-            <label 
-              className={StyleLabel}
-              htmlFor="email">
-                Email
-            </label>
-            <div className="relative">
-            {editing ?
-              (<input
-                name="email"
-                id="email"
-                className={StyleTextfield}
-                value={formData.email}
-                onChange={handleChange}
-                type="text"
-                required={true}
-              />
-              ) : <>{currentUser.email}</>
-            }
-              {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
-            </div>
-          </div>
-          <div className="max-w-sm mb-4">
-            <label 
-              className={StyleLabel}
-              htmlFor="email">
-                Username
-            </label>
-            <div className="relative">
-            {editing ?
-              (<input
-                name="username"
-                id="username"
-                className={StyleTextfield}
-                value={formData.username}
-                onChange={handleChange}
-                type="text"
-                maxLength={20}
-                required={true}
-              />
-              ) : <>{currentUser.username}</>
-            }
-              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
-            </div>
-          </div>
-        
-          <div className="max-w-sm mb-4">
+        <div className="max-w-sm mb-4">
           <label 
-            htmlFor="name"
+            htmlFor="full_name"
             className={StyleLabel}>
-            Phone number
+            Name
           </label>
           <div className="relative">
           {editing ?
-              (<PhoneInput
-              value={formData.number}
-              onChange={handlePhoneInputChange}
-              name="number"
-              defaultCountry={defaultCountry}
+            (<input
+              name="full_name"
+              id="full_name"
               className={StyleTextfield}
-              id="number"
+              value={formData.full_name}
+              onChange={handleChange}
+              type="text"
               required={true}
-            />) : <>{formatPhoneNumber(currentUser.number)}</>
+            />) : <>{currentUser.full_name}</>
           }
-            {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
+
+            {errors.full_name?.message && <FormErrorMessage message={errors.full_name.message} />}
           </div>
         </div>
+      
+        <div className="max-w-sm mb-4">
+          <label 
+            className={StyleLabel}
+            htmlFor="email">
+              Email
+          </label>
+          <div className="relative">
+          {editing ?
+            (<input
+              name="email"
+              id="email"
+              className={StyleTextfield}
+              value={formData.email}
+              onChange={handleChange}
+              type="text"
+              required={true}
+            />
+            ) : <>{currentUser.email}</>
+          }
+            {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+          </div>
+        </div>
+        
         <div className="max-w-sm mb-4">
           <label 
             htmlFor="position"
@@ -241,32 +228,125 @@ export const Profile = () => {
           }
           </div>
         </div>
-        
+        <div className="max-w-sm mb-4">
+            <label 
+              htmlFor="name"
+              className={StyleLabel}>
+              Phone number
+            </label>
+          <div className="relative">
+          {editing ?
+              (<PhoneInput
+              value={formData.number}
+              onChange={handlePhoneInputChange}
+              name="number"
+              defaultCountry={defaultCountry}
+              className={StyleTextfield}
+              id="number"
+              required={true}
+            />) : <>{formatPhoneNumber(currentUser.number)}</>
+          }
+            {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
+          </div>
+        </div>
         
         
         {editing &&
-        <div className="p-2 flex">
-          <div className="w-1/2 flex justify-left">
+          <fieldset className="max-w-sm form-control rounded-md  space-y-2 p-2 border border-slate-200" >
+            <legend className='text-sm'>Change Password (optional)</legend>
+            <div className="w-full mt-0">
+            <label 
+                htmlFor="oldpassword"
+                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+              >
+                Current Password
+              </label>
+              <div className="relative">
+                <input
+                  name="oldpassword"
+                  id="oldpassword"
+                  className={`${StyleTextfield} mb-4`}
+                  onChange={handleChange}
+                  type={passwordVisible ? "text" : "password"}
+                  
+                />
+                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+              </div>
+              <div className={formData.newpassword && !validatePassword() ? 'text-red-500 text-xs' : 'text-xs'}>
+              The new password must contain: 
+              <ul className={`list-disc  pl-4 mb-4 ${formData.newpassword && validatePasswordLength() ? 'text-green-400' : ''}`}>
+                <li className={formData.newpassword && validatePasswordLength() ? 'text-green-400' : ''}>at least 10 characters</li>
+                <li className={formData.newpassword && validatePasswordCaps() ? 'text-green-400' : ''}>at least 1 uppercase letter</li>
+                <li className={formData.newpassword && validatePasswordSpecial() ? 'text-green-400' : ''}>at least 1 special character (e.g. @#$%!^&*)</li>
+              </ul>
+              </div>
+              <label 
+                htmlFor="newpassword"
+                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+              >
+                New Password
+              </label>
+             
+              
+              <div className="relative">
+                <input
+                  name="newpassword"
+                  id="newpassword"
+                  className={formData.newpassword && !validatePassword() ? `${StyleTextfieldError}  mb-2` :`${StyleTextfield}  mb-2`}
+                  onChange={handleChange}
+                  type={passwordVisible ? "text" : "password"}
+                  
+                />
+                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+              </div>
+              
+              
+              
+            </div>
+            <div className="w-full mt-0">
+              <label 
+                htmlFor="newpassword_check"
+                className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+              >
+                Repeat new password
+              </label>
+              <div className="relative">
+                <input
+                  name="newpassword_check"
+                  id="newpassword_check"
+                  className={formData.newpassword != formData.newpassword_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                  onChange={handleChange}
+                  type={passwordVisible ? "text" : "password"}                    
+                />
+                <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                  
+              </div>
+              {formData.newpassword != formData.newpassword_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
+            </div>
+          </fieldset>
+        }
+        {editing &&
+          <div className="p-2 flex mt-4">
+            <div className="w-1/2 flex justify-left">
+                  <Button 
+                  className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+                  disabled={btnDisabled}
+                  type="submit">
+                    Save
+                </Button>
                 <Button 
-                className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
-                disabled={btnDisabled}
-                type="submit">
-                  Save
-              </Button>
-              <Button 
-                className="bg-red-500 ml-1"
-                onClick={() => toggleEditing()}
-                disabled={btnDisabled}>
-                  Cancel
-              </Button>
+                  className="bg-red-500 ml-1"
+                  onClick={() => toggleEditing()}
+                  disabled={btnDisabled}>
+                    Cancel
+                </Button>
+            </div>
           </div>
-      </div>
-      }
-        
-        
+        }
         
       </form>
     </>
+    
   )
 };
 

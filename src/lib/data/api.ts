@@ -305,14 +305,33 @@ export async function getMyProfile() {
 export async function upsertUser(formData: User): Promise<any> {
   let temp = formData;
   delete temp.profilepic;
+  delete temp.id;
+
   let url = apiUrl(`auth/adduser`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`auth/edituser/${formData['id']}`);
   }
   const response = await axios.post(url, temp, authHeaders());
+  console.log(response)
   return response.data;
 }
+export async function updateProfile(formData: User): Promise<any> {
+  let temp = formData;
+  delete temp.profilepic;
+  delete temp.id;
 
+  const url = apiUrl(`auth/editprofile`);
+  const response = await axios.post(url, temp, authHeaders());
+  console.log(response)
+  return response.data;
+}
+export async function changePassword(formData: User): Promise<any> {
+  const url = apiUrl(`auth/changepassword`);
+  const response = await axios.post(url, formData, authHeaders());
+  console.log(response)
+  return response.data;
+  
+}
 export async function fetchPermissionGroups() {
   const url = apiUrl('auth/groups/list/');
   const response = await axios.get(url, authHeaders());
