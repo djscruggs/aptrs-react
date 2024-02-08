@@ -35,3 +35,16 @@ export const CK_allowedTags = ['strong', 'em', 's', 'u', 'p', 'h1', 'h2', 'h3', 
 export const CK_toolbarItems = [
   'bold', 'italic', 'strikethrough', 'underline', '|', 'heading', '|', 'numberedList', 'bulletedList', 'listItem', '|', 'imageInsert', 'link', 'span', 'code', 'blockquote', 'div', 'font', 'table', 'tableColumn', 'tableRow', 'tableCell', 'pre'
 ];
+
+export const parseErrors = (error: any): any => {
+  if (error?.request?.response) {
+    const errors = JSON.parse(error?.request?.response);
+    let transformed:any = {}
+    Object.entries(errors).map((item, index) => {
+      console.log(item)
+      transformed[item[0]] = item[1][0]
+    })
+    return transformed;
+  }
+  return error;
+}

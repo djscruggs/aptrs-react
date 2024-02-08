@@ -25,21 +25,11 @@ import 'react-phone-number-input/style.css'
 
 
 interface FormErrors {
-  full_name?: {
-    message: string;
-  };
-  email?: {
-    message: string;
-  };
-  number?: {
-    message: string;
-  };
-  position?: {
-    message: string;
-  };
-  company?: {
-    message: string;
-  };
+  full_name?: string
+  email?: string
+  number?: string
+  position?: string
+  company?: string
 }
 
 interface CustomerFormProps {
@@ -148,7 +138,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
     if (formData.full_name && formData.full_name.length < 3) {
-      newErrors.full_name = { message: 'Name should be at least three characters' };
+      newErrors.full_name = 'Name should be at least three characters';
     }
     // Add more validation for other fields if needed
       
@@ -204,7 +194,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 type="text"
                 required
               />
-              {errors.full_name?.message && <p>{errors.full_name.message as string}</p>} 
+              {errors.full_name && <p>{errors.full_name}</p>} 
             </div>
           </div>
           <div className="mt-4">
@@ -224,7 +214,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 type="text"
                 required
               />
-              {errors.email?.message && <p>{errors.email.message as string}</p>} 
+              {errors.email && <p>{errors.email}</p>} 
             </div>
           </div>
           <div className="mt-4">
@@ -243,7 +233,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 className={StyleTextfield}
                 id="number"
               />
-              {errors.number?.message && <FormErrorMessage message={errors.number.message as string} />} 
+              {errors.number && <FormErrorMessage message={errors.number} />} 
             </div>
           </div>
           <div className="mt-4">
@@ -262,7 +252,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                   error={errors.company ? true : false}
                   required={true}
                 />
-              {errors.company?.message && <FormErrorMessage message={errors.company.message as string} />} 
+              {errors.company && <FormErrorMessage message={errors.company} />} 
             </div>
           </div>
           <div className="mt-4">
@@ -282,7 +272,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 type="text"
                 required
               />
-              {errors.position?.message && <FormErrorMessage message={errors.position.message as string} />} 
+              {errors.position && <FormErrorMessage message={errors.position} />} 
             </div>
           </div>
           

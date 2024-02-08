@@ -34,36 +34,16 @@ interface CustomEditorConfig extends EditorConfig {
   allowedContent: string;
 }
 interface FormErrors {
-  name?: {
-    message: string;
-  };
-  description?: {
-    message: string;
-  };
-  status?: {
-    message: string;
-  };
-  projecttype?: {
-    message: string;
-  };
-  startdate?: {
-    message: string;
-  };
-  enddate?: {
-    message: string;
-  };
-  testingtype?: {
-    message: string;
-  };
-  projectexception?: {
-    message: string;
-  };
-  companyname?: {
-    message: string;
-  };
-  owner?: {
-    message: string;
-  };
+  name?: string
+  description?: string
+  status?: string
+  projecttype?: string
+  startdate?: string
+  enddate?: string
+  testingtype?: string
+  projectexception?: string
+  companyname?: string
+  owner?: string  
 }
 
 
@@ -148,7 +128,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
     if (formData.name && formData.name.length < 3) {
-      newErrors.name = { message: 'Name should be at least three characters' };
+      newErrors.name = 'Name should be at least three characters';
     }
     // Add more validation for other fields if needed
       
@@ -199,7 +179,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       type="text"
                       required
                     />
-                    {errors.name?.message && <p>{errors.name.message as string}</p>} 
+                    {errors.name && <p>{errors.name}</p>} 
                   </div>
                 </div>
                 <div className="mt-4">
@@ -221,7 +201,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                           <option key={`type-${type}`} value={`${type} Application Penetration Testing`}>{`${type} Application Penetration Testing`}</option>
                     ))}
                     </select>
-                    {errors.projecttype?.message && <p>{errors.projecttype.message as string}</p>} 
+                    {errors.projecttype && <p>{errors.projecttype}</p>} 
                   </div>
                 </div>
                 <div className="mt-4">
@@ -243,7 +223,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                           <option key={status} value={status}>{status}</option>
                     ))}
                     </select>
-                    {errors.status?.message && <p>{errors.status.message as string}</p>} 
+                    {errors.status && <p>{errors.status}</p>} 
                   </div>
                 </div>
                 
@@ -272,7 +252,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       <span>{formData.companyname}</span>
                     }
                     
-                    {errors.companyname?.message && <FormErrorMessage message={errors.companyname.message as string} />} 
+                    {errors.companyname && <FormErrorMessage message={errors.companyname} />} 
                   </div>
                 </div>
                 
@@ -296,7 +276,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         onChange={(date:string) => handleDatePicker('startdate', date)}
                         selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
-                    {errors.startdate?.message && <FormErrorMessage message={errors.startdate.message as string} />} 
+                    {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
                   </div>
                 </div>
                 <div className="mt-4">
@@ -315,7 +295,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       onChange={(date:string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
                     />
-                    {errors.enddate?.message && <FormErrorMessage message={errors.enddate.message as string} />} 
+                    {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
                   </div>
                 </div>
               </div>
@@ -337,7 +317,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     type="text"
                     required
                   />
-                  {errors.testingtype?.message && <FormErrorMessage message={errors.testingtype.message as string} />} 
+                  {errors.testingtype && <FormErrorMessage message={errors.testingtype} />} 
                 </div>
               </div>
               <div className="mt-4">
@@ -356,7 +336,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     className={StyleTextfield}
                     type="text"
                   />
-                  {errors.projectexception?.message && <FormErrorMessage message={errors.projectexception.message as string} />} 
+                  {errors.projectexception && <FormErrorMessage message={errors.projectexception} />} 
                 </div>
               </div>
               
@@ -397,7 +377,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     />
 
                   }
-                  {errors.owner?.message && <FormErrorMessage message={errors.owner.message as string} />} 
+                  {errors.owner && <FormErrorMessage message={errors.owner} />} 
                 </div>
               </div>
               
@@ -428,7 +408,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 
               />
                 
-                {errors.description?.message && <FormErrorMessage message={errors.description.message as string} />} 
+                {errors.description && <FormErrorMessage message={errors.description} />} 
             </div>
           </div>
           <div className="p-2 flex">

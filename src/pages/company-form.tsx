@@ -19,15 +19,9 @@ import { upsertCompany} from '../lib/data/api';
 import { Company } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
-  name?: {
-    message: string;
-  };
-  address?: {
-    message: string;
-  };
-  img?: {
-    message: string;
-  };
+  name?: string
+  address?: string
+  img?: string
 }
 
 interface CompanyFormProps {
@@ -173,7 +167,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
               type="text"
               required
             />
-            {errors.name?.message && <FormErrorMessage message={errors.name.message} />}
+            {errors.name && <FormErrorMessage message={errors.name} />}
           </div>
         </div>
         <div className="w-full mb-4">
@@ -192,7 +186,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
               type="text"
               required
             />
-            {errors.address?.message && <FormErrorMessage message={errors.address.message} />}
+            {errors.address && <FormErrorMessage message={errors.address} />}
           </div>
         </div>
         <div className="w-full mb-4">
@@ -210,7 +204,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
               onChange={handleChange}
               type="text"
             />
-            {errors.img?.message && <FormErrorMessage message={errors.img.message} />}
+            {errors.img && <FormErrorMessage message={errors.img} />}
           </div> */}
         </div>
         {/* Submit button */}

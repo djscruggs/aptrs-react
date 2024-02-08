@@ -25,35 +25,19 @@ import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { phoneRegex, emailRegex, usernameRegex } from '../lib/utilities';
+import { phoneRegex, emailRegex, usernameRegex, parseErrors } from '../lib/utilities';
 import PermissionGroupSelect from '../components/permission-group-select';
 
 
 interface FormErrors {
-  username?: {
-    message: string;
-  }
-  email?: {
-    message: string;
-  }
-  full_name?: {
-    message: string;
-  }
-  position?: {
-    message: string;
-  }
-  number?: {
-    message: string;
-  }
-  groups?: {
-    message: string;
-  }
-  password?:{
-    message: string;
-  }
-  password_check?:{
-    message: string;
-  }
+  username?: string
+  email?: string
+  full_name?: string
+  position?: string
+  number?: string
+  groups?: string
+  password?: string
+  password_check?: string
 }
 
 interface UserFormProps {
@@ -176,26 +160,25 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     // FORM VALIDATION
     const newErrors: FormErrors = {};
     if (!emailRegex.test(String(formData?.email))) {
-      newErrors.email = { message: 'Enter a valid email address' };
+      newErrors.email = 'Enter a valid email address';
     }
     // const phoneRegex = /^(\+[1-9]\d{0,2}-)?\d{1,14}$/;
     if(formData?.number){
       if (!phoneRegex.test(String(formData?.number))) {
-        newErrors.number = { message: 'Enter a valid phone number' };
+        newErrors.number = 'Enter a valid phone number';
       }
     }
     if (!usernameRegex.test(String(formData?.username))) {
-      newErrors.email = { message: 'Username must be alphanumeric' };
+      newErrors.username = 'Username must be alphanumeric'
     }
     if(formData.password != formData.password_check){
-      newErrors.password_check = { message: 'Passwords do not match' };
+      newErrors.password_check = 'Passwords do not match'
     }
     if(!id && !formData.password){
-      newErrors.password = { message: 'Password is required' };
+      newErrors.password = 'Password is required'
     }
-    console.log(Array.isArray(formData.groups))
     if(!Array.isArray(formData.groups) || formData.groups?.length < 1){
-      newErrors.groups = { message: 'Select at least on group' };
+      newErrors.groups = 'Select at least on group'
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
@@ -211,6 +194,8 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
+        setErrors(parseErrors(error))
+        
         setSaveError(String(error))
         // Handle error (e.g., show error message)
       }
@@ -246,7 +231,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 type="text"
                 required={true}
               />
-              {errors.full_name?.message && <FormErrorMessage message={errors.full_name.message} />}
+              {errors.full_name && <FormErrorMessage message={errors.full_name} />}
             </div>
           </div>
        
@@ -266,7 +251,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 type="text"
                 required={true}
               />
-              {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+              {errors.email && <FormErrorMessage message={errors.email} />}
             </div>
           </div>
           <div className="w-full mb-4">
@@ -286,7 +271,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                 maxLength={20}
                 required={true}
               />
-              {errors.username?.message && <FormErrorMessage message={errors.username.message} />}
+              {errors.username && <FormErrorMessage message={errors.username} />}
             </div>
           </div>
         </div>
@@ -307,7 +292,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               id="number"
               required={true}
             />
-            {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
+            {errors.number && <FormErrorMessage message={errors.number} />}
           </div>
         </div>
         <div className="w-full mb-4">
@@ -412,7 +397,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   changeHandler={handleChange}
                   error={errors.groups ? true : false}
                 />
-                 {errors.groups?.message && <FormErrorMessage message={errors.groups.message} />}
+                 {errors.groups && <FormErrorMessage message={errors.groups} />}
             </div>
           </fieldset>
           <div className="flex flex-col w-1/2">

@@ -23,14 +23,14 @@ import {
   FormEvent
 } from 'react';
 
-type Error = {message: string};
+
 interface FormErrors {
-  email?: Error
-  full_name?: Error
-  position?: Error
-  number?: Error
-  newpassword?:Error
-  newpassword_check?:Error
+  email?: string
+  full_name?: string
+  position?: string
+  number?: string
+  newpassword?: string
+  newpassword_check?: string
 }
 type UserForm = User & {
   newpassword?: string;
@@ -102,21 +102,24 @@ export const Profile = () => {
     // FORM VALIDATION
     const newErrors: FormErrors = {};
     if (!emailRegex.test(String(formData?.email))) {
-      newErrors.email = { message: 'Enter a valid email address' };
+      newErrors.email = 'Enter a valid email address';
     }
     // const phoneRegex = /^(\+[1-9]\d{0,2}-)?\d{1,14}$/;
     if(formData?.number){
       if (!phoneRegex.test(String(formData?.number))) {
-        newErrors.number = { message: 'Enter a valid phone number' };
+        newErrors.number = 'Enter a valid phone number';
       }
     }
-    //{"password":["This password is too short. It must contain at least 8 characters.",
+    
     //"This password is too common.",
     // "The password must contain at least 1 uppercase letter, A-Z."
     // ,"The password must contain at least 1 special character: @#$%!^&*",
     // "This password must contain at least 10 characters."]}
     if(formData.newpassword != formData.newpassword_check){
-      newErrors.newpassword_check = { message: 'Passwords do not match' };
+      newErrors.newpassword_check = 'Passwords do not match';
+    }
+    if(formData.newpassword && !validatePassword()){
+      newErrors.newpassword = 'Invalid password';
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
@@ -134,7 +137,6 @@ export const Profile = () => {
     } catch (error) {
       console.error('Error submitting form:', error);
       setSaveError(String(error))
-      // Handle error (e.g., show error message)
     }
     if(formData.newpassword && formData.newpassword_check){
       try {
@@ -142,8 +144,19 @@ export const Profile = () => {
       toast.success('Password updated')
       } catch (error) {
         console.error('Error submitting form:', error);
-        setSaveError(String(error))
-        // Handle error (e.g., show error message)
+        //try to parse out the error
+        try {
+          const errors = JSON.parse(error?.request?.response)
+          if(errors.non_field_errors.length > 0){
+            setSaveError(errors.non_field_errors[0])
+          } else {
+            setSaveError(String(error))
+          }
+          
+        } catch (error){
+          setSaveError(String(error))
+        }
+        
       }
     }
     setBtnDisabled(false);
@@ -152,6 +165,9 @@ export const Profile = () => {
     setEditing(!editing)
     setErrors({})
     setFormData(defaults)
+    if(!editing) {
+      setPasswordVisible(false)
+    }
   }
   return (
     <>
@@ -180,7 +196,7 @@ export const Profile = () => {
             />) : <>{currentUser.full_name}</>
           }
 
-            {errors.full_name?.message && <FormErrorMessage message={errors.full_name.message} />}
+            {errors.full_name && <FormErrorMessage message={errors.full_name} />}
           </div>
         </div>
       
@@ -203,7 +219,7 @@ export const Profile = () => {
             />
             ) : <>{currentUser.email}</>
           }
-            {errors.email?.message && <FormErrorMessage message={errors.email.message} />}
+            {errors.email && <FormErrorMessage message={errors.email} />}
           </div>
         </div>
         
@@ -246,7 +262,7 @@ export const Profile = () => {
               required={true}
             />) : <>{formatPhoneNumber(currentUser.number)}</>
           }
-            {errors.number?.message && <FormErrorMessage message={errors.number.message} />}
+            {errors.number && <FormErrorMessage message={errors.number} />}
           </div>
         </div>
         
@@ -274,7 +290,7 @@ export const Profile = () => {
               </div>
               <div className={formData.newpassword && !validatePassword() ? 'text-red-500 text-xs' : 'text-xs'}>
               The new password must contain: 
-              <ul className={`list-disc  pl-4 mb-4 ${formData.newpassword && validatePasswordLength() ? 'text-green-400' : ''}`}>
+              <ul className={`list-disc  pl-4 mb-4 ${formData.newpassword && validatePassword() ? 'text-green-400' : ''}`}>
                 <li className={formData.newpassword && validatePasswordLength() ? 'text-green-400' : ''}>at least 10 characters</li>
                 <li className={formData.newpassword && validatePasswordCaps() ? 'text-green-400' : ''}>at least 1 uppercase letter</li>
                 <li className={formData.newpassword && validatePasswordSpecial() ? 'text-green-400' : ''}>at least 1 special character (e.g. @#$%!^&*)</li>
@@ -325,24 +341,36 @@ export const Profile = () => {
             </div>
           </fieldset>
         }
-        {editing &&
+        
           <div className="p-2 flex mt-4">
             <div className="w-1/2 flex justify-left">
+              {!editing &&
+                <Button 
+                  className="bg-primary -ml-3"
+                  onClick={() => toggleEditing()}
+                  disabled={btnDisabled}>
+                  Edit
+                </Button>
+              }
+              {editing &&
+                <>
                   <Button 
-                  className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+                  className="bg-primary disabled:bg-gray-200 disabled:border-gray-200 disabled:shadow-none"
                   disabled={btnDisabled}
                   type="submit">
                     Save
-                </Button>
-                <Button 
-                  className="bg-red-500 ml-1"
-                  onClick={() => toggleEditing()}
-                  disabled={btnDisabled}>
-                    Cancel
-                </Button>
+                  </Button>
+                  <Button 
+                    className="bg-red-500 ml-1"
+                    onClick={() => toggleEditing()}
+                    disabled={btnDisabled}>
+                      Cancel
+                  </Button>
+                </>
+              }
             </div>
           </div>
-        }
+        
         
       </form>
     </>
