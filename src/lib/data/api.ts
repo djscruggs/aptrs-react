@@ -3,9 +3,8 @@ import {  Company,
           User, 
           LoginUser, 
           IPAddressInfo,
-          Vulnerability,
-          ProjectVulnerability } from './definitions'
-import axios, { AxiosError } from 'axios'
+          Vulnerability} from './definitions'
+import axios from 'axios'
 
 
 
@@ -315,14 +314,27 @@ export async function upsertUser(formData: User): Promise<any> {
   console.log(response)
   return response.data;
 }
-export async function updateProfile(formData: User): Promise<any> {
-  let temp = formData;
-  delete temp.profilepic;
+export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {
+  let temp = formData as any;
   delete temp.id;
-
+  delete temp.profilepic
+  let config:any = authHeaders()
+if(profilepic) {
+    config.headers['content-type'] = 'multipart/form-data'
+    temp.profilepic = profilepic
+  }
   const url = apiUrl(`auth/editprofile`);
-  const response = await axios.post(url, temp, authHeaders());
-  console.log(response)
+  const response = await axios.post(url, temp, config);
+  if(response.status == 200){
+    //update the underyling auth user
+    const current = AuthUser()
+    const profile = response.data
+    const refreshed = {
+      ...current,
+      ...profile
+    }
+    setAuthUser(refreshed)
+  }
   return response.data;
 }
 export async function changePassword(formData: User): Promise<any> {

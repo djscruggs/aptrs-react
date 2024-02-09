@@ -1,7 +1,7 @@
 import PageTitle from "../components/page-title";
 import ShowPasswordButton from '../components/show-password-button';
 
-import { updateProfile, changePassword} from '../lib/data/api';
+import { updateProfile, changePassword, AuthUser} from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ import {
 } from '../lib/formstyles'
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { phoneRegex, emailRegex, passwordRegex } from '../lib/utilities';
+import { phoneRegex, emailRegex, parseErrors } from '../lib/utilities';
 import { withAuth } from "../lib/authutils";
 import { 
   useState, 
@@ -38,10 +38,12 @@ type UserForm = User & {
 };
 
 export const Profile = () => {
-  const currentUser = useCurrentUser()
+  //use a variable because it has to be reset after saving
+  const [currentUser, setCurrentUser] = useState(useCurrentUser())
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
-  const [editing, setEditing] = useState(true)
+  const [editing, setEditing] = useState(false)
+  const [file, setFile] = useState()
   const defaults = {
     id: currentUser.id,
     full_name: currentUser.full_name,
@@ -68,6 +70,10 @@ export const Profile = () => {
       [name]: inputValue,
     }));
   };
+  const handleProfilepic = (event: ChangeEvent<HTMLInputElement>): void => {
+    setFile(event.target.files[0])
+    console.log(event.target.files[0])
+  }
   const [passwordVisible, setPasswordVisible] = useState(false)
   function togglePasswordVisibility() {
     setPasswordVisible((prevState) => !prevState);
@@ -128,12 +134,9 @@ export const Profile = () => {
       return null
     }
     try {
-      await updateProfile(formData as User);
+      await updateProfile(formData, file);
+      setCurrentUser(useCurrentUser());
       toast.success('Profile saved.')
-      //also update password
-      
-      
-      // Handle success (e.g., show success message, redirect, etc.)
     } catch (error) {
       console.error('Error submitting form:', error);
       setSaveError(String(error))
@@ -146,7 +149,8 @@ export const Profile = () => {
         console.error('Error submitting form:', error);
         //try to parse out the error
         try {
-          const errors = JSON.parse(error?.request?.response)
+          setErrors(parseErrors(error))
+          
           if(errors.non_field_errors.length > 0){
             setSaveError(errors.non_field_errors[0])
           } else {
@@ -173,9 +177,6 @@ export const Profile = () => {
     <>
     <PageTitle title='Profile Page' />
     {saveError && <FormErrorMessage message={saveError} />}
-    {! editing &&
-    <div className='underline text-blue-500' onClick={toggleEditing}>Edit</div>
-    }
     <form onSubmit={handleSubmit} id="projectForm" method="POST">
         <div className="max-w-sm mb-4">
           <label 
@@ -266,7 +267,24 @@ export const Profile = () => {
           </div>
         </div>
         
-        
+        {editing && 
+          <div className="max-w-sm mb-4">
+            <label 
+              htmlFor="profilepic"
+              className={StyleLabel}>
+              Upload photo
+            </label>
+            <input 
+              id="profilepic" 
+              name="profilepic"
+              type="file"
+              onChange={handleProfilepic}
+              className="text-xs"
+              >
+
+            </input>
+          </div>
+        }
         {editing &&
           <fieldset className="max-w-sm form-control rounded-md  space-y-2 p-2 border border-slate-200" >
             <legend className='text-sm'>Change Password (optional)</legend>

@@ -420,7 +420,9 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     required={id ? false : true}
                   />
                   <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                  
                 </div>
+                {errors.password && <FormErrorMessage message={errors.password} />}
                 
                 
               </div>

@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
 import {getInitials} from '../lib/utilities'
 import { Link, useLocation } from 'react-router-dom';
+import { Avatar } from '@material-tailwind/react';
 
 
 interface LayoutProps {
@@ -25,9 +26,18 @@ const Layout: React.FC<LayoutProps> = ({ children}) => {
             <div className="flex-grow p-6 md:overflow-y-auto md:p-12 cursor-pointer">
                 {currentUser &&
                   <div className="avatar placeholder absolute top-0 right-0 pt-8 pr-14 flex items-center justify-center">
-                    <div className="bg-primary text-neutral-content rounded-full w-12 h-12 flex items-center justify-center">
-                      <Link className='text-white' to="/profile">{getInitials(currentUser.full_name)}</Link>
-                    </div>
+                     {currentUser.profilepic && 
+                        <Link className='text-white' to="/profile">
+                          <Avatar src={currentUser.profilepic} size="lg"/>
+                        </Link>
+                      }
+                      {!currentUser.profilepic &&
+                        <div className="bg-primary text-neutral-content rounded-full w-12 h-12 flex items-center justify-center">
+                          <Link className='text-white' to="/profile">
+                            {getInitials(currentUser.full_name)}
+                          </Link>
+                        </div>
+                      }
                   </div>
                 }
               {children}
