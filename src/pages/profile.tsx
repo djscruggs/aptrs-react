@@ -1,7 +1,7 @@
 import PageTitle from "../components/page-title";
 import ShowPasswordButton from '../components/show-password-button';
 
-import { updateProfile, changePassword, AuthUser} from '../lib/data/api';
+import { updateProfile, changePassword} from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
@@ -36,9 +36,7 @@ type UserForm = User & {
   newpassword?: string;
   newpassword_check?: string;
 };
-
 export const Profile = () => {
-  //use a variable because it has to be reset after saving
   const [currentUser, setCurrentUser] = useState(useCurrentUser())
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
