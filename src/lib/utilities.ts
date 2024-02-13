@@ -32,9 +32,12 @@ export const usernameRegex = /^[a-zA-Z0-9]{1,12}$/
 export const passwordRegex = /^(?=.*[A-Z])(?=.*[@#$%!^&*]).{10,}$/;
 
 export const CK_allowedTags = ['strong', 'em', 's', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'li', 'img', 'a', 'span','code', 'blockquote', 'div', 'font', 'table', 'tr', 'td', 'th','pre']
-export const CK_toolbarItems = [
-  'bold', 'italic', 'strikethrough', 'underline', '|', 'heading', '|', 'numberedList', 'bulletedList', 'listItem', '|', 'imageInsert', 'link', 'span', 'code', 'blockquote', 'div', 'font', 'table', 'tableColumn', 'tableRow', 'tableCell', 'pre'
-];
+// export const CK_toolbarItems = [
+//   'bold', 'italic', 'strikethrough', 'underline', '|', 'heading', '|', 'numberedList', 'bulletedList', 'listItem', '|', 'imageInsert', 'link', 'span', 'code', 'blockquote', 'div', 'font', 'table', 'tableColumn', 'tableRow', 'tableCell', 'pre'
+// ];
+export const CK_toolbarItems = {items: [
+  'undo', 'redo', '|', 'bold', 'italic', 'strikethrough', 'underline', '|', 'heading', '|', 'numberedList', 'bulletedList', 'listItem', '|', 'imageInsert', 'link', 'span', 'code', 'blockquote', 'div', 'font', 'pre'
+]};
 
 export const parseErrors = (error: any): any => {
   if (error?.request?.response) {

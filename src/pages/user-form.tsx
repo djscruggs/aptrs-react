@@ -60,6 +60,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     password_check?: string;
   };
   const [formData, setFormData] = useState<UserForm>({
+    id: id ? Number(id) : undefined,
     username: '',
     full_name: '',
     email: '',
@@ -402,7 +403,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
           </fieldset>
           <div className="flex flex-col w-1/2">
             <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
-              <legend className='text-sm'>{formData.id ? 'New Password (optional)' : 'Password'}</legend>
+              <legend className='text-sm'>Password</legend>
               <div className="w-full mt-0">
                 <label 
                   htmlFor="password"
@@ -414,6 +415,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   <input
                     name="password"
                     id="password"
+                    disabled={Boolean(formData.id)}
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}
@@ -439,6 +441,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     id="password_check"
                     className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
+                    disabled={Boolean(formData.id)}
                     type={passwordVisible ? "text" : "password"}
                     required={id ? false : true}
                   />
