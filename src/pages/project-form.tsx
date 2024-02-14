@@ -22,17 +22,17 @@ import {
     fetchUsers } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
 import { Project, User } from '../lib/data/definitions'
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import  'ckeditor5-custom-build/build/ckeditor';
+
+import '../../ckeditor5/styles.css'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { sortByPropertyName } from '../lib/utilities';
 import { useCurrentUser } from '../lib/customHooks';
-import { EditorConfig } from '@ckeditor/ckeditor5-core/src/editor/editorconfig'
 
-interface CustomEditorConfig extends EditorConfig {
-  allowedContent: string;
-}
 interface FormErrors {
   name?: string
   description?: string
@@ -121,17 +121,12 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     navigate(-1)
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
-    console.log('submit called')
     setBtnDisabled(true);
     event.preventDefault();
-    // Perform your form validation here
     const newErrors: FormErrors = {};
-    // Example validation logic (replace with your own)
     if (formData.name && formData.name.length < 3) {
       newErrors.name = 'Name should be at least three characters';
     }
-    // Add more validation for other fields if needed
-      
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.log('Form failed validation:', newErrors);
@@ -139,11 +134,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       try {
         await upsertProject(formData as Project);
         navigate('/projects')
-        // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
         setSaveError(String(error))
-        // Handle error (e.g., show error message)
       }
     }
     setBtnDisabled(false);
@@ -399,11 +392,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 onReady={ editor => {
                       if (formData.description) editor.setData(formData.description)
                   }}
-                  config={{
-                    height:400,
-                    format_tags: 'p;h2;h3;pre',
-                    allowedContent: CK_allowedTags.join(' ')
-                  } as CustomEditorConfig}
+                // I have no idea why this works. Lots of conflicting advice on stackoverflow  //
+                // https://stackoverflow.com/questions/74559310/uncaught-syntaxerror-the-requested-module-ckeditor5-build-ckeditor-js-does-n 
                 editor={ClassicEditor}
                 
               />
