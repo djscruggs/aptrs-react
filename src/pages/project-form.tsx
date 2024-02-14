@@ -11,7 +11,6 @@ import {
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
-import { CK_allowedTags, CK_toolbarItems } from '../lib/utilities';
 import PageTitle from '../components/page-title';
 import CompanySelect from '../components/company-select';
 import { withAuth } from "../lib/authutils";
@@ -23,7 +22,6 @@ import {
 import { upsertProject} from '../lib/data/api';
 import { Project, User } from '../lib/data/definitions'
 import  'ckeditor5-custom-build/build/ckeditor';
-
 import '../../ckeditor5/styles.css'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 
