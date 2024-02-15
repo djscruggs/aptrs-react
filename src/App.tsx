@@ -19,12 +19,25 @@ import AccessDenied from './pages/access-denied';
 import Profile from './pages/profile';
 import VulnerabilityForm from './pages/vulnerability-form';
 
+import { useEffect } from 'react';
+import { refreshAuth } from './lib/data/api';
 
 
 
 
 export const App: React.FC = () => {
   
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshAuth().then(() => {
+        console.log('Authentication refreshed');
+      }).catch((error) => {
+        console.error('Error refreshing authentication:', error);
+      });
+    }, 60000); // 600000 milliseconds = 10 minutes
+
+    return () => clearInterval(interval);
+  }, []);
   
   return (
       <Router>

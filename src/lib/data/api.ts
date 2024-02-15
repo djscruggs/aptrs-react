@@ -75,7 +75,19 @@ export async function login(email: string, password:string) {
     return result;
   }
 }
-
+export async function refreshAuth(){
+    let user = AuthUser();
+    if(!user){
+      return null
+    }
+    const body = {refresh: user.refresh}
+    const url = apiUrl('auth/token/refresh/');
+    const response = await axios.post(url, body, authHeaders());
+    user.refresh = response.data.refresh
+    user.access = response.data.accesss
+    setAuthUser(user)
+    return user;
+}
 export function logout() {
   localStorage.removeItem('user');
 }
