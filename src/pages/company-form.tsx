@@ -115,7 +115,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     const newErrors: FormErrors = {};
     // Example validation logic (replace with your own)
     if (formData.name && formData.name.length < 3) {
-      newErrors.name = { message: 'Name should be at least three characters' };
+      newErrors.name = 'Name should be at least three characters';
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);

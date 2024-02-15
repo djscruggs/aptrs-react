@@ -18,11 +18,12 @@ import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
     getProject, 
-    fetchUsers } from '../lib/data/api';
+    fetchUsers,
+    simpleUploadConfig } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
 import { Project, User } from '../lib/data/definitions'
 import  'ckeditor5-custom-build/build/ckeditor';
-import '../../ckeditor5/styles.css'
+import '../../packages/ckeditor5/styles.css'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 
 
@@ -393,6 +394,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 // I have no idea why this works. Lots of conflicting advice on stackoverflow  //
                 // https://stackoverflow.com/questions/74559310/uncaught-syntaxerror-the-requested-module-ckeditor5-build-ckeditor-js-does-n 
                 editor={ClassicEditor}
+                config={{simpleUpload: simpleUploadConfig()}}
                 
               />
                 

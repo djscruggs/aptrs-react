@@ -11,7 +11,17 @@ import axios from 'axios'
 function apiUrl(endpoint = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
 }
-function authHeaders(): { headers: Record<string, string> } {
+export function uploadUrl(): string {
+  return apiUrl('project/ckeditor/imageupload/')
+}
+export function simpleUploadConfig() {
+  return {
+    uploadUrl: uploadUrl(),
+    withCredentials: true,
+    ...authHeaders()
+  }
+}
+export function authHeaders(): { headers: Record<string, string> } {
   const token = AuthUser()?.access;
   const header = { headers: {'Authorization': `Bearer ${token}`} }
   return header;
@@ -124,7 +134,6 @@ export async function getProjectVulnerability(id: string | undefined) {
 }
 export async function fetchVulnerabilityInstances(id: string | number | undefined) {
   if(!id) return null;
-  console.log('getting _instances for id', id)
   const url = apiUrl(`project/vulnerability/instances/${id}/`);
   const response = await axios.get(url, authHeaders())
   return response.data;

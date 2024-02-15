@@ -31,6 +31,7 @@ interface FormErrors {
   number?: string
   newpassword?: string
   newpassword_check?: string
+  non_field_errors?: string[]
 }
 type UserForm = User & {
   newpassword?: string;
@@ -69,8 +70,8 @@ export const Profile = () => {
     }));
   };
   const handleProfilepic = (event: ChangeEvent<HTMLInputElement>): void => {
-    setFile(event.target.files[0])
-    console.log(event.target.files[0])
+    setFile(event.target?.files[0])
+    console.log(event.target?.files[0])
   }
   const [passwordVisible, setPasswordVisible] = useState(false)
   function togglePasswordVisibility() {
