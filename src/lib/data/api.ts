@@ -84,7 +84,7 @@ export async function refreshAuth(){
     const url = apiUrl('auth/token/refresh/');
     const response = await axios.post(url, body, authHeaders());
     user.refresh = response.data.refresh
-    user.access = response.data.accesss
+    user.access = response.data.access
     setAuthUser(user)
     return user;
 }
@@ -167,7 +167,6 @@ export async function deleteProjectVulnerabilities(ids: any[]): Promise<any> {
     data: ids,
   };
   const response = await axios.delete(url, config);
-  console.log('response from delete', response)
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {
@@ -188,7 +187,6 @@ export async function insertProjectVulnerability(formData: any): Promise<any> {
     data.instance = formData.instances
     delete data.instances
   }
-  console.log('INSERT, posting data', data)
   const response = await axios.post(url, data, authHeaders());
   return response.data;
 }
@@ -199,23 +197,18 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
     data.instance = formData.instances
     delete data.instances
   }
-  console.log('UPDATE posting data', data)
   const response = await axios.post(url, data, authHeaders());
-  console.log('response', response)
   return response.data;
 }
 export async function updateProjectInstance(data: any): Promise<any> {
   let url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
-  console.log('UPDATE instance posting data', data)
   const response = await axios.post(url, data, authHeaders());
   return response.data;
 }
 //pvid is the id of a ProjectVulnerability
 export async function insertProjectInstance(pvid: any, data: any[]): Promise<any> {
   let url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
-  console.log('INSERT instance data', data)
   const response = await axios.post(url, data, authHeaders());
-  console.log(response)
   return response.data;
 }
 
@@ -332,7 +325,6 @@ export async function upsertUser(formData: User): Promise<any> {
     url = apiUrl(`auth/edituser/${formData['id']}`);
   }
   const response = await axios.post(url, temp, authHeaders());
-  console.log(response)
   return response.data;
 }
 export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {
@@ -361,7 +353,6 @@ if(profilepic) {
 export async function changePassword(formData: User): Promise<any> {
   const url = apiUrl(`auth/changepassword`);
   const response = await axios.post(url, formData, authHeaders());
-  console.log(response)
   return response.data;
   
 }
