@@ -394,7 +394,10 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 // I have no idea why this works. Lots of conflicting advice on stackoverflow  //
                 // https://stackoverflow.com/questions/74559310/uncaught-syntaxerror-the-requested-module-ckeditor5-build-ckeditor-js-does-n 
                 editor={ClassicEditor}
-                config={{simpleUpload: simpleUploadConfig()}}
+                config={{
+                          simpleUpload: simpleUploadConfig(), 
+                          image: {upload: {types: [ 'png', 'jpeg','gif' ]}}
+                        }}
                 
               />
                 
