@@ -132,10 +132,12 @@ export const Profile = () => {
       setBtnDisabled(false);
       return null
     }
+    let success = false
     try {
       await updateProfile(formData, file);
       setCurrentUser(useCurrentUser());
       toast.success('Profile saved.')
+      success = true
     } catch (error) {
       console.error('Error submitting form:', error);
       setSaveError(String(error))
@@ -144,18 +146,17 @@ export const Profile = () => {
       try {
       await changePassword(formData as User);
       toast.success('Password updated')
+      success = true
       } catch (error) {
         console.error('Error submitting form:', error);
         //try to parse out the error
         try {
           setErrors(parseErrors(error))
-          
           if(errors.non_field_errors.length > 0){
             setSaveError(errors.non_field_errors[0])
           } else {
             setSaveError(String(error))
           }
-          
         } catch (error){
           setSaveError(String(error))
         }
@@ -163,6 +164,9 @@ export const Profile = () => {
       }
     }
     setBtnDisabled(false);
+    if(success){
+      setEditing(false)
+    }    
   }
   const toggleEditing = () => {
     setEditing(!editing)

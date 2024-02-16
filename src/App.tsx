@@ -30,7 +30,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       refreshAuth().then(() => {
-        console.log('Authentication refreshed');
       }).catch((error) => {
         console.error('Error refreshing authentication:', error);
       });

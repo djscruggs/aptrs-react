@@ -76,7 +76,7 @@ export async function login(email: string, password:string) {
   }
 }
 export async function refreshAuth(){
-    let user = AuthUser();
+    const user = AuthUser();
     if(!user){
       return null
     }
@@ -179,10 +179,8 @@ export async function upsertProject(formData: Project): Promise<any> {
   return response.data;
 }
 export async function insertProjectVulnerability(formData: any): Promise<any> {
-  let url = apiUrl(`project/vulnerability/add/vulnerability/`)
-  //NEED TO CHECK FIRST IF PAIR OF projectId AND vulnerabilityname ALREADY EXIST
-  //convert key instances to instance - API is weird
-  let data = formData
+  const url = apiUrl(`project/vulnerability/add/vulnerability/`)
+  const data = formData
   if(formData.instances){
     data.instance = formData.instances
     delete data.instances
@@ -191,8 +189,8 @@ export async function insertProjectVulnerability(formData: any): Promise<any> {
   return response.data;
 }
 export async function updateProjectVulnerability(formData: any): Promise<any> {
-  let url = apiUrl(`project/vulnerability/edit/${formData.id}/`)
-  let data = formData
+  const url = apiUrl(`project/vulnerability/edit/${formData.id}/`)
+  const data = formData
   if(formData.instances){
     data.instance = formData.instances
     delete data.instances
@@ -201,13 +199,13 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
   return response.data;
 }
 export async function updateProjectInstance(data: any): Promise<any> {
-  let url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
+  const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
   const response = await axios.post(url, data, authHeaders());
   return response.data;
 }
 //pvid is the id of a ProjectVulnerability
 export async function insertProjectInstance(pvid: any, data: any[]): Promise<any> {
-  let url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
+  const url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
   const response = await axios.post(url, data, authHeaders());
   return response.data;
 }
@@ -328,10 +326,10 @@ export async function upsertUser(formData: User): Promise<any> {
   return response.data;
 }
 export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {
-  let temp = formData as any;
+  const temp = formData as any;
   delete temp.id;
   delete temp.profilepic
-  let config:any = authHeaders()
+  const config:any = authHeaders()
 if(profilepic) {
     config.headers['content-type'] = 'multipart/form-data'
     temp.profilepic = profilepic
