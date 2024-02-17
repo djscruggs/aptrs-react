@@ -152,7 +152,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             <DataTable
                 columns={columns}
                 data={projects}
-                selectableRows
+                selectableRows={!props.hideActions}
                 onRowClicked={onRowClicked}
                 pagination
                 striped
