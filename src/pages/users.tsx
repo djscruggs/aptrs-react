@@ -141,7 +141,6 @@ export function Users() {
         data.forEach((row: UserWithActions) => {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
-                        
                         <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                         </>)
           temp.push(row)
@@ -159,7 +158,6 @@ export function Users() {
   if(typeof users == 'undefined'){
     return (<TableSkeleton />)
   }
-  
   return(
     <>
       {typeof(users) == "object" && (

@@ -25,8 +25,6 @@ import { Project, User } from '../lib/data/definitions'
 import  'ckeditor5-custom-build/build/ckeditor';
 import '../../packages/ckeditor5/styles.css'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
-
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { sortByPropertyName } from '../lib/utilities';
@@ -45,10 +43,10 @@ interface FormErrors {
   owner?: string  
 }
 
-
 interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
 }
+
 function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const params = useParams()
   const { id: routeId } = params;
@@ -70,7 +68,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     companyname: '',
     owner: currentUser.username,
   });
-  
   const [errors, setErrors] = useState<FormErrors>({});
   const [users, setUsers] = useState<User[]>();
   useEffect(() => {
@@ -96,7 +93,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
         setSaveError(error)
       })
     };
-    
     loadData();
   }, [id]);
   
@@ -113,7 +109,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       [input]: value,
     }));
   }
-  
   const navigate = useNavigate()
   const handleCancel = (event:any) =>  {
     event.preventDefault()
@@ -139,9 +134,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       }
     }
     setBtnDisabled(false);
-    
   }
-  // if(loading) return <FormSkeleton numInputs={3}/>
+  if(loading) return <FormSkeleton numInputs={5}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (
