@@ -22,11 +22,8 @@ import VulnerabilityForm from './pages/vulnerability-form';
 import { useEffect } from 'react';
 import { refreshAuth } from './lib/data/api';
 
-
-
-
 export const App: React.FC = () => {
-  
+  //refresh the token every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       refreshAuth().then(() => {
