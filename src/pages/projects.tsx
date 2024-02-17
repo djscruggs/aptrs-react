@@ -114,11 +114,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const handleDelete = (id: any) => {
     console.log("deleting id ",id)
     alert('not implemented yet')
-    
   }
   const deleteMultiple = () => {
     return handleDelete(selected)
-    
   }
   const handleSelectedChange = (event: any) => {
     const ids = event.selectedRows.map((item:any) => item.id);
@@ -132,7 +130,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
     return (<TableSkeleton />)
   }
   
-  
   return(
     <>
       {typeof(projects) == "object" && (
@@ -140,23 +137,22 @@ export function Projects(props:ProjectsProps): JSX.Element {
       )}
       <div className="mt-6 flow-root">
         <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
-              New Project
-          </Button>
+          New Project
+        </Button>
         <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
           disabled={selected.length == 0}
-          onClick = {deleteMultiple}
-          >
-          Delete
+          onClick = {deleteMultiple}>
+            Delete
         </Button>
         {typeof(projects) == "object" &&
             <DataTable
-                columns={columns}
-                data={projects}
-                selectableRows={!props.hideActions}
-                onRowClicked={onRowClicked}
-                pagination
-                striped
-                onSelectedRowsChange={handleSelectedChange}
+              columns={columns}
+              data={projects}
+              selectableRows={!props.hideActions}
+              onRowClicked={onRowClicked}
+              pagination
+              striped
+              onSelectedRowsChange={handleSelectedChange}
             />
           }
       </div>
