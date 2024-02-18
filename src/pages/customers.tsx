@@ -66,7 +66,7 @@ export function Customers() {
           row.actions = (<>
                         <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
                         
-                        <TrashIcon onClick={() => handleDelete(String(row.id))} className="inline w-6 ml-2 cursor-pointer" />                        
+                        <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                         </>)
           temp.push(row)
         });
@@ -109,7 +109,7 @@ export function Customers() {
     },
   ];
   
-  const handleDelete = (id: any) => {
+  const handleDelete = (id: any[]) => {
     console.log("deleting id ",id)
     alert('not implemented yet')
   }
@@ -151,17 +151,18 @@ export function Customers() {
         {/* END modal content */}
       
         
-      <div className="mt-6 flow-root">
-        <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
+      <div className="mt-10 flow-root">
+        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New Customer
         </Button>
-        <Button 
-          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={selected.length == 0}
-          onClick = {deleteMultiple}
-          >
-          Delete
-        </Button>
+        {selected.length > 0 && (
+          <Button 
+            className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+            onClick = {deleteMultiple}
+            >
+            Delete
+          </Button>
+        )}
         {typeof(customers) == "object" &&
           <DataTable
               columns={columns}

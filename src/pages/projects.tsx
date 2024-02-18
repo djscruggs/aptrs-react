@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { fetchProjects, searchProjects } from "../lib/data/api";
+import { fetchProjects, searchProjects, deleteProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
-
+import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
-import { withAuth } from "../lib/authutils";
+import { withAuth} from "../lib/authutils";
+import { parseErrors } from "../lib/utilities"
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import {Project, Column} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
@@ -111,10 +112,28 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const handleNew = () => {
     navigate('/projects/new')
   }
-  const handleDelete = (id: any) => {
-    console.log("deleting id ",id)
-    alert('not implemented yet')
-  }
+  const handleDelete = async (ids: any[]) => {
+    if (!confirm('Are you sure?')) {
+      return false;
+    }
+    const count = ids.length;
+    try {
+      const result = await deleteProjects(ids)
+      setRefresh(true);
+      let msg: string;
+      if (count === 1) {
+        msg = 'Project deleted';
+      } else {
+        msg = `${count} projects deleted`;
+      }
+      toast.success(msg);
+      setSelected([])
+    } catch(error) {
+        const msg = parseErrors(error);
+        setError(msg);
+    }
+    
+  };
   const deleteMultiple = () => {
     return handleDelete(selected)
   }
@@ -135,15 +154,18 @@ export function Projects(props:ProjectsProps): JSX.Element {
       {typeof(projects) == "object" && (
         <PageTitle title={props.pageTitle} />
       )}
+      
       <div className="mt-6 flow-root">
-        <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
+        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
           New Project
         </Button>
-        <Button className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+        {selected.length > 0 &&
+        <Button className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
           disabled={selected.length == 0}
           onClick = {deleteMultiple}>
             Delete
         </Button>
+        }
         {typeof(projects) == "object" &&
             <DataTable
               columns={columns}

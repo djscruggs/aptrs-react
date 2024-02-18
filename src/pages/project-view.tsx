@@ -87,6 +87,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   }
   async function deleteFinding(event:any, id:any): Promise<void> {
     event.stopPropagation()
+    if (!confirm('Are you sure?')) {
+      return null;
+    }
     try {
       await deleteProjectVulnerabilities([id])
       setRefresh(true)
@@ -95,8 +98,6 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       console.log(error)
       toast.error(String(error))
     }
-
-    
   }
   
   const navigate = useNavigate()

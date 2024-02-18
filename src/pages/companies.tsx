@@ -144,17 +144,18 @@ export function Companies() {
         
         {/* END modal content */}
       <div className="mt-6 flow-root">
-        <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
+        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New Company
         </Button>
-        
-        <Button 
-          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={selected.length == 0}
-          onClick = {deleteMultiple}
-          >
-            Delete
-        </Button>
+        {selected.length> 0 &&
+          <Button 
+            className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+            disabled={selected.length == 0}
+            onClick = {deleteMultiple}
+            >
+              Delete
+          </Button>
+        }
         {companies &&
           <DataTable
                 columns={columns}

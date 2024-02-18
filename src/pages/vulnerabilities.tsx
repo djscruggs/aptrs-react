@@ -43,14 +43,10 @@ const Vulnerabilities = () => {
       setRefresh(false)
     });
     
-    
-    
-    
   }
   const handleSelectedChange = (event: any) => {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
-    
   }
   const clearSearch = ():void => {
     setSearchTerm('')
@@ -88,7 +84,6 @@ const Vulnerabilities = () => {
           msg = `${count} vulnerabilities deleted`;
         }
         toast.success(msg);
-        return true;
       })
       .catch((error) => {
         console.error(error);
@@ -96,6 +91,7 @@ const Vulnerabilities = () => {
       }).finally(()=>{
         setLoading(false)
         setRefresh(false)
+        setSelected([])
       });
     return false;
   };
@@ -147,13 +143,15 @@ const Vulnerabilities = () => {
           >
               New
         </Button>
-        <Button  
-          className="bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={selected.length == 0}
-          onClick = {deleteMultiple}
-        >
-          Delete
-        </Button>
+        {selected.length > 0 &&
+          <Button  
+            className="bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+            disabled={selected.length == 0}
+            onClick = {deleteMultiple}
+          >
+            Delete
+          </Button>
+        }
         {searchTerm &&
           <p className="mt-8">
             Results for &quot;{searchTerm}&quot;

@@ -132,6 +132,15 @@ export async function getProject(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function deleteProjects(ids: any[]): Promise<any> {
+  const url = apiUrl('project/delete-project/');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  return response.data;
+}
 export async function fetchProjectFindings(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/findings/${id}/`);
