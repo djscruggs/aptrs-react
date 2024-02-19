@@ -1,11 +1,11 @@
 // App.tsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import React, {useState} from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from './layouts/layout';
 import Home from './pages/home';
 import Login from './pages/login';
 import Vulnerabilities from './pages/vulnerabilities';
-import vulnerabilityForm from './pages/vulnerability-form';
+import VulnerabilityForm from './pages/vulnerability-form';
 import Customers from './pages/customers';
 import Projects from './pages/projects'
 import ProjectView from './pages/project-view';
@@ -17,30 +17,40 @@ import Users from './pages/users'
 import ErrorPage from './pages/error-page';
 import AccessDenied from './pages/access-denied';
 import Profile from './pages/profile';
-import VulnerabilityForm from './pages/vulnerability-form';
-
+import type { LoginUser } from './lib/data/definitions';
 import { useEffect } from 'react';
-import { refreshAuth } from './lib/data/api';
+import { refreshAuth, getAuthUser } from './lib/data/api';
+
 
 export const App: React.FC = () => {
+  const user = getAuthUser()
+  const navigate = useNavigate()
   //refresh the token every 10 minutes
   useEffect(() => {
-    const interval = setInterval(() => {
-      refreshAuth().then(() => {
-      }).catch((error) => {
+    const refreshUser = async () => {
+      console.log('refreshing at time ', new Date().toISOString())
+      try {
+        const refreshedUser = await refreshAuth();
+        if(!refreshedUser){
+          navigate('/')
+        }
+      } catch(error){
         console.error('Error refreshing authentication:', error);
-      });
-    }, 60000); // 600000 milliseconds = 10 minutes
-
-    return () => clearInterval(interval);
+      }
+      // Call the refreshUser function again after the timeout
+      setTimeout(refreshUser, 600000); // 600000 milliseconds = 10 minutes
+    };
+    // Call the refreshUser function for the first time
+    refreshUser();
   }, []);
-  
+  console.log('refreshing App at ', new Date().toISOString())
   return (
-      <Router>
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            {user &&
+            <>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/customers" element={<Customers />} />
@@ -58,6 +68,8 @@ export const App: React.FC = () => {
             <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
             <Route path="/users" element={<Users />} />
             <Route path="/profile" element={<Profile />} />
+            </>
+            }
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="/error" element={<ErrorPage />} />
             
@@ -65,7 +77,6 @@ export const App: React.FC = () => {
             <Route path="*" element={<ErrorPage is404={true}/>} />
           </Routes>
         </Layout>
-      </Router>
   
   );
 };

@@ -8,7 +8,7 @@ import axios from 'axios'
 
 
 
-function apiUrl(endpoint = ''): string {
+function apiUrl(endpoint:string = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
 }
 export function uploadUrl(): string {
@@ -22,7 +22,7 @@ export function simpleUploadConfig() {
   }
 }
 export function authHeaders(): { headers: Record<string, string> } {
-  const token = AuthUser()?.access;
+  const token = getAuthUser()?.access;
   const header = { headers: {'Authorization': `Bearer ${token}`} }
   return header;
 }
@@ -30,14 +30,36 @@ export function authHeaders(): { headers: Record<string, string> } {
 export function setAuthUser(user: LoginUser): void {
   const jsonUser = JSON.stringify(user);
   localStorage.setItem('user', jsonUser);
+  localStorage.setItem('lastRefresh', new Date().toISOString())
 }
 
-export function AuthUser(): any | undefined {
+export function getAuthUser(): any | undefined {
+  //first check if the user token needs to be refreshed
+  if(shouldRefreshToken()){
+    refreshAuth()
+  }
   const jsonUser = localStorage.getItem('user');
   if(jsonUser !== null) {
     return JSON.parse(jsonUser) as LoginUser;
   }
   return null;
+}
+//private function get the user object from local storage
+function _userObject(): any | undefined {
+  const jsonUser = localStorage.getItem('user');
+  if(jsonUser !== null) {
+    return JSON.parse(jsonUser) as LoginUser;
+  }
+  return null;
+}
+
+export function shouldRefreshToken(): boolean {
+  const lastRefresh = localStorage.getItem('lastRefresh')
+  if(!lastRefresh) return true;
+  const last = new Date(lastRefresh)
+  const now = new Date()
+  const diff = now.getTime() - last.getTime()
+  return diff > 1000 * 60 * 10
 }
 
 export async function login(email: string, password:string) {
@@ -75,11 +97,12 @@ export async function login(email: string, password:string) {
     return result;
   }
 }
-export async function refreshAuth(){
-    const user = AuthUser();
+export async function refreshAuth() {
+    const user = _userObject();
     if(!user){
       return null
     }
+    try {
     const body = {refresh: user.refresh}
     const url = apiUrl('auth/token/refresh/');
     const response = await axios.post(url, body, authHeaders());
@@ -87,9 +110,14 @@ export async function refreshAuth(){
     user.access = response.data.access
     setAuthUser(user)
     return user;
+  } catch (error) {
+    logout()
+    return null
+  }
 }
 export function logout() {
   localStorage.removeItem('user');
+  localStorage.removeItem('lastRefresh');
 }
 
 export async function fetchCustomers() {
@@ -347,7 +375,7 @@ if(profilepic) {
   const response = await axios.post(url, temp, config);
   if(response.status == 200){
     //update the underyling auth user
-    const current = AuthUser()
+    const current = getAuthUser()
     const profile = response.data
     const refreshed = {
       ...current,
