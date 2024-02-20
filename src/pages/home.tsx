@@ -42,7 +42,7 @@ export default function Home() {
                 width={256}
                 height={256}
                 className='block'
-                alt="Screenshots of the dashboard project showing desktop version"
+                alt="APTRS logo"
               />
           </div>
           
