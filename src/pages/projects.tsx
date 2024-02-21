@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { fetchProjects, searchProjects, deleteProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
@@ -23,7 +23,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const [projects, setProjects] = useState<Project[]>();
   const [error, setError] = useState();
   const [refresh, setRefresh] = useState(Boolean(props.refresh))
-  const [selected, setSelected] = useState([]); //flag to disable delete button
+  const [selected, setSelected] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   interface ProjectWithActions extends Project {
     actions: JSX.Element;
   }
@@ -34,7 +35,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
       return loadAllProjects()
     }
   }, [props.searchTerm, refresh]);
-  const loadAllProjects = () =>{
+  const loadAllProjects = () => {
+    //TODO pagination
+    //{{domainname}}/api/project/projects/filter?name=j&companyname=&projecttype=&testingtype=&owner=u&status=del&startdate=&enddate_before=&limit=10&offset=0
+    //https://react-data-table-component.netlify.app/?path=/story/pagination-remote--remote
     fetchProjects()
       .then((data) => {
         let temp: any = []
@@ -49,7 +53,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
                         </>)
           temp.push(row)
         });
-        setProjects(temp as ProjectWithActions[])
+        //for testing purposes
+        let largerDataset = temp.concat(temp, temp, temp, temp);
+        setProjects(largerDataset as ProjectWithActions[])
       }).catch((error) => {
         setError(error)})
   }
@@ -76,7 +82,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       }).catch((error) => {
         setError(error)})
   }
-  const onRowClicked = (row:any) => (navigate(`/projects/${row.id}`));
+  const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
 
   const columns: Column[] = [
     {
@@ -173,6 +179,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
               selectableRows={!props.hideActions}
               onRowClicked={onRowClicked}
               pagination
+              paginationPerPage={rowsPerPage}
               striped
               onSelectedRowsChange={handleSelectedChange}
             />

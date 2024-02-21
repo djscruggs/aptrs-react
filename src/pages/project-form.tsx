@@ -55,6 +55,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const currentUser = useCurrentUser()
+  const [editing, setEditing] = useState(false)
   const [saveError, setSaveError] = useState('');
   const [formData, setFormData] = useState<Project>({
     name: '',
@@ -95,7 +96,13 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     };
     loadData();
   }, [id]);
-  
+  const handleCKchange = (name:string, value:string):void => {
+    setEditing(true)
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  }
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
@@ -104,6 +111,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     }));
   };
   const handleDatePicker = (input: string, value:string): void => {
+    console.log(input, value)
+    const formattedDate = new Date(value).toLocaleDateString('en-CA'); // 'en-CA' is the locale for Canada, which uses the 'yyyy-MM-dd' format
+    console.log('formattedDate',formattedDate)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [input]: value,
@@ -112,6 +122,11 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const navigate = useNavigate()
   const handleCancel = (event:any) =>  {
     event.preventDefault()
+    if(editing){
+      if(!confirm('Quit without saving?')){
+        return;
+      }
+    } 
     navigate(-1)
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
@@ -121,6 +136,18 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     if (formData.name && formData.name.length < 3) {
       newErrors.name = 'Name should be at least three characters';
     }
+    //convert dates if necessary
+    const formatDate = (value:any) => {
+      return new Date(value).toLocaleDateString('en-CA'); // 'en-CA' is the locale for Canada, which uses the 'yyyy-MM-dd' format:any
+    }
+    if(formData.startdate){
+      formData.startdate = formatDate(formData.startdate)
+    }
+    if(formData.enddate){
+      formData.enddate = formatDate(formData.enddate)
+    }
+    
+    
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.log('Form failed validation:', newErrors);
@@ -382,6 +409,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
               <CKEditor
                 id="description"
                 data = {formData.description}
+                onChange={(event, editor) => {
+                  handleCKchange('description',editor.getData());
+                }}
                 onReady={ editor => {
                       if (formData.description) editor.setData(formData.description)
                   }}

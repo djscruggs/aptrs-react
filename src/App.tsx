@@ -20,14 +20,18 @@ import Profile from './pages/profile';
 import type { LoginUser } from './lib/data/definitions';
 import { useEffect } from 'react';
 import { refreshAuth, getAuthUser } from './lib/data/api';
+import.meta.env.VITE_APP_ENV
 
 
 export const App: React.FC = () => {
   const user = getAuthUser()
   const navigate = useNavigate()
-  //refresh the token every 10 minutes
   useEffect(() => {
     const refreshUser = async () => {
+      console.log('env', import.meta.env.VITE_APP_ENV)
+      if('development' === import.meta.env.VITE_APP_ENV){
+        console.log('skipping refresh')
+      }
       console.log('refreshing at time ', new Date().toISOString())
       try {
         const refreshedUser = await refreshAuth();
@@ -37,13 +41,12 @@ export const App: React.FC = () => {
       } catch(error){
         console.error('Error refreshing authentication:', error);
       }
-      // Call the refreshUser function again after the timeout
-      setTimeout(refreshUser, 600000); // 600000 milliseconds = 10 minutes
     };
-    // Call the refreshUser function for the first time
-    refreshUser();
+    // Call the refreshUser function every 10 minutes
+    const intervalId = setInterval(refreshUser, 600000);
+    return () => clearInterval(intervalId);
   }, []);
-  console.log('refreshing App at ', new Date().toISOString())
+  
   return (
         <Layout>
           <Routes>

@@ -44,6 +44,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         try {
           const projectData = await getProject(id) as Project;
           setProject(projectData as Project);
+          //TODO pagination on findings
+          // api/project/vulnerability/instances/filter/ <vulnerability-id>/?URL=&Parameter=&status=&limit=1&offset=0 
           const _findings = await fetchProjectFindings(id) as Vulnerability[]
           setFindings(_findings)
 
@@ -88,7 +90,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   async function deleteFinding(event:any, id:any): Promise<void> {
     event.stopPropagation()
     if (!confirm('Are you sure?')) {
-      return null;
+      return;
     }
     try {
       await deleteProjectVulnerabilities([id])

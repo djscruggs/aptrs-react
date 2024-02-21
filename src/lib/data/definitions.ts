@@ -140,3 +140,23 @@ export type LoginUser = User & {
   isAdmin?: boolean;
   permissions?: string[];
 };
+export interface QueryParams{
+  limit: number;
+  offset: number;
+}
+export interface ProjectsQueryParams extends QueryParams {
+  name: string;
+  companyname: string;
+  projecttype: string;
+  testingtype: string;
+  owner: string;
+  status: string;
+  startdate: string;
+  enddate_before: string;
+}
+export interface FilteredSet {
+    count: number
+    next?: string
+    previous: string | null
+    results: any[]
+}

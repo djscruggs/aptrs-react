@@ -3,7 +3,9 @@ import {  Company,
           User, 
           LoginUser, 
           IPAddressInfo,
-          Vulnerability} from './definitions'
+          Vulnerability,
+          ProjectsQueryParams,
+          FilteredSet} from './definitions'
 import axios from 'axios'
 
 
@@ -102,6 +104,7 @@ export async function refreshAuth() {
     if(!user){
       return null
     }
+    console.log('refreshing token at ', new Date().toISOString())
     try {
     const body = {refresh: user.refresh}
     const url = apiUrl('auth/token/refresh/');
@@ -149,7 +152,14 @@ export async function fetchProjects() {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
-export async function searchProjects(name:string) {
+export async function fetchFilteredProjects(params: ProjectsQueryParams): Promise<FilteredSet> {
+  const url = apiUrl('project/projects/filter/');
+  const response = await axios.get(url, { params: params, ...authHeaders() });
+  return response.data;
+}
+
+
+export async function searchProjects(name:string) { 
   const url = apiUrl(`project/projects/filter?name=${name}`);
   const response = await axios.get(url,authHeaders());
   return response.data;
@@ -207,7 +217,8 @@ export async function deleteProjectVulnerabilities(ids: any[]): Promise<any> {
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {
-  let url = apiUrl(`project/add-project`);
+  console.log(formData)
+  let url = apiUrl(`project/add-project/`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`project/edit-project/${formData['id']}/`);
   }

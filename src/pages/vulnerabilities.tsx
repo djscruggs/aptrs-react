@@ -27,6 +27,7 @@ const Vulnerabilities = () => {
   const [refresh, setRefresh] = useState(false);
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const navigate = useNavigate()
   async function handleSearch(term='') {
     const value = term.trim()
@@ -161,13 +162,14 @@ const Vulnerabilities = () => {
         
         
             <div className='mt-20 max-w-md'>
-            {loading ? <RowsSkeleton numRows={10} /> : (vulnerabilities &&
+            {loading ? <RowsSkeleton numRows={20} /> : (vulnerabilities &&
             <DataTable
                 columns={columns}
                 data={vulnerabilities}
                 progressPending={loading}
                 selectableRows
                 pagination
+                paginationPerPage={rowsPerPage}
                 striped
                 onSelectedRowsChange={handleSelectedChange}
             />

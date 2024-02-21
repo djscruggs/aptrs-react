@@ -85,8 +85,11 @@ export function RowSkeleton() {
     </div>
   );
 }
-
-export function TableSkeleton() {
+interface TableSkeletonProps {
+  numRows?: number;
+}
+export const TableSkeleton: React.FC<TableSkeletonProps> = ({ numRows = 20 }) => {
+  const rowSkeletons = Array.from({ length: numRows }, (_, i) => <RowSkeleton key={i} />);
   return (
     <div
       className={`${shimmer} relative flex w-full flex-col overflow-hidden md:col-span-4 lg:col-span-4`}
@@ -94,13 +97,8 @@ export function TableSkeleton() {
       <div className="mb-4 h-8 w-36 rounded-md bg-gray-100" />
       <div className="flex grow flex-col justify-between rounded-xl bg-gray-100 p-4">
         <div className="bg-white ">
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
-          <RowSkeleton />
+        {rowSkeletons}
+          
           
         </div>
       </div>
