@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import { fetchProjects, searchProjects, deleteProjects } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { withAuth} from "../lib/authutils";
 import { parseErrors } from "../lib/utilities"
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import {Project, Column} from '../lib/data/definitions'
+import {Project, Column, ProjectsQueryParams} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 
@@ -24,7 +24,47 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const [error, setError] = useState();
   const [refresh, setRefresh] = useState(Boolean(props.refresh))
   const [selected, setSelected] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(20)
+  const [queryParams, setQueryParams] = useState<ProjectsQueryParams>({
+    limit: 20,
+    offset: 0,
+  })
+  // setQueryParams((prev) => {
+  //   return {...prev, name: props.searchTerm}
+  // })
+  const handleQueryChange = (name:string, value:any):void => {
+    console.log(name,value)
+    setQueryParams((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+  
+  const handlePerRowsChange = async (newPerPage: number, page: number) => {
+    handleQueryChange('limit',newPerPage)
+	};
+  const handlePageChange = async (page: number) => {
+    //convert page number to offset
+    let offset = 0
+    if(page > 1){
+      offset = ((page-1) * queryParams.limit) + 1  
+    }
+    handleQueryChange('offset',offset)
+	};
+  // export interface QueryParams{
+  //   limit: number;
+  //   offset: number;
+  // }
+  // export interface ProjectsQueryParams extends QueryParams {
+  //   name: string;
+  //   companyname: string;
+  //   projecttype: string;
+  //   testingtype: string;
+  //   owner: string;
+  //   status: string;
+  //   startdate: string;
+  //   enddate_before: string;
+  // }
+  
   interface ProjectWithActions extends Project {
     actions: JSX.Element;
   }
@@ -179,7 +219,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
               selectableRows={!props.hideActions}
               onRowClicked={onRowClicked}
               pagination
-              paginationPerPage={rowsPerPage}
+              paginationPerPage={queryParams.limit}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
               striped
               onSelectedRowsChange={handleSelectedChange}
             />
