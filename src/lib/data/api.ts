@@ -155,6 +155,7 @@ export async function fetchProjects() {
 export async function fetchFilteredProjects(params: ProjectsQueryParams): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
   const response = await axios.get(url, { params: params, ...authHeaders() });
+  console.log('filtered projects', response.data)
   return response.data;
 }
 
