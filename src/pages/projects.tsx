@@ -1,7 +1,7 @@
 import { useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
-import { fetchProjects, fetchFilteredProjects, searchProjects, deleteProjects } from "../lib/data/api";
-import { TableSkeleton } from '../components/skeletons'
+import { fetchFilteredProjects, deleteProjects } from "../lib/data/api";
+import { TableSkeleton, RowsSkeleton } from '../components/skeletons'
 import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
@@ -17,21 +17,22 @@ interface ProjectsProps {
   pageTitle: string; 
   searchTerm?: string
   hideActions?: boolean;
-  refresh: boolean | undefined
+  refresh?: boolean | undefined
 }
 export function Projects(props:ProjectsProps): JSX.Element {
   const [projects, setProjects] = useState<Project[]>();
-  const [error, setError] = useState();
+  const [error, setError] = useState<any>();
   const [refresh, setRefresh] = useState(Boolean(props.refresh))
   const [selected, setSelected] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
-
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
   const DEFAULT_LIMIT = 20
   const DEFAULT_OFFSET = 0
   const [queryParams, setQueryParams] = useState<ProjectsQueryParams>({
     limit: DEFAULT_LIMIT,
     offset: 0,
-    name: '',
+    name: props.searchTerm,
     companyname: '',
     projecttype: '',
     testingtype: '',
@@ -41,48 +42,58 @@ export function Projects(props:ProjectsProps): JSX.Element {
     enddate_before: '',
   })
   useEffect(() => {
+    console.log('useEffect with search term', props.searchTerm)
+    setQueryParams(prev => ({
+      ...prev,
+      name: props.searchTerm
+    }));
+    filterProjects()
+  }, [props.searchTerm]);
+  useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const newQueryParams: ProjectsQueryParams = {
-      limit: parseInt(searchParams.get('limit') || '20'),
-      offset: parseInt(searchParams.get('offset') || '0'),
-      name: searchParams.get('name') || '',
-      companyname: searchParams.get('companyname') || '',
-      projecttype: searchParams.get('projecttype') || '',
-      testingtype: searchParams.get('testingtype') || '',
-      owner: searchParams.get('owner') || '',
-      status: searchParams.get('status') || '',
-      startdate: searchParams.get('startdate') || '',
-      enddate_before: searchParams.get('enddate_before') || '',
+      limit: parseInt(searchParams.get('limit') || DEFAULT_LIMIT.toString()),
+      offset: parseInt(searchParams.get('offset') || DEFAULT_OFFSET.toString()),
     };
-    setQueryParams(newQueryParams);
+    Object.keys(queryParams).forEach(key => {
+      if (key !== 'limit' && key !== 'offset') {
+        newQueryParams[key] = searchParams.get(key) || '';
+      }
+    });
+    console.log('location search changed, location & params are', location, newQueryParams)
+    filterProjects()
   }, [location.search]);
-  useEffect(() => {
-    const searchParams = new URLSearchParams();
-    if (queryParams.limit !== DEFAULT_LIMIT) searchParams.set('limit', queryParams.limit.toString());
-    if (queryParams.offset !== DEFAULT_OFFSET) searchParams.set('offset', queryParams.offset.toString());
-    if (queryParams.name) searchParams.set('name', queryParams.name);
-    if (queryParams.companyname) searchParams.set('companyname', queryParams.companyname);
-    if (queryParams.projecttype) searchParams.set('projecttype', queryParams.projecttype);
-    if (queryParams.testingtype) searchParams.set('testingtype', queryParams.testingtype);
-    if (queryParams.owner) searchParams.set('owner', queryParams.owner);
-    if (queryParams.status) searchParams.set('status', queryParams.status);
-    if (queryParams.startdate) searchParams.set('startdate', queryParams.startdate);
-    if (queryParams.enddate_before) searchParams.set('enddate_before', queryParams.enddate_before);
-  
-    const newUrl = `${location.pathname}?${searchParams.toString()}`;
-    navigate(newUrl, { replace: true })
-  }, [queryParams]);
+  // useEffect(() => {
+  //   const searchParams = new URLSearchParams();
+  //   if (queryParams.limit !== DEFAULT_LIMIT) searchParams.set('limit', queryParams.limit.toString());
+  //   if (queryParams.offset !== DEFAULT_OFFSET) searchParams.set('offset', queryParams.offset.toString());
+  //   Object.keys(queryParams).forEach(key => {
+  //     if (key !== 'limit' && key !== 'offset' && queryParams[key]) {
+  //       if(queryParams[key]!=='') {
+  //         searchParams.set(key, queryParams[key] as string);
+  //       }
+  //     }
+  //   });
+  //   if(searchParams.toString()!==''){
+  //     const newUrl = `${location.pathname}?${searchParams.toString()}`;
+  //     console.log('newUrl', newUrl)
+  //     navigate(newUrl, { replace: true })
+  //   } else {
+      
+  //   }
+  // }, [queryParams]);
+
   const handleQueryChange = (name:string, value:any):void => {
     setQueryParams((prev) => ({
       ...prev,
       [name]: value,
     }));
   }
-  
   const handlePerRowsChange = async (newPerPage: number, page: number) => {
     handleQueryChange('limit',newPerPage)
 	};
   const handlePageChange = async (page: number) => {
+    console.log('handlePageChange', page)
     //convert page number to offset
     let offset = 0
     if(page > 1){
@@ -93,63 +104,43 @@ export function Projects(props:ProjectsProps): JSX.Element {
   interface ProjectWithActions extends Project {
     actions: JSX.Element;
   }
+  
   useEffect(() => {
-    console.log('load triggered')
-    if(props.searchTerm && !refresh){
-      return searchForProjects()
-    } else {
-      return loadAllProjects()
+    if(refresh) {
+      filterProjects()
     }
-  }, [props.searchTerm, refresh, location.search]);
-  const loadAllProjects = () => {
-    console.log('loading')
+  }, [refresh]);
+  const filterProjects = async () => {
+    console.log('loading, params are', queryParams)
+    setLoading(true)
     //TODO pagination
     //{{domainname}}/api/project/projects/filter?name=j&companyname=&projecttype=&testingtype=&owner=u&status=del&startdate=&enddate_before=&limit=10&offset=0
     //https://react-data-table-component.netlify.app/?path=/story/pagination-remote--remote
-    fetchFilteredProjects(queryParams)
-      .then((data:FilteredSet) => {
-
-        let temp: any = []
-        setTotalRows(data.count)
-        data.results.forEach((row: ProjectWithActions) => {
-          row.actions = (<>
-                          {!props.hideActions &&
-                          <>
-                          <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
-                          <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete(row.id)}/>
-                          </>
-                           }                     
-                        </>)
-          temp.push(row)
-        });
-        //for testing purposes
-        let largerDataset = temp.concat(temp, temp, temp, temp);
-        setProjects(largerDataset as ProjectWithActions[])
-      }).catch((error) => {
-        setError(error)})
-  }
-  const searchForProjects = () =>{
-    if(!props.searchTerm){
-      console.error('No search term provided')
-      return;
+    try {
+      const data:FilteredSet = await fetchFilteredProjects(queryParams)
+      let temp: any = []
+      
+      data.results.forEach((row: ProjectWithActions) => {
+        row.actions = (<>
+                        {!props.hideActions &&
+                        <>
+                        <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
+                        <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete(row.id)}/>
+                        </>
+                          }                     
+                      </>)
+        temp.push(row)
+      });
+      //for testing purposes
+      setTotalRows(data.count)
+      setProjects(temp as ProjectWithActions[])
+    } catch(error){
+      if (error instanceof Error) {
+        setError(error);
+      }
+    } finally {
+      setLoading(false)
     }
-    searchProjects(props.searchTerm)
-      .then((data) => {
-        let temp: any = []
-        data.forEach((row: ProjectWithActions) => {
-          row.actions = (<>
-                          {!props.hideActions &&
-                          <>
-                          <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
-                          <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete(row.id)}/>
-                          </>
-                           }                     
-                        </>)
-          temp.push(row)
-        });
-        setProjects(temp as ProjectWithActions[])
-      }).catch((error) => {
-        setError(error)})
   }
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
 
@@ -183,7 +174,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       selector: (row: Project) => row.enddate,
     },
   ];
-  const navigate = useNavigate();
+  
   const handleNew = () => {
     navigate('/projects/new')
   }
@@ -193,7 +184,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     }
     const count = ids.length;
     try {
-      const result = await deleteProjects(ids)
+      await deleteProjects(ids)
       setRefresh(true);
       let msg: string;
       if (count === 1) {
@@ -241,7 +232,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
             Delete
         </Button>
         }
-        {typeof(projects) == "object" &&
+        {loading && <RowsSkeleton num={queryParams.limit}/>}
+        {(!loading && typeof(projects) == "object") &&
             <DataTable
               columns={columns}
               data={projects}

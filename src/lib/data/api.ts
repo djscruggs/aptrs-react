@@ -36,15 +36,7 @@ export function setAuthUser(user: LoginUser): void {
 }
 
 export function getAuthUser(): any | undefined {
-  //first check if the user token needs to be refreshed
-  if(shouldRefreshToken()){
-    refreshAuth()
-  }
-  const jsonUser = localStorage.getItem('user');
-  if(jsonUser !== null) {
-    return JSON.parse(jsonUser) as LoginUser;
-  }
-  return null;
+  return _userObject()
 }
 //private function get the user object from local storage
 function _userObject(): any | undefined {
@@ -155,7 +147,6 @@ export async function fetchProjects() {
 export async function fetchFilteredProjects(params: ProjectsQueryParams): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
   const response = await axios.get(url, { params: params, ...authHeaders() });
-  console.log('filtered projects', response.data)
   return response.data;
 }
 

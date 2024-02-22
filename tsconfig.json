@@ -10,7 +10,8 @@
     "allowJs": true,
     "paths": {
       "react": [ "./node_modules/@types/react" ],
-      "src/*": ["./src/*"]
+      "baseUrl": ["."],
+      "@/*": ["./src/*"]
     },
     "skipLibCheck": true,
     "esModuleInterop": true,

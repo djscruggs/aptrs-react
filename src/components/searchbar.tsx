@@ -11,7 +11,7 @@ type SearchBarProps = {
 export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolder='' }: SearchBarProps){
   const [searchValue, setSearchValue] = useState(searchTerm);
   const [showShortcut, setShowShortcut]= useState(true)
-  const [hasSearched, setHasSearched] = useState(false) //flag to track whether the search has already happened, used later to trigger refresh if needed
+  const [hasSearched, setHasSearched] = useState(Boolean(searchTerm)) //flag to track whether the search has already happened. if it's passed in as a prop that means a search is already done
   const searchRef = useRef<HTMLInputElement>(null)
   const isActive = () => {
     return document.activeElement === searchRef.current?.children[0]
@@ -58,7 +58,6 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
     }
   }
   const handleClear = () => {
-    setSearchValue('')
     if(onClear && hasSearched){
       setHasSearched(false)
       onClear()

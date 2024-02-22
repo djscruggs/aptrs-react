@@ -153,6 +153,7 @@ export interface ProjectsQueryParams extends QueryParams {
   status?: string;
   startdate?: string;
   enddate_before?: string;
+  [key: string]: string | number | undefined;
 }
 export interface FilteredSet {
     count: number
