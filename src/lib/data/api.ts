@@ -9,7 +9,6 @@ import {  Company,
 import axios from 'axios'
 
 
-
 function apiUrl(endpoint:string = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
 }
@@ -209,7 +208,6 @@ export async function deleteProjectVulnerabilities(ids: any[]): Promise<any> {
   return response.data;
 }
 export async function upsertProject(formData: Project): Promise<any> {
-  console.log(formData)
   let url = apiUrl(`project/add-project/`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`project/edit-project/${formData['id']}/`);

@@ -40,6 +40,9 @@ export const CK_toolbarItems = {items: [
 ]};
 
 export const parseErrors = (error: any): any => {
+  if(typeof error === 'string') {
+    return error
+  }
   if (error?.request?.response) {
     const errors = JSON.parse(error?.request?.response);
     let transformed:any = {}

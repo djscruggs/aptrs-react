@@ -27,6 +27,7 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
     if(event.key === 'Escape' && isActive()){
       if(hasSearched){
         handleClear()
+        setSearchValue('')
       } else {
         return (searchRef.current?.children[0] as HTMLInputElement)?.blur()
       }
@@ -72,7 +73,7 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
     setShowShortcut(true)
   }
   return(
-    <div className='w-[30rem] relative flex flex-items-center overflow-visible'>
+    <div className='w-[30rem] relative flex flex-items-center overflow-visible' >
       <Input 
       id='searchInput' 
       size='lg' 
@@ -89,7 +90,7 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
       {(!searchValue && showShortcut) &&
         <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
       }
-      <Button className="bg-primary ml-2" onClick={()=> handleSearch()}>Search</Button>
+      <Button className="bg-secondary ml-2" onClick={()=> handleSearch()}>Search</Button>
     </div>
   )
 }
