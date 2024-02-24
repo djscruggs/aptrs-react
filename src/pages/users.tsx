@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { fetchUsers, deleteUsers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import UserForm from './user-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
@@ -208,4 +208,4 @@ export function Users() {
   )
 }
 
-export default withAuth(Users);
+export default WithAuth(Users);

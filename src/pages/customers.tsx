@@ -8,7 +8,7 @@ import { fetchCustomers } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 
 import PageTitle from '../components/page-title';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
@@ -178,4 +178,4 @@ export function Customers() {
   )
 }
 
-export default withAuth(Customers);
+export default WithAuth(Customers);

@@ -44,3 +44,4 @@ export function useVulnerabilityColor(scoreOrText: string | number | null){
 export function useCurrentUser(){
   return getAuthUser()
 }
+

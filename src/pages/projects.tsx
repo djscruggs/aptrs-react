@@ -1,14 +1,14 @@
-import { useEffect, useState, useReducer, useCallback} from 'react';
+import { useEffect, useState, useCallback} from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchFilteredProjects, deleteProjects } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
-import { withAuth} from "../lib/authutils";
-import { parseErrors } from "../lib/utilities"
+import { WithAuth} from "../lib/authutils";
+import { useDataPageReducer } from '../lib/useDataPageReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Project, Column, ProjectsQueryParams, FilteredSet } from '../lib/data/definitions'
+import { Project, Column, FilteredSet, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
@@ -19,32 +19,8 @@ interface ProjectsProps {
   refresh?: boolean | undefined
   onClear?: () => void //call back to clear search if embedded
 }
-const DEFAULT_LIMIT = 20
-type Mode = 'idle' | 'loading' | 'error';
-type State = {
-  /** A high-level description of the current state of the app
-   * (e.g., if it's loading or encountered an error). */
-  mode: Mode;
-  /** The current set of project results returned by the API. */
-  projects: Project[] | ProjectWithActions[];
-  /** The the current query params, Defaults to {offset:0, limit:DEFAULT_LIMIT}. */
-  queryParams: ProjectsQueryParams;
-  /** Total rows in the data set after params are applied and data returned */
-  totalRows: number;
-  // The current search term
-  searchTerm?: string;
-  //Error - can be object or string, will try to format with parseErrors()
-  error?: any;
-};
-type Action = 
- | { type: 'set-mode'; payload: Mode }
- | { type: 'set-search'; payload: string }
- | { type: 'set-page'; payload: number }
- | { type: 'set-rows-per-page'; payload: number }
- | { type: 'set-error'; payload: any }
- | { type: 'clear-search'}
- | { type: 'set-projects-data'; payload: { data: FilteredSet} }
- | { type: 'reset'}
+
+
  
 interface ProjectWithActions extends Project {
   actions: JSX.Element;
@@ -53,10 +29,10 @@ interface ProjectWithActions extends Project {
 
 
 export function Projects(props:ProjectsProps): JSX.Element {
-  const initialState: State = {
+  const initialState: DatasetState = {
     mode: 'idle',
-    projects: [],
-    queryParams: {offset:0, limit:DEFAULT_LIMIT},
+    data: [],
+    queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
     totalRows: 0,
   };
   // initial load - if there's a search term in the url, set it in state,
@@ -64,11 +40,12 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const params = new URLSearchParams(window.location.search);
   const search = params.get('name') || '';
   if(search){
-    initialState.queryParams = {offset:0, limit:DEFAULT_LIMIT, name: search};
+    initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
   }
-  function formatDataActions(data:FilteredSet):ProjectWithActions[] {
+  function formatDataActions(data:any):ProjectWithActions[] {
     const formatted: ProjectWithActions[] = [];
-    data.results.forEach((row: ProjectWithActions) => {
+    console.log('in formatDataActions', data)
+    data.forEach((row: ProjectWithActions) => {
       row.actions = (<>
                       <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
                       <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete([row.id])}/>
@@ -91,62 +68,23 @@ export function Projects(props:ProjectsProps): JSX.Element {
     }
   }
   
-  const reducer = (state: State, action: Action): State => {
+  //partial reducer for search and pagination; the rest is handled by useDataPageReducer
+  const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
-      case 'set-mode': {
-        if(state.mode == action.payload){
-          return state
-        }
-        return { ...state, mode: action.payload };
-      }
-      case 'set-projects-data': {
-        const { data } = action.payload;
-        const totalRows = data.count
-        const projects = props.embedded ? (data.results as Project[]) : formatDataActions(data)as ProjectWithActions[];
-        return { ...state, projects: projects, totalRows, mode: 'idle' };
+      case 'reset': {
+      const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
+      return {...initialState, queryParams: newQueryParams};
       }
       case 'set-search': {
         if(state.queryParams.name === action.payload) {
           return state
         }
-        let newQueryParams = {name: action.payload, offset: 0, limit: state.queryParams?.limit || DEFAULT_LIMIT}
+        let newQueryParams = {name: action.payload, offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT}
         return {...state, queryParams: newQueryParams};
       }
-      case 'set-rows-per-page': {
-        if(state.queryParams.limit === action.payload){
-          return state
-        }
-        let newQueryParams = {...state.queryParams, limit: action.payload}
-        return {...state, queryParams: newQueryParams};
-      }
-      case 'set-page': {
-        let newOffset = (action.payload-1) * state.queryParams.limit
-        if(newOffset == state.queryParams.offset){
-          return state
-        }
-        let newQueryParams = {...state.queryParams, offset: newOffset}
-        return {...state, queryParams: newQueryParams};
-      }
-      case 'set-error': {
-        return {...state, error: parseErrors(action.payload)};
-      }
-      case 'clear-search': {
-        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_LIMIT};
-        if(JSON.stringify(state.queryParams) == JSON.stringify(newQueryParams)){
-          return state
-        }
-        return {...state, queryParams: newQueryParams};
-        
-      }
-      case 'reset': {
-        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_LIMIT};
-        return {...initialState, queryParams: newQueryParams};
-      }
-      default:
-        return initialState;
     }
   };
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useDataPageReducer(reducer, initialState);
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -167,7 +105,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredProjects(state.queryParams)
-      dispatch({ type: 'set-projects-data', payload: {data} });
+      dispatch({ type: 'set-data', payload: {data} });
     } catch(error){
       dispatch({ type: 'set-error', payload: error });
     } finally {
@@ -267,14 +205,14 @@ export function Projects(props:ProjectsProps): JSX.Element {
          {state.queryParams.name &&
           <p className="mt-8">
             Results for &quot;{state.queryParams.name}&quot;
-            <span className="text-xs">(<span className="ml-1 underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
+            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
             columns={columns}
-            data={state.projects}
+            data={formatDataActions(state.data)}
             selectableRows={!props.embedded}
             onRowClicked={onRowClicked}
             progressPending={state.mode === 'loading'}
@@ -294,4 +232,4 @@ export function Projects(props:ProjectsProps): JSX.Element {
   )
 }
 
-export default withAuth(Projects);
+export default WithAuth(Projects);

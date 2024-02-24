@@ -3,7 +3,7 @@ import React, {
   useEffect,
 } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
 import { getProject, fetchProjectFindings, deleteProjectVulnerabilities, searchVulnerabilities} from '../lib/data/api';
 import { Project, Vulnerability } from '../lib/data/definitions'
@@ -245,4 +245,4 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         </>
   );
 }
-export default withAuth(ProjectView);
+export default WithAuth(ProjectView);

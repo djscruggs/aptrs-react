@@ -11,7 +11,7 @@ import {
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { getCompany } from '../lib/data/api';
@@ -233,4 +233,4 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   );
 }
 
-export default withAuth(CompanyForm);
+export default WithAuth(CompanyForm);

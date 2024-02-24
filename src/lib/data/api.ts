@@ -4,7 +4,6 @@ import {  Company,
           LoginUser, 
           IPAddressInfo,
           Vulnerability,
-          ProjectsQueryParams,
           FilteredSet} from './definitions'
 import axios from 'axios'
 
@@ -143,7 +142,7 @@ export async function fetchProjects() {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
-export async function fetchFilteredProjects(params: ProjectsQueryParams): Promise<FilteredSet> {
+export async function fetchFilteredProjects(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
   const response = await axios.get(url, { params: params, ...authHeaders() });
   return response.data;
@@ -284,6 +283,11 @@ export async function deleteCompanies(ids: any[]): Promise<any> {
 export async function fetchVulnerabilities() {
   const url = apiUrl('vulndb/all-vulndb');
   const response = await axios.get(url, authHeaders());
+  return response.data;
+}
+export async function fetchFilteredVulnerabilities(params: Record<string, any>): Promise<FilteredSet> {
+  const url = apiUrl(`vulndb/all-vulndb/filter`);
+  const response = await axios.get(url,  { params: params, ...authHeaders() });
   return response.data;
 }
 export async function searchVulnerabilities(term:string) {

@@ -14,7 +14,7 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
 import { FormSkeleton } from '../components/skeletons'
@@ -479,4 +479,4 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 }
 
 
-export default withAuth(UserForm);
+export default WithAuth(UserForm);

@@ -16,7 +16,7 @@ import {
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { phoneRegex, emailRegex, parseErrors } from '../lib/utilities';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import { 
   useState, 
   ChangeEvent, 
@@ -399,4 +399,4 @@ export const Profile = () => {
   )
 };
 
-export default withAuth(Profile);
+export default WithAuth(Profile);

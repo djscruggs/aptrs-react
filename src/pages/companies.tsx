@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { fetchCompanies, deleteCompanies } from "../lib/data/api";
 import { TableSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import CompanyForm from './company-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
@@ -173,4 +173,4 @@ export function Companies() {
   )
 }
 
-export default withAuth(Companies);
+export default WithAuth(Companies);

@@ -13,7 +13,7 @@ import {
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
 import CompanySelect from '../components/company-select';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
@@ -450,4 +450,4 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   );
 }
 
-export default withAuth(ProjectForm);
+export default WithAuth(ProjectForm);
