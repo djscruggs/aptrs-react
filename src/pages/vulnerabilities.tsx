@@ -5,7 +5,7 @@ import {  fetchVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import SearchBar from '../components/searchbar';
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
@@ -201,5 +201,5 @@ function formatRows(rows: VulnWithActions[], handleDelete: (ids: any[]) => void,
 
 }
 
-export default withAuth(Vulnerabilities);
+export default WithAuth(Vulnerabilities);
 

@@ -1,4 +1,4 @@
-import { withAuth } from "../lib/authutils";
+import { WithAuth } from "../lib/authutils";
 import { Projects } from "./projects";
 
 import PageTitle from '../components/page-title';
@@ -22,4 +22,4 @@ const Dashboard = () => {
   )
 };
 
-export default withAuth(Dashboard);
+export default WithAuth(Dashboard);

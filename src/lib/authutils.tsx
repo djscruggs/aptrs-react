@@ -1,9 +1,8 @@
 // authUtils.tsx
 import { Navigate } from 'react-router-dom';
 import { useCurrentUser } from './customHooks';
-import { useNavigate } from 'react-router-dom';
 
-export function withAuth(Component: React.ComponentType<any>): React.FC<any> {
+export function WithAuth(Component: React.ComponentType<any>): React.FC<any> {
   const WithAuth: React.FC<any> = (props) => {
     const currentUser = useCurrentUser()
     
