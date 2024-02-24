@@ -6,9 +6,10 @@ import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { WithAuth} from "../lib/authutils";
-import { useDataPageReducer } from '../lib/useDataPageReducer';
+import { useDataReducer } from '../lib/useDataReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Project, Column, FilteredSet, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/data/definitions'
+import { Project, Column} from '../lib/data/definitions'
+import { FilteredSet, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
@@ -68,7 +69,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     }
   }
   
-  //partial reducer for search and pagination; the rest is handled by useDataPageReducer
+  //partial reducer for search and pagination; the rest is handled by useDataReducer
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
       case 'reset': {
@@ -84,7 +85,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       }
     }
   };
-  const [state, dispatch] = useDataPageReducer(reducer, initialState);
+  const [state, dispatch] = useDataReducer(reducer, initialState);
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -177,16 +178,13 @@ export function Projects(props:ProjectsProps): JSX.Element {
     setSelected(ids)
   }
   const clearSearch = () => {
-    dispatch({ type: 'clear-search'})
-    navigate(location.pathname, { replace: true }); 
+    return handleSearch('')
   }
   
   if(state.error){
     console.error(state.error)
     navigate('/error')
   }
-  
-  
   return(
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
@@ -215,7 +213,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             data={formatDataActions(state.data)}
             selectableRows={!props.embedded}
             onRowClicked={onRowClicked}
-            progressPending={state.mode === 'loading'}
+            progressPending={state.mode != 'idle'}
             progressComponent={<div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}
             pagination
             paginationServer

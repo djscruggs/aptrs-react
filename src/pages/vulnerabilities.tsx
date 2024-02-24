@@ -1,18 +1,18 @@
-import {Vulnerability, Column, DatasetState, DatasetAction, FilteredSet, DEFAULT_DATA_LIMIT} from '../lib/data/definitions';
-import { useEffect, useState, useReducer } from 'react';
+import {Vulnerability, Column} from '../lib/data/definitions';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import {  fetchVulnerabilities, fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
+import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import SearchBar from '../components/searchbar';
 import { WithAuth } from "../lib/authutils";
-import { useDataPageReducer } from '../lib/useDataPageReducer';
+import { DatasetState, DatasetAction, FilteredSet, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { useVulnerabilityColor } from '../lib/customHooks';
 import { toast } from 'react-hot-toast';
-import {searchVulnerabilities} from "../lib/data/api";
+
 
 
 
@@ -44,7 +44,6 @@ const Vulnerabilities = () => {
         return {...initialState, queryParams: newQueryParams};
       }
       case 'set-search': {
-        console.log('set-search called', action.payload)
         if(state.queryParams.vulnerabilityname === action.payload) {
           return state
         }
@@ -53,9 +52,8 @@ const Vulnerabilities = () => {
       }
     }
   };
-  const [state, dispatch] = useDataPageReducer(reducer, initialState);
+  const [state, dispatch] = useDataReducer(reducer, initialState);
   const [selected, setSelected] = useState([])
-  const [refresh, setRefresh] = useState(false);
   
   const navigate = useNavigate()
   const loadData = async () => {
@@ -64,32 +62,40 @@ const Vulnerabilities = () => {
       const data:FilteredSet = await fetchFilteredVulnerabilities(state.queryParams)
       let temp = formatRows(data.results)
       data.results = temp
-      console.log(data)
       dispatch({ type: 'set-data', payload: {data} });
     } catch(error){
       dispatch({ type: 'set-error', payload: error });      
     } finally {
       dispatch({ type: 'set-mode', payload: 'idle' });
-      setRefresh(false)
     }
   }
-  async function handleSearch(term='') {
-    const value = term.trim()
-    if(!value) return;
-    dispatch({ type: 'set-search', payload: value });
+  // async function handleSearch(term='') {
+  //   const value = term.trim()
+  //   if(!value) return;
+  //   dispatch({ type: 'set-search', payload: value });
+  // }
+  const handleSearch = (term = '') => {
+    if (term) {
+      dispatch({ type: 'set-search', payload: term });
+      const params = new URLSearchParams(window.location.search);
+      params.set('vulnerabilityname', term);
+      navigate(`?${params.toString()}`, { replace: true });
+    } else {
+      dispatch({ type: 'clear-search'})
+      navigate(location.pathname, { replace: true });
+    }
   }
   const handleSelectedChange = (event: any) => {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
   }
   const clearSearch = ():void => {
-    dispatch({ type: 'clear-search'});
-    setRefresh(true)
+    return handleSearch('')
   }
   
   useEffect(() => {
     loadData()
-  }, [refresh, state.queryParams]);
+  }, [state.queryParams]);
   const handlePerRowsChange = (newPerPage: number) => {
     //for some reason this function gets called by react-data-table on page load, skip if there's no actual change
     dispatch({ type: 'set-rows-per-page', payload: newPerPage });
@@ -105,7 +111,6 @@ const Vulnerabilities = () => {
     try {
       const count = ids.length;
       await deleteVulnerabilities(ids)
-      setRefresh(true);
       let msg: string;
       if (count === 1) {
         msg = 'Vulnerability deleted';
@@ -117,13 +122,12 @@ const Vulnerabilities = () => {
         console.error(error);
         dispatch({ type: 'set-error', payload: error });
     } finally {
-        dispatch({ type: 'set-mode', payload: 'idle' });
+        dispatch({ type: 'reset'});
         setSelected([])
     };
     return false;
   };
   function formatRows(rows: VulnWithActions[]):VulnWithActions[] {
-  
     let temp: any = []
     rows.forEach((row: VulnWithActions) => {
       row.actions = (<>
@@ -149,13 +153,13 @@ const Vulnerabilities = () => {
       name: 'Name',
       selector: (row: VulnWithActions) => row.vulnerabilityname,
       sortable: true,
-      maxWidth: '10em'
+      maxWidth: '25em'
     },
     {
       name: 'Severity',
       selector: (row: VulnWithActions) => row.severity,
       sortable: true,
-      maxWidth: '20em'
+      maxWidth: '5em'
     },
     {
       name: 'CVSS 3.1',
@@ -175,10 +179,10 @@ const Vulnerabilities = () => {
     <>
        
        <PageTitle title='Vulnerabilities' />
-       <div className='mt-4 mb-8 max-w-lg'>
-        <SearchBar onSearch={handleSearch} onClear={()=>setRefresh(true)} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
+       <div className='mt-4 mb-8 max-w-xl'>
+        <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
        </div>
-        <div className="flow-root max-w-lg">
+        <div className="flow-root max-w-xl">
         <Button 
             className='btn bg-primary float-right m-2 mr-0' 
             onClick={()=> navigate('/vulnerabilities/new')}
@@ -197,12 +201,12 @@ const Vulnerabilities = () => {
         {state.queryParams.vulnerabilityname &&
           <p className="mt-8">
             Results for &quot;{state.queryParams.vulnerabilityname}&quot;
-            <span className="text-xs">(<span className="ml-1 underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
+            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
         
         
-          <div className='mt-20 max-w-md'>
+          <div className='mt-20 w-xl'>
             {state.mode == 'loading' && <RowsSkeleton numRows={20} />}
             <div className={state.mode != 'idle' ? 'hidden' : ''}>
               <DataTable
