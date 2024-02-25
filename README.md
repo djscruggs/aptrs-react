@@ -11,6 +11,8 @@ Written in TypeScript, this app uses no server resources except to deliver the J
 
 Note that this will also install a custom build of CK Editor in the `/packages/ckeditor` director
 
+There is a file called `.env.local.example` in the root of the project that you will need to customize. Copy it to `.env` or `.env.local` and add the API url.
+
 ## Available Scripts
 
 In the project directory, you can run:
