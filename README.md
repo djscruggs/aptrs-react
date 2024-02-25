@@ -5,6 +5,11 @@ aptrs-react is a React front end to the [Automated Penetration Testing Reporting
 
 Written in TypeScript, this app uses no server resources except to deliver the JavaScript bundle. The back end relies on the APTRS [API](https://www.postman.com/anof-cyber/workspace/aptrs/collection/24236036-131e5e02-32e5-45be-9c15-02c91fe9230a)
 
+## Installation
+
+### `npm install`
+
+Note that this will also install a custom build of CK Editor in the `/packages/ckeditor` director
 
 ## Available Scripts
 
@@ -31,6 +36,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+See the docs about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 
