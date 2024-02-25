@@ -40,8 +40,7 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
       case 'reset': {
         const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
         return {...initialState, queryParams: newQueryParams};
-        }
-        
+      }
       case 'set-mode': {
         if(state.mode == action.payload){
           return state
@@ -77,7 +76,6 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
           return state
         }
         return {...state, queryParams: newQueryParams};
-        
       }
       default:
         throw new Error('Invalid action type: ' + action.type)

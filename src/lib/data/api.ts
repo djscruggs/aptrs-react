@@ -253,6 +253,11 @@ export async function fetchCompanies() {
   const response = await axios.get(url, authHeaders());
   return response.data;
 }
+export async function fetchFilteredCompanies(params: Record<string, any>): Promise<FilteredSet> {
+  const url = apiUrl(`customer/all-company/filter`);
+  const response = await axios.get(url,  { params: params, ...authHeaders() });
+  return response.data;
+}
 
 export async function getCompany(id: string | undefined) {
   if (!id) return null;

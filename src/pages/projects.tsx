@@ -56,25 +56,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
   }
   
   
-  const handleSearch = (term = '') => {
-    if (term) {
-      dispatch({ type: 'set-search', payload: term });
-      const params = new URLSearchParams(window.location.search);
-      params.set('name', term);
-      navigate(`?${params.toString()}`, { replace: true });
-    } else {
-      dispatch({ type: 'clear-search'})
-      navigate(location.pathname, { replace: true });
-    }
-  }
-  
   //partial reducer for search and pagination; the rest is handled by useDataReducer
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
-      case 'reset': {
-      const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
-      return {...initialState, queryParams: newQueryParams};
-      }
       case 'set-search': {
         if(state.queryParams.name === action.payload) {
           return state
@@ -174,6 +158,17 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const handleSelectedChange = (event: any) => {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
+  }
+  const handleSearch = (term = '') => {
+    if (term) {
+      dispatch({ type: 'set-search', payload: term });
+      const params = new URLSearchParams(window.location.search);
+      params.set('name', term);
+      navigate(`?${params.toString()}`, { replace: true });
+    } else {
+      dispatch({ type: 'clear-search'})
+      navigate(location.pathname, { replace: true });
+    }
   }
   const clearSearch = () => {
     return handleSearch('')
