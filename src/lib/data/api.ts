@@ -118,6 +118,12 @@ export async function fetchCustomers() {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
+export async function fetchFilteredCustomers(params: Record<string, any>): Promise<FilteredSet> {
+  const url = apiUrl(`customer/all-customer/filter`);
+  const response = await axios.get(url,  { params: params, ...authHeaders() });
+  return response.data;
+}
+
 export async function getUserLocation(){ 
     const response = await axios.get("https://ipapi.co/json/")
     return response.data

@@ -75,7 +75,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   
   
   useEffect(() => {
-    filterProjects()
+    loadData()
   }, [state.queryParams])
   
   const handlePerRowsChange = (newPerPage: number) => {
@@ -84,7 +84,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   function handlePageChange(page: number){
     dispatch({ type: 'set-page', payload: page });
   }
-  const filterProjects = async () => {
+  const loadData = async () => {
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredProjects(state.queryParams)
@@ -209,7 +209,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
             selectableRows={!props.embedded}
             onRowClicked={onRowClicked}
             progressPending={state.mode != 'idle'}
-            progressComponent={<div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}
             pagination
             paginationServer
             paginationPerPage={state.queryParams.limit}

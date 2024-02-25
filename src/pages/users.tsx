@@ -172,8 +172,9 @@ export function Users() {
   const clearSearch = () => {
     return handleSearch('')
   }
-  const fetchUsers = async () => {
+  const loadData = async () => {
     try {
+      dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredUsers(state.queryParams)
       const temp: any = []
       data.results.forEach((row: UserWithActions) => {
@@ -191,7 +192,7 @@ export function Users() {
     }
   }
   useEffect(() => {
-      fetchUsers();
+    loadData();
   }, [refresh, state.queryParams]);
 
   const handlePerRowsChange = (newPerPage: number) => {
@@ -228,17 +229,18 @@ export function Users() {
         <div key={`searchkey-${state.queryParams.full_name}`}>
           <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.full_name} placeHolder='Search vulnerabilities'/>
         </div>
-        <Button className='btn btn-primary float-right m-2' onClick={handleNew}>
+        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New User
         </Button>
-        
-        <Button 
-          className="btn btn-error float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-          disabled={selected.length == 0}
-          onClick = {deleteMultiple}
-          >
-            Delete
-        </Button>
+        {selected.length > 0 && 
+          <Button 
+            className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+            disabled={selected.length == 0}
+            onClick = {deleteMultiple}
+            >
+              Delete
+          </Button>
+        }
         {state.queryParams.full_name &&
           <p className="mt-8">
             Results for &quot;{state.queryParams.full_name}&quot;

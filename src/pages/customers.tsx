@@ -4,22 +4,47 @@ import {
         useRef, 
         useCallback } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { fetchCustomers } from "../lib/data/api";
-import { TableSkeleton } from '../components/skeletons'
-
+import { fetchFilteredCustomers } from "../lib/data/api";
+import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
+import { RowsSkeleton } from '../components/skeletons'
+import SearchBar from '../components/searchbar';
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
-import {Customer, Column} from '../lib/data/definitions'
+import {Customer, Column, FilteredSet} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
 
 
 
 export function Customers() {
-  
+  const initialState: DatasetState = {
+    mode: 'idle',
+    data: [],
+    queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
+    totalRows: 0,
+  };
+  // initial load - if there's a search term in the url, set it in state,
+  // this makes search load immediately in useEffect
+  const params = new URLSearchParams(window.location.search);
+  const search = params.get('full_name') || '';
+  if(search){
+    initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, full_name: search};
+  }
+  const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
+    switch (action.type) {
+      case 'set-search': {
+        if(state.queryParams.full_name === action.payload) {
+          return state
+        }
+        let newQueryParams = {full_name: action.payload, offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT}
+        return {...state, queryParams: newQueryParams};
+      }
+    }
+  };
+  const [state, dispatch] = useDataReducer(reducer, initialState);
   const navigate = useNavigate()
   
   /* MODAL CREATING AND HANDLING */
@@ -53,29 +78,33 @@ export function Customers() {
   }
   /* FETCH OF DATA TO RENDER */
   //CustomerWithActions is a type of customer that allows appending an actions column for use in the table view
-  const [customers, setCustomers] = useState<CustomerWithActions[]>();
-  const [error, setError] = useState();
   interface CustomerWithActions extends Customer {
     actions: JSX.Element;
   }
-  useEffect(() => {
-    fetchCustomers()
-      .then((data) => {
-        let temp: any = []
-        data.forEach((row: CustomerWithActions) => {
-          row.actions = (<>
-                        <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
-                        
-                        <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
-                        </>)
-          temp.push(row)
-        });
-        
-        setCustomers(temp as CustomerWithActions[]);
-      }).catch((error) => {
-        setError(error)})
+  const loadData = async() => {
+    try {
+      dispatch({ type: 'set-mode', payload: 'loading' });
+      const data:FilteredSet = await fetchFilteredCustomers(state.queryParams)
+      let temp: any = []
+      data.results.forEach((row: CustomerWithActions) => {
+        row.actions = (<>
+                      <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
+                      <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
+                      </>)
+        temp.push(row)
+      });
+      data.results = temp
+      dispatch({ type: 'set-data', payload: {data} });
+    } catch(error){
+      dispatch({ type: 'set-error', payload: error });      
+    } finally {
+      dispatch({ type: 'set-mode', payload: 'idle' });
+    }
     setRefresh(false)
-  }, [refresh]);
+  }
+  useEffect(() => {
+    loadData()
+  }, [refresh, state.queryParams]);
   
   
   const columns: Column[] = [
@@ -120,59 +149,85 @@ export function Customers() {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
   }
-  
-   /* RENDERING IF ERROR OR STILL LOADING */
-   if(error){
+  const handleSearch = (term = '') => {
+    if (term) {
+      dispatch({ type: 'set-search', payload: term });
+      const params = new URLSearchParams(window.location.search);
+      params.set('full_name', term);
+      navigate(`?${params.toString()}`, { replace: true });
+    } else {
+      dispatch({ type: 'clear-search'})
+      navigate(location.pathname, { replace: true });
+    }
+  }
+  const handlePerRowsChange = (newPerPage: number) => {
+    dispatch({ type: 'set-rows-per-page', payload: newPerPage });
+  }
+  function handlePageChange(page: number){
+    dispatch({ type: 'set-page', payload: page });
+  }
+  const clearSearch = ():void => {
+    return handleSearch('')
+  }
+  if(state.error){
     navigate('/error')
-  }
-  if(typeof customers == 'undefined'){
-    return (<TableSkeleton />)
-  }
+  } 
   return(
     <>
-      
-      {typeof(customers) == "object" && (
-        <PageTitle title='Customers' />
-      )}
-        {/* modal content */}
-        {showModal &&
-        <Dialog handler={clearModal} open={showModal}  size="xs" className="p-4 rounded-md" >
-          <form method="dialog" onSubmit={clearModal}>
-            <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-              <span className="text-gray-400 hover:text-white-900">x</span>
-            </Button>
-          </form>
-          <DialogBody className="max-w-sm">
-          {customerId   && <CustomerForm id={customerId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          {!customerId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          </DialogBody>
-        </Dialog>
-        }
-        {/* END modal content */}
-      
-        
-      <div className="mt-10 flow-root">
+      <PageTitle title='Customers' />
+      {/* modal content */}
+      {showModal &&
+      <Dialog handler={clearModal} open={showModal}  size="xs" className="p-4 rounded-md" >
+        <form method="dialog" onSubmit={clearModal}>
+          <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+            <span className="text-gray-400 hover:text-white-900">x</span>
+          </Button>
+        </form>
+        <DialogBody className="max-w-sm">
+        {customerId   && <CustomerForm id={customerId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+        {!customerId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+        </DialogBody>
+      </Dialog>
+      }
+      {/* END modal content */}
+      <div className="mt-6 flow-root">
+        <div key={`searchkey-${state.queryParams.full_name}`}>
+          <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.full_name} placeHolder='Search customers'/>
+        </div>
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New Customer
         </Button>
-        {selected.length > 0 && (
+        {selected.length > 0 && 
           <Button 
             className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
             onClick = {deleteMultiple}
             >
             Delete
           </Button>
-        )}
-        {typeof(customers) == "object" &&
+        }
+        {state.queryParams.full_name &&
+          <p className="mt-8">
+            Results for &quot;{state.queryParams.full_name}&quot;
+            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
+          </p>
+        }
+        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
               columns={columns}
-              data={customers}
+              data={state.data}
+              progressPending={state.mode != 'idle'}
               selectableRows
               pagination
+              paginationServer
+              paginationPerPage={state.queryParams.limit}
+              paginationTotalRows={state.totalRows}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
               striped
               onSelectedRowsChange={handleSelectedChange}
           />
-        }
+        </div>
       </div>
     </>
   )

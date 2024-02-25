@@ -65,11 +65,10 @@ const Vulnerabilities = () => {
       dispatch({ type: 'set-mode', payload: 'idle' });
     }
   }
-  // async function handleSearch(term='') {
-  //   const value = term.trim()
-  //   if(!value) return;
-  //   dispatch({ type: 'set-search', payload: value });
-  // }
+  const handleSelectedChange = (event: any) => {
+    const ids = event.selectedRows.map((item:any) => item.id);
+    setSelected(ids)
+  }
   const handleSearch = (term = '') => {
     if (term) {
       dispatch({ type: 'set-search', payload: term });
@@ -81,10 +80,7 @@ const Vulnerabilities = () => {
       navigate(location.pathname, { replace: true });
     }
   }
-  const handleSelectedChange = (event: any) => {
-    const ids = event.selectedRows.map((item:any) => item.id);
-    setSelected(ids)
-  }
+  
   const clearSearch = ():void => {
     return handleSearch('')
   }
@@ -172,19 +168,16 @@ const Vulnerabilities = () => {
   }
   return(
     <>
-       
-       <PageTitle title='Vulnerabilities' />
-       <div className='mt-4 mb-8 max-w-xl'>
-          <div key={`searchkey-${state.queryParams.vulnerabilityname}`}>
-            <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
-          </div>
-       </div>
-        <div className="flow-root max-w-xl">
+      <PageTitle title='Vulnerabilities' />
+      <div className="mt-6 flow-root" >
+        <div key={`searchkey-${state.queryParams.vulnerabilityname}`}>
+          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
+        </div>
         <Button 
-            className='btn bg-primary float-right m-2 mr-0' 
-            onClick={()=> navigate('/vulnerabilities/new')}
+          className='btn bg-primary float-right m-2 mr-0' 
+          onClick={()=> navigate('/vulnerabilities/new')}
           >
-              New
+          New Vulnerability
         </Button>
         {selected.length > 0 &&
           <Button  
@@ -201,29 +194,24 @@ const Vulnerabilities = () => {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
-        
-        
-          <div className='mt-20 w-xl'>
-            {state.mode == 'loading' && <RowsSkeleton numRows={20} />}
-            <div className={state.mode != 'idle' ? 'hidden' : ''}>
-              <DataTable
-                  columns={columns}
-                  data={state.data}
-                  progressPending={state.mode != 'idle'}
-                  selectableRows
-                  pagination
-                  paginationServer
-                  paginationPerPage={state.queryParams.limit}
-                  paginationTotalRows={state.totalRows}
-                  onChangeRowsPerPage={handlePerRowsChange}
-                  onChangePage={handlePageChange}
-                  striped
-                  onSelectedRowsChange={handleSelectedChange}
-              />
-            </div>
-          </div>
+        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        <div className={state.mode != 'idle' ? 'hidden' : ''}>
+          <DataTable
+              columns={columns}
+              data={state.data}
+              progressPending={state.mode != 'idle'}
+              selectableRows
+              pagination
+              paginationServer
+              paginationPerPage={state.queryParams.limit}
+              paginationTotalRows={state.totalRows}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+              striped
+              onSelectedRowsChange={handleSelectedChange}
+          />
+        </div>
       </div>
-       
     </>
        
     );

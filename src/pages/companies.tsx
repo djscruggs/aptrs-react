@@ -42,7 +42,6 @@ export function Companies() {
     }
   };
   const [state, dispatch] = useDataReducer(reducer, initialState);
-  const [companies, setCompanies] = useState<Company[]>();
   const [selected, setSelected] = useState([])
   const navigate = useNavigate()
   //modal state variables
@@ -119,8 +118,9 @@ export function Companies() {
       dispatch({ type: 'set-mode', payload: 'idle' });
     }
   }
-  const loadCompanies = async() => {
+  const loadData = async() => {
     try {
+      dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredCompanies(state.queryParams)
       let temp: any = []
       data.results.forEach((row: CompanyWithActions) => {
@@ -139,7 +139,7 @@ export function Companies() {
     }
   }
   useEffect(() => {
-    loadCompanies()
+    loadData()
     setRefresh(false)
   }, [refresh, state.queryParams]);
   const handlePerRowsChange = (newPerPage: number) => {
@@ -217,7 +217,6 @@ export function Companies() {
             striped
             onSelectedRowsChange={handleSelectedChange}
             progressPending={state.mode != 'idle'}
-            progressComponent={<div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}
             paginationServer
             paginationPerPage={state.queryParams.limit}
             onChangeRowsPerPage={handlePerRowsChange}
@@ -225,8 +224,6 @@ export function Companies() {
             paginationTotalRows={state.totalRows}
           />
         </div>
-        
-        
       </div>
     </>
   )

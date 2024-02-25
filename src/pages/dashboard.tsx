@@ -7,16 +7,11 @@ const Dashboard = () => {
   
   return (
     <>
+      <PageTitle title={'Latest Projects'} />
       <div className="w-full">
-        <div className="w-full my-4">
-          <PageTitle title={'Latest Projects'} />
-        </div>
-        <div className="w-fullx">
+        <div className="w-full">
           <Projects pageTitle='' embedded={true} />
         </div>
-        
-            
-
       </div>
     </>
   )
