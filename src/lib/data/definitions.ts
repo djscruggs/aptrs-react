@@ -166,3 +166,9 @@ export interface VulnQueryParams extends QueryParams {
   cvssvector?: string ;
   [key: string]: string | number | undefined;
 }
+export interface FilteredSet {
+  count: number
+  next?: string
+  previous: string | null
+  results: any[] 
+}

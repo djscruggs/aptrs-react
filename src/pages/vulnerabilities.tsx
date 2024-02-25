@@ -1,4 +1,4 @@
-import {Vulnerability, Column} from '../lib/data/definitions';
+import {Vulnerability, Column, FilteredSet} from '../lib/data/definitions';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
@@ -6,7 +6,7 @@ import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import SearchBar from '../components/searchbar';
 import { WithAuth } from "../lib/authutils";
-import { DatasetState, DatasetAction, FilteredSet, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
+import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
@@ -39,10 +39,6 @@ const Vulnerabilities = () => {
   //reducer for search and pagination
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
     switch (action.type) {
-      case 'reset': {
-        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
-        return {...initialState, queryParams: newQueryParams};
-      }
       case 'set-search': {
         if(state.queryParams.vulnerabilityname === action.payload) {
           return state
@@ -97,7 +93,6 @@ const Vulnerabilities = () => {
     loadData()
   }, [state.queryParams]);
   const handlePerRowsChange = (newPerPage: number) => {
-    //for some reason this function gets called by react-data-table on page load, skip if there's no actual change
     dispatch({ type: 'set-rows-per-page', payload: newPerPage });
   }
   function handlePageChange(page: number){
@@ -180,7 +175,9 @@ const Vulnerabilities = () => {
        
        <PageTitle title='Vulnerabilities' />
        <div className='mt-4 mb-8 max-w-xl'>
-        <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
+          <div key={`searchkey-${state.queryParams.vulnerabilityname}`}>
+            <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.vulnerabilityname} placeHolder='Search vulnerabilities'/>
+          </div>
        </div>
         <div className="flow-root max-w-xl">
         <Button 

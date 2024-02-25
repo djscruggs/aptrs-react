@@ -331,7 +331,11 @@ export async function fetchUsers() {
   const response = await axios.get(url, authHeaders());
   return response.data;
 }
-
+export async function fetchFilteredUsers(params: Record<string, any>): Promise<FilteredSet> {
+  const url = apiUrl('auth/users/filter/');
+  const response = await axios.get(url, { params: params, ...authHeaders() });
+  return response.data;
+}
 export async function deleteUsers(ids: any[]): Promise<any> {
   const url = apiUrl('auth/deleteuser');
   const config = {

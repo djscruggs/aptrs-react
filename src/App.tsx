@@ -22,7 +22,7 @@ import { refreshAuth, getAuthUser } from './lib/data/api';
 import.meta.env.VITE_APP_ENV
 
 
-export const App: React.FC = () => {
+const App: React.FC = () => {
   const user = getAuthUser()
   const navigate = useNavigate()
   // useEffect(() => {

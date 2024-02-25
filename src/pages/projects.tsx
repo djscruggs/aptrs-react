@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchFilteredProjects, deleteProjects } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
@@ -8,8 +8,8 @@ import { Link } from 'react-router-dom';
 import { WithAuth} from "../lib/authutils";
 import { useDataReducer } from '../lib/useDataReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Project, Column} from '../lib/data/definitions'
-import { FilteredSet, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
+import { Project, Column, FilteredSet} from '../lib/data/definitions'
+import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
@@ -45,7 +45,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   }
   function formatDataActions(data:any):ProjectWithActions[] {
     const formatted: ProjectWithActions[] = [];
-    console.log('in formatDataActions', data)
     data.forEach((row: ProjectWithActions) => {
       row.actions = (<>
                       <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
@@ -96,7 +95,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   }, [state.queryParams])
   
   const handlePerRowsChange = (newPerPage: number) => {
-    //for some reason this function gets called by react-data-table on page load, skip if there's no actual change
     dispatch({ type: 'set-rows-per-page', payload: newPerPage });
   }
   function handlePageChange(page: number){
@@ -188,8 +186,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
   return(
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
-      <div className="mt-6 flow-root" key={`searchkey-${state.queryParams.name}`}>
-        <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name}/>
+      <div className="mt-6 flow-root" >
+        <div key={`searchkey-${state.queryParams.name}`}>
+          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name}/>
+        </div>
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
           New Project
         </Button>

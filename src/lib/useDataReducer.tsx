@@ -2,13 +2,7 @@
 
 import { parseErrors } from './utilities'
 import { useReducer } from 'react'
-
-export interface FilteredSet {
-  count: number
-  next?: string
-  previous: string | null
-  results: any[] 
-}
+import { FilteredSet } from './data/definitions';
 
 
 export const DEFAULT_DATA_LIMIT = 20
@@ -43,6 +37,11 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
     const result = reducer(state, action)
     if(result) return result
     switch (action.type) {
+      case 'reset': {
+        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
+        return {...initialState, queryParams: newQueryParams};
+        }
+        
       case 'set-mode': {
         if(state.mode == action.payload){
           return state
@@ -84,6 +83,6 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
         throw new Error('Invalid action type: ' + action.type)
     }
   };
-return useReducer(datasetHelper, initialState);
+  return useReducer(datasetHelper, initialState);
 }
 
