@@ -1,4 +1,4 @@
-import AcmeLogo from '../components/acme-logo';
+import Logo from '../components/logo';
 import Login from './login';
 import { useCurrentUser } from '../lib/customHooks';
 import { Navigate, useLocation } from 'react-router-dom';
@@ -37,12 +37,7 @@ export default function Home() {
         <div className="flex items-top justify-center align-top p-6 md:w-3/5 md:px-28 md:py-12">
           
           <div className="h-1/2 flex justify-center items-start">
-              <img
-                src="/logo.svg"
-                height="400px"
-                className='block'
-                alt="APTRS logo"
-              />
+              <Logo />
           </div>
           
           
