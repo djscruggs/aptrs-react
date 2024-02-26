@@ -38,9 +38,8 @@ export default function Home() {
           
           <div className="h-1/2 flex justify-center items-start">
               <img
-                src="/hero-desktop.png"
-                width={256}
-                height={256}
+                src="/logo.svg"
+                height="400px"
                 className='block'
                 alt="APTRS logo"
               />
