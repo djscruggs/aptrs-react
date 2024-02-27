@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {Button, Input} from '@material-tailwind/react'
+import {Button} from '@material-tailwind/react'
 
 type SearchBarProps = {
   onSearch: (searchTerm: string) => void;
@@ -14,13 +14,13 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
   const [hasSearched, setHasSearched] = useState(Boolean(searchTerm)) //flag to track whether the search has already happened. if it's passed in as a prop that means a search is already done
   const searchRef = useRef<HTMLInputElement>(null)
   const isActive = () => {
-    return document.activeElement === searchRef.current?.children[0]
+    return document.activeElement === searchRef.current
   }
   const handleKeyDown = (event: KeyboardEvent) => {
     const inputElement = event.target as HTMLInputElement;
     // Focus on the search input when cmd/meta + k is pressed
     if (event.key === 'k' && event.metaKey) {
-      return (searchRef.current?.children[0] as HTMLInputElement)?.focus();
+      return searchRef.current?.focus();
     }
     //blur the element when escape is pressed
     //if a search has aleady happened, escape clears the search input and refreshes if needed
@@ -29,7 +29,7 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
         handleClear()
         setSearchValue('')
       } else {
-        return (searchRef.current?.children[0] as HTMLInputElement)?.blur()
+        return (searchRef.current as HTMLInputElement)?.blur()
       }
     }
     //trigger a search if focused and active
@@ -74,21 +74,17 @@ export default function SearchBar({ onSearch, onClear, searchTerm="", placeHolde
   }
   return(
     <div className='w-[30rem] relative flex flex-items-center overflow-visible' >
-      <Input 
+      <input 
       id='searchInput' 
-      size='lg' 
-      className="w-[200px]"
+      className="w-full rounded-md p-2 text-black border-gray border focus:border-black"
       onChange={handleInputChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
       value={searchValue}
       ref={searchRef}
-      labelProps={{
-        className: 'before:mr-0 after:ml-0 invisible',
-      }}
-      placeholder={placeHolder || 'Search'}></Input>
+      placeholder={placeHolder || 'Search'}></input>
       {(!searchValue && showShortcut) &&
-        <span className="absolute text-sm drop-shadow-2xl inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray-600 border border-gray-300">&#8984;+K</span>
+        <span className="absolute text-sm  inset-y-2 right-[7rem] flex items-center p-1 rounded-lg text-gray border border-gray">&#8984;+K</span>
       }
       <Button className="bg-secondary ml-2" onClick={()=> handleSearch()}>Search</Button>
     </div>
