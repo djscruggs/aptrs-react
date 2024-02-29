@@ -39,7 +39,7 @@ export const parseErrors = (error: any): any => {
     return error
   }
   if (error?.request?.response) {
-    const errors = JSON.parse(error?.request?.response);
+    const errors: { [key: string]: string[] }  = JSON.parse(error?.request?.response);
     let transformed:any = {}
     Object.entries(errors).map((item, index) => {
       transformed[item[0]] = item[1][0]

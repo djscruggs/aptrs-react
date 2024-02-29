@@ -42,7 +42,7 @@ export const Profile = () => {
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
-  const [file, setFile] = useState()
+  const [file, setFile] = useState<File | null>(null);
   const defaults = {
     id: currentUser.id,
     full_name: currentUser.full_name,
@@ -70,8 +70,10 @@ export const Profile = () => {
     }));
   };
   const handleProfilepic = (event: ChangeEvent<HTMLInputElement>): void => {
-    setFile(event.target?.files[0])
-    console.log(event.target?.files[0])
+    if (event.target.files) {
+      setFile(event.target?.files[0])
+    }
+
   }
   const [passwordVisible, setPasswordVisible] = useState(false)
   function togglePasswordVisibility() {
@@ -130,8 +132,8 @@ export const Profile = () => {
         //try to parse out the error
         try {
           setErrors(parseErrors(error))
-          if(errors?.non_field_errors.length > 0){
-            setSaveError(errors.non_field_errors[0])
+          if(parseErrors(error)?.non_field_errors.length > 0){
+            setSaveError(parseErrors(error).non_field_errors[0])
           } else {
             setSaveError(String(error))
           }

@@ -25,6 +25,8 @@ import { Project, User } from '../lib/data/definitions'
 import  'ckeditor5-custom-build/build/ckeditor';
 import '../../packages/ckeditor5/styles.css'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
+import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor'
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { sortByPropertyName } from '../lib/utilities';
@@ -72,7 +74,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const [errors, setErrors] = useState<FormErrors>({});
   const [users, setUsers] = useState<User[]>();
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async () => {    
       if (id) {
         setLoading(true);
         try {
@@ -409,6 +411,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
               <CKEditor
                 id="description"
                 data = {formData.description}
+                editor={ClassicEditor}
                 onChange={(event, editor) => {
                   handleCKchange('description',editor.getData());
                 }}
@@ -417,7 +420,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   }}
                 // I have no idea why this works. Lots of conflicting advice on stackoverflow  //
                 // https://stackoverflow.com/questions/74559310/uncaught-syntaxerror-the-requested-module-ckeditor5-build-ckeditor-js-does-n 
-                editor={ClassicEditor}
+                
                 config={{
                           simpleUpload: simpleUploadConfig(), 
                           image: {upload: {types: [ 'png', 'jpeg','gif' ]}}
