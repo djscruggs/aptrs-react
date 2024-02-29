@@ -75,6 +75,8 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     password_check: '',
     groups: [],
   });
+
+  
   //used in phone number input
   const defaultCountry = currentUser.location.country 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -151,9 +153,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     }));
   };
   const [passwordVisible, setPasswordVisible] = useState(false)
-  function togglePasswordVisibility() {
-    setPasswordVisible((prevState) => !prevState);
-  }
   const closeModal = () =>  {
     setId('')
     if(forwardedRef?.current ) {
@@ -225,6 +224,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         <div className="grid grid-cols-2 gap-3"> 
         <div>
           <div className="w-full mb-4">
+          
             <label 
               htmlFor="full_name"
               className={StyleLabel}>
@@ -431,7 +431,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     type={passwordVisible ? "text" : "password"}
                     required={id ? false : true}
                   />
-                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={()=> setPasswordVisible(!passwordVisible)} />
                   
                 </div>
                 {errors.password && <FormErrorMessage message={errors.password} />}
@@ -455,7 +455,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     type={passwordVisible ? "text" : "password"}
                     required={id ? false : true}
                   />
-                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={()=> setPasswordVisible(!passwordVisible)} />
                     
                 </div>
                 {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
@@ -485,7 +485,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         
       </form>
     </div>
-  );
+  )
 }
 
 
