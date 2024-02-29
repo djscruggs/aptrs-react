@@ -7,11 +7,16 @@ import React, {
 } from 'react';
 import {
   StyleTextfield,
+  StyleTextfieldError,
   StyleLabel,
   FormErrorMessage,
   ModalErrorMessage
 } from '../lib/formstyles'
 import Button from '../components/button';
+import {PasswordDescription, validPassword} from '../components/passwordValidator';
+import ShowPasswordButton from '../components/show-password-button';
+import { WithAuth } from "../lib/authutils";
+import { parseErrors } from '../lib/utilities';
 import CompanySelect from '../components/company-select';
 import { FormSkeleton } from '../components/skeletons'
 import { getCustomer } from '../lib/data/api';
@@ -27,6 +32,8 @@ interface FormErrors {
   number?: string
   position?: string
   company?: string
+  password?: string
+  password_check?: string
 }
 interface CustomerFormProps {
   id?: string; // Make the ID parameter optional
@@ -42,12 +49,15 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const currentUser = useCurrentUser()
   const defaultCountry = currentUser.location.country //used by phone input
   const [saveError, setSaveError] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false)
   const [formData, setFormData] = useState<Customer>({
     full_name: '',
     email: '',
     number: '',
     position: '',
     company: '',
+    password: '',
+    password_check: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
   //listen for the escape key and input to form elements
@@ -125,12 +135,19 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     if (formData.full_name && formData.full_name.length < 3) {
       newErrors.full_name = 'Name should be at least three characters';
     }
+    if(!id){
+      if(formData.password != formData.password_check){
+        newErrors.password_check = 'Passwords do not match'
+      }
+      if(!id && !formData.password){
+        newErrors.password = 'Password is required'
+      }
+    }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        console.log(formData)
         await upsertCustomer(formData as Customer);
         toast.success('Customer saved.')
         if(setRefresh){
@@ -138,138 +155,203 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         }
         closeModal()
       } catch (error) {
-        console.error('Error submitting form:', error);
-        setSaveError(String(error))
+        setErrors(parseErrors(error))
       }
     }
     setBtnDisabled(false);
   }
+  function canSubmit():boolean {
+    if(id){
+      return true;
+    }
+    return !btnDisabled && validPassword(formData.password) && formData.password === formData.password_check
+  }
   if(loading) return <FormSkeleton numInputs={5}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading customer"} />
   return (
-    <div className="max-w-lg flex-1 rounded-lg">
-      <h1 className="mb-3 text-2xl">
+    <div className="w-full flex-1 rounded-lg">
+      <h1 className="mb-3 text-2xl px-4">
         {id ? "Edit" : "Create"} Customer
       </h1>
       {saveError && <FormErrorMessage message={saveError} />}
+      
       <form onSubmit={handleSubmit} id="customerForm" method="POST">
         {/* Form inputs */}
-        <div className="w-full mb-4">
-          <div>
-            <label
-              className={StyleLabel}
-              htmlFor="name">
-                Name
-            </label>
-            <div className="relative">
-              <input
-                name="full_name"
-                id="full_name"
-                value = {formData.full_name}
-                onChange={handleChange}
-                className={StyleTextfield}
-                type="text"
-                required
-              />
-              {errors.full_name && <p>{errors.full_name}</p>} 
+        <div className="flex">
+        
+          <div className="w-1/2 px-4">
+            <div className="w-full mb-4">
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="name">
+                    Name
+                </label>
+                <div className="relative">
+                  <input
+                    name="full_name"
+                    id="full_name"
+                    value = {formData.full_name}
+                    onChange={handleChange}
+                    className={StyleTextfield}
+                    type="text"
+                    required
+                  />
+                  {errors.full_name && <p>{errors.full_name}</p>} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="email">
+                    Email
+                </label>
+                <div className="relative">
+                  <input
+                    name="email"
+                    id="email"
+                    value = {formData.email}
+                    className={StyleTextfield}
+                    onChange={handleChange}
+                    type="text"
+                    required
+                  />
+                  {errors.email && <p>{errors.email}</p>} 
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  className={StyleLabel}
+                  htmlFor="number">
+                    Phone number
+                </label>
+                <div className="relative pr-2">
+                  <PhoneInput
+                    value={formData.number}
+                    onChange={handlePhoneInputChange}
+                    name="number"
+                    defaultCountry={defaultCountry}
+                    className={StyleTextfield}
+                    id="number"
+                  />
+                  {errors.number && <FormErrorMessage message={errors.number} />} 
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-4">
-            <label
-              className={StyleLabel}
-              htmlFor="email">
-                Email
-            </label>
-            <div className="relative">
-              <input
-                name="email"
-                id="email"
-                value = {formData.email}
-                className={StyleTextfield}
-                onChange={handleChange}
-                type="text"
-                required
-              />
-              {errors.email && <p>{errors.email}</p>} 
+          <div className="w-1/2 px-4">
+            <div className="mt-4">
+              <label
+                className={StyleLabel}
+                htmlFor="company">
+                  Company
+              </label>
+              <div className="relative">
+                <CompanySelect 
+                  name="company" 
+                  id="company"
+                  value={formData.company} 
+                  changeHandler={handleChange} 
+                  error={errors.company ? true : false}
+                  required={true}
+                />
+                {errors.company && <FormErrorMessage message={errors.company} />} 
+              </div>
+            </div>
+            <div className="mt-4">
+              <label
+                className={StyleLabel}
+                htmlFor="position">
+                  Position
+              </label>
+              <div className="relative">
+                <input
+                  name="position"
+                  id="position"
+                  value = {formData.position}
+                  onChange={handleChange}
+                  className={StyleTextfield}
+                  type="text"
+                  required
+                />
+                {errors.position && <FormErrorMessage message={errors.position} />} 
+              </div>
+              
             </div>
           </div>
-          <div className="mt-4">
-            <label
-              className={StyleLabel}
-              htmlFor="number">
-                Phone number
-            </label>
-            <div className="relative">
-              <PhoneInput
-                value={formData.number}
-                onChange={handlePhoneInputChange}
-                name="number"
-                defaultCountry={defaultCountry}
-                className={StyleTextfield}
-                id="number"
-              />
-              {errors.number && <FormErrorMessage message={errors.number} />} 
-            </div>
-          </div>
-          <div className="mt-4">
-            <label
-              className={StyleLabel}
-              htmlFor="company">
-                Company
-            </label>
-            <div className="relative">
-              <CompanySelect 
-                name="company" 
-                id="company"
-                value={formData.company} 
-                changeHandler={handleChange} 
-                error={errors.company ? true : false}
-                required={true}
-              />
-              {errors.company && <FormErrorMessage message={errors.company} />} 
-            </div>
-          </div>
-          <div className="mt-4">
-            <label
-              className={StyleLabel}
-              htmlFor="position">
-                Position
-            </label>
-            <div className="relative">
-              <input
-                name="position"
-                id="position"
-                value = {formData.position}
-                onChange={handleChange}
-                className={StyleTextfield}
-                type="text"
-                required
-              />
-              {errors.position && <FormErrorMessage message={errors.position} />} 
-            </div>
-          </div>
-          
         </div>
-        <div className="p-2 flex">
-          <div className="w-1/2 flex justify-left">
-            <Button 
-              className="cursor-pointer bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
-              disabled={btnDisabled}
-              type="submit">
-                Save
-            </Button>
-            <Button 
-              type="button"
-              className="bg-red-500 ml-1"
-              onClick = {closeModal}
-              disabled={btnDisabled}>
-                Cancel
-            </Button>
+        {!id &&
+          <div className="p-0 w-full flex justify-center">
+            <fieldset className="w-[300px] form-control rounded-md   p-4 mb-6 border border-lighter" >
+              <legend className='text-sm px-1'>Create Password</legend>
+              <PasswordDescription password={formData.password} />
+              <div className="w-full mt-0">
+                <label 
+                  htmlFor="password"
+                  className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    name="password"
+                    id="password"
+                    disabled={Boolean(formData.id)}
+                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    onChange={handleChange}
+                    type={passwordVisible ? "text" : "password"}
+                    required={true}
+                  />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={() => setPasswordVisible(!passwordVisible)} />
+                  
+                </div>
+                {errors.password && <FormErrorMessage message={errors.password} />}
+                
+                
+              </div>
+              <div className="w-full mt-2">
+                <label 
+                  htmlFor="password_check"
+                  className='mt-0 mb-2 block text-xs font-medium text-gray-900'
+                >
+                  Repeat password
+                </label>
+                <div className="relative">
+                  <input
+                    name="password_check"
+                    id="password_check"
+                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    onChange={handleChange}
+                    disabled={Boolean(formData.id)}
+                    type={passwordVisible ? "text" : "password"}
+                    required={true}
+                  />
+                  <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={() => setPasswordVisible(!passwordVisible)} />
+                    
+                </div>
+                {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
+              </div>
+            </fieldset>
           </div>
+        }
+        <div className="w-full flex justify-center">
+          <Button 
+            className="cursor-pointer bg-primary disabled:bg-gray-light disabled:border-gray-light disabled:shadow-none"
+            disabled={!canSubmit()}
+            type="submit">
+              Save
+          </Button>
+          <Button 
+            type="button"
+            className="bg-red-500 ml-1"
+            onClick = {closeModal}
+            >
+              Cancel
+          </Button>
         </div>
       </form>
     </div>
   );
 }
 
-export default CustomerForm;
+export default WithAuth(CustomerForm);

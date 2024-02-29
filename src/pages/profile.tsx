@@ -1,6 +1,6 @@
 import PageTitle from "../components/page-title";
 import ShowPasswordButton from '../components/show-password-button';
-
+import {PasswordDescription, validPassword} from '../components/passwordValidator';
 import { updateProfile, changePassword} from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
 import { User } from '../lib/data/definitions'
@@ -85,18 +85,7 @@ export const Profile = () => {
     })    
   };
 
-  const validatePassword = ():boolean => {
-    return (validatePasswordLength( ) && validatePasswordCaps() && validatePasswordSpecial())
-  }
-  const validatePasswordLength = ():boolean => {
-    return formData?.newpassword.length > 9;
-  }
-  const validatePasswordCaps = ():boolean => {
-    return /[A-Z]/.test(formData?.newpassword);
-  }
-  const validatePasswordSpecial = ():boolean => {
-    return /[@#$%!^&*]/.test(formData?.newpassword);
-  }
+  
   
   const handleSubmit  = async (event: FormEvent<HTMLFormElement>) => {
     setSaveError('')
@@ -114,17 +103,6 @@ export const Profile = () => {
       if (!phoneRegex.test(String(formData?.number))) {
         newErrors.number = 'Enter a valid phone number';
       }
-    }
-    
-    //"This password is too common.",
-    // "The password must contain at least 1 uppercase letter, A-Z."
-    // ,"The password must contain at least 1 special character: @#$%!^&*",
-    // "This password must contain at least 10 characters."]}
-    if(formData.newpassword != formData.newpassword_check){
-      newErrors.newpassword_check = 'Passwords do not match';
-    }
-    if(formData.newpassword && !validatePassword()){
-      newErrors.newpassword = 'Invalid password';
     }
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
@@ -152,7 +130,7 @@ export const Profile = () => {
         //try to parse out the error
         try {
           setErrors(parseErrors(error))
-          if(errors.non_field_errors.length > 0){
+          if(errors?.non_field_errors.length > 0){
             setSaveError(errors.non_field_errors[0])
           } else {
             setSaveError(String(error))
@@ -309,14 +287,8 @@ export const Profile = () => {
                 />
                 <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={togglePasswordVisibility} />
               </div>
-              <div className={formData.newpassword && !validatePassword() ? 'text-red-500 text-xs' : 'text-xs'}>
-              The new password must contain: 
-              <ul className={`list-disc  pl-4 mb-4 ${formData.newpassword && validatePassword() ? 'text-green-400' : ''}`}>
-                <li className={formData.newpassword && validatePasswordLength() ? 'text-green-400' : ''}>at least 10 characters</li>
-                <li className={formData.newpassword && validatePasswordCaps() ? 'text-green-400' : ''}>at least 1 uppercase letter</li>
-                <li className={formData.newpassword && validatePasswordSpecial() ? 'text-green-400' : ''}>at least 1 special character (e.g. @#$%!^&*)</li>
-              </ul>
-              </div>
+              
+              <PasswordDescription password={formData.newpassword} />
               <label 
                 htmlFor="newpassword"
                 className='mt-0 mb-2 block text-xs font-medium text-gray-900'
@@ -329,7 +301,7 @@ export const Profile = () => {
                 <input
                   name="newpassword"
                   id="newpassword"
-                  className={formData.newpassword && !validatePassword() ? `${StyleTextfieldError}  mb-2` :`${StyleTextfield}  mb-2`}
+                  className={formData.newpassword && !validPassword(formData.newpassword) ? `${StyleTextfieldError}  mb-2` :`${StyleTextfield}  mb-2`}
                   onChange={handleChange}
                   type={passwordVisible ? "text" : "password"}
                   

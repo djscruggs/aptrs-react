@@ -25,26 +25,25 @@ import.meta.env.VITE_APP_ENV
 const App: React.FC = () => {
   const user = getAuthUser()
   const navigate = useNavigate()
-  // useEffect(() => {
-  //   const refreshUser = async () => {
-  //     console.log('env', import.meta.env.VITE_APP_ENV)
-  //     if('development' === import.meta.env.VITE_APP_ENV){
-  //       console.log('skipping refresh')
-  //     }
-  //     console.log('refreshing at time ', new Date().toISOString())
-  //     try {
-  //       const refreshedUser = await refreshAuth();
-  //       if(!refreshedUser){
-  //         navigate('/')
-  //       }
-  //     } catch(error){
-  //       console.error('Error refreshing authentication:', error);
-  //     }
-  //   };
-  //   // Call the refreshUser function every 10 minutes
-  //   const intervalId = setInterval(refreshUser, 600000);
-  //   return () => clearInterval(intervalId);
-  // }, []);
+  useEffect(() => {
+    const refreshUser = async () => {
+      if('development' === import.meta.env.VITE_APP_ENV){
+        console.log('skipping refresh')
+      }
+      console.log('refreshing at time ', new Date().toISOString())
+      try {
+        const refreshedUser = await refreshAuth();
+        if(!refreshedUser){
+          navigate('/')
+        }
+      } catch(error){
+        console.error('Error refreshing authentication:', error);
+      }
+    };
+    // Call the refreshUser function every 10 minutes
+    const intervalId = setInterval(refreshUser, 600000);
+    return () => clearInterval(intervalId);
+  }, []);
   
   return (
         <Layout>

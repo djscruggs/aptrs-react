@@ -14,6 +14,7 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
+import { PasswordDescription, validPassword } from '../components/passwordValidator'
 import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import ShowPasswordButton from '../components/show-password-button';
@@ -78,6 +79,13 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const defaultCountry = currentUser.location.country 
   const [errors, setErrors] = useState<FormErrors>({});
   
+  function canSubmit():boolean {
+    if(!formData.id){
+      return true;
+    }
+    return !btnDisabled && validPassword(formData.password) && formData.password == formData.password_check
+  }
+
   useEffect(() => {
     let editing: Boolean; //flag to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
@@ -404,12 +412,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
           <div className="flex flex-col w-1/2">
             <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
               <legend className='text-sm'>Password</legend>
+              {formData.id && <span className='text-xs'>(disabled for existing users)</span>}
+              {!formData.id && <PasswordDescription password={formData.password} />}
               <div className="w-full mt-0">
                 <label 
                   htmlFor="password"
                   className='mt-0 mb-2 block text-xs font-medium text-gray-900'
                 >
-                  Password
+                  Password 
                 </label>
                 <div className="relative">
                   <input
@@ -457,7 +467,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">
                 <Button 
-                className="bg-primary disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+                className="bg-primary disabled:bg-gray-light disabled:border-gray-light disabled:shadow-none"
                 disabled={btnDisabled}
                 type="submit">
                   Save
@@ -465,7 +475,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               <Button 
                 className="bg-red-500 ml-1"
                 onClick = {closeModal}
-                disabled={btnDisabled}>
+                disabled={!canSubmit()}>
                   Cancel
               </Button>
           </div>

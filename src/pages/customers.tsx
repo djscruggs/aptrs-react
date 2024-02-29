@@ -177,13 +177,13 @@ export function Customers() {
       <PageTitle title='Customers' />
       {/* modal content */}
       {showModal &&
-      <Dialog handler={clearModal} open={showModal}  size="xs" className="p-4 rounded-md" >
+      <Dialog handler={clearModal} open={showModal}  size="md" className="p-4 rounded-md" >
         <form method="dialog" onSubmit={clearModal}>
           <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
             <span className="text-gray-400 hover:text-white-900">x</span>
           </Button>
         </form>
-        <DialogBody className="max-w-sm">
+        <DialogBody className="w-full">
         {customerId   && <CustomerForm id={customerId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
         {!customerId && <CustomerForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
         </DialogBody>
@@ -192,7 +192,7 @@ export function Customers() {
       {/* END modal content */}
       <div className="mt-6 flow-root">
         <div key={`searchkey-${state.queryParams.full_name}`}>
-          <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.full_name} placeHolder='Search customers'/>
+          <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.full_name} />
         </div>
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New Customer

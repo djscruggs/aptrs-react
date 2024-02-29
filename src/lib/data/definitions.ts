@@ -57,6 +57,8 @@ export interface Customer  {
   number?: string;
   position?: string;
   company?: string; 
+  password?: string
+  password_check?: string
 };
 
 export type ProjectScope = {
