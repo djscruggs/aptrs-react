@@ -54,6 +54,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [editing, setEditing] = useState(false)
   const currentUser = useCurrentUser()
   //extend User type to support password fields
   type UserForm = User & {
@@ -89,7 +90,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   }
 
   useEffect(() => {
-    let editing: Boolean; //flag to track whether the form has been edited
+    let _editing: Boolean; //flag to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
         e.preventDefault()
@@ -101,12 +102,18 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        editing = true;
+        _editing = true;
+        if(!editing){
+          setEditing(true)
+        }
       }
     }
     //set flag to true if an input eleent
     function handleInputChange(){
-      editing = true;
+      _editing = true;
+      if(!editing){
+        setEditing(true)
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("change", handleInputChange);
@@ -154,6 +161,11 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   };
   const [passwordVisible, setPasswordVisible] = useState(false)
   const closeModal = () =>  {
+    if(editing){
+      if(!confirm('Quit without saving?')){
+        return null;
+      }
+    }
     setId('')
     if(forwardedRef?.current ) {
       forwardedRef.current.close()

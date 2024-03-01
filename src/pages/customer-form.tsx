@@ -50,6 +50,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const defaultCountry = currentUser.location.country //used by phone input
   const [saveError, setSaveError] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState<Customer>({
     full_name: '',
     email: '',
@@ -62,7 +63,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const [errors, setErrors] = useState<FormErrors>({});
   //listen for the escape key and input to form elements
   useEffect(() => {
-    let editing: Boolean; //flag to track whether the form has been edited
+    let _editing: Boolean; //local variable to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
         e.preventDefault()
@@ -74,12 +75,18 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        editing = true;
+        _editing = true;
+        if(!editing){
+          setEditing(true)
+        }
       }
     }
     //set editing flag to true if an input eleent
     function handleInputChange(){
-      editing = true;
+      _editing = true;
+      if(!editing){
+        setEditing(true)
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("change", handleInputChange);
@@ -121,6 +128,11 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   };
   //clean up the data to make sure the next instance is clean
   const closeModal = () =>  {
+    if(editing){
+      if(!confirm('Quit without saving?')){
+        return null;
+      }
+    }
     setId('')
     if(forwardedRef?.current ) {
       forwardedRef.current.close()

@@ -36,6 +36,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState<Company>({
     name: '',
     address: '',
@@ -45,7 +46,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const [errors, setErrors] = useState<FormErrors>({});
   
   useEffect(() => {
-    let editing: Boolean; //flag to track whether the form has been edited
+    let _editing: Boolean; //flag to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
         e.preventDefault()
@@ -57,12 +58,18 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        editing = true;
+        _editing = true;
+        if(!editing){
+          setEditing(true)
+        }
       }
     }
     //set flag to true if an input eleent
     function handleInputChange(){
-      editing = true;
+      _editing = true;
+      if(!editing){
+        setEditing(true)
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("change", handleInputChange);
@@ -102,6 +109,11 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   };
   
   const closeModal = () =>  {
+    if(editing){
+      if(!confirm('Quit without saving?')){
+        return null;
+      }
+    }
     setId('')
     if(forwardedRef?.current ) {
       forwardedRef.current.close()
