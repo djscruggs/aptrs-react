@@ -17,7 +17,7 @@ import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
-    getProject, 
+    getProject,
     fetchUsers,
     simpleUploadConfig } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
