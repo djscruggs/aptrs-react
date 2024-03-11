@@ -103,7 +103,9 @@ export type User = {
   company?: string;
   position?: string;
   groups?: string[];
-  location? : IPAddressInfo
+  location? : IPAddressInfo;
+  password?: string;
+  password_check?: string;  
 }
 export type IPAddressInfo = {
   ip: string;

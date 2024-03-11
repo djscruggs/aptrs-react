@@ -383,6 +383,7 @@ export async function upsertUser(formData: User): Promise<any> {
     url = apiUrl(`auth/edituser/${formData['id']}`);
   }
   const response = await axios.post(url, temp, authHeaders());
+  console.log(response)
   return response.data;
 }
 export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {
