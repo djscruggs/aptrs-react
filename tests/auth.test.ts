@@ -4,7 +4,7 @@ import * as definitions from '../src/lib/data/definitions';
 import * as api from '../src/lib/data/api';
 const BEFORE_ALL_TIMEOUT = 30000; // 30 sec
 
-describe('Login and access user profile', () => {
+describe('Login and verify user has API access', () => {
   let adminUser: definitions.LoginUser
   beforeAll(async () => {
     adminUser = await factory.loginAdminUser()
