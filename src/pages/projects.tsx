@@ -14,7 +14,7 @@ import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
  
-interface ProjectsProps {
+export interface ProjectsProps {
   pageTitle: string; 
   embedded?: boolean;
   refresh?: boolean | undefined

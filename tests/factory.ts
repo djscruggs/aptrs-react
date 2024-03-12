@@ -11,6 +11,10 @@ export const loginAdminUser = async () => {
   const user = await api.login('admin@anof.com', 'PE#5GZ29PTZMSE');
   return user;
 };
+export const loginNormalUser = async () => {
+  const user = await api.login('user@user.com', 'PE#user');
+  return user;
+};
 
 export const createNormalUser = async (user?: Omit<User, 'id'>) => {
   return await api.upsertUser(
