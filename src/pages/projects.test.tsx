@@ -17,8 +17,10 @@ describe('Simple working test',  () => {
   test('the projects page renders', async () => {
     const  title = screen.getByText(/Projects/i)
     const button = await screen.getByText('New Project')
+    const search = await screen.getByText('Search')
     expect(title).toBeInTheDocument()
     expect(button).toBeInTheDocument()
+    expect(search).toBeInTheDocument()
     
     
   })
