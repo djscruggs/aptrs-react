@@ -201,7 +201,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                       Description
                     </label>
                     <div className="relative cursor-text">
-                      {project.description}
+                      <div dangerouslySetInnerHTML={{__html: project.description}}></div>
                     </div>
                   </div>
                 </div>

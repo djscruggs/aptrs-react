@@ -2,7 +2,7 @@ import SideNav from './sidenav';
 import { Toaster } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
 import {getInitials} from '../lib/utilities'
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
 
 
@@ -11,7 +11,8 @@ interface LayoutProps {
 }
 const Layout: React.FC<LayoutProps> = ({ children}) => {
   const currentUser = useCurrentUser()
-  const location = useLocation()
+  // can't use useLocation here because the layout it outside of the  Router in App.tsx
+  const location = document.location
   
   return (
         <>

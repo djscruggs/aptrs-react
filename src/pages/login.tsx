@@ -8,7 +8,6 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import {Button} from '../components/button'
 import { login } from '../lib/data/api';
 import { StyleLabel } from '../lib/formstyles'
-import { Navigate } from 'react-router-dom';
 import ShowPasswordButton from '../components/show-password-button'
 
 const Login: React.FC = () => {
@@ -42,7 +41,7 @@ const Login: React.FC = () => {
     
   }
   if(loginResult){
-      document.location='/'
+      document.location='/dashboard'
   }
   return (
           

@@ -12,20 +12,16 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
+import CKWrapper from '../components/ckwrapper';
 import CompanySelect from '../components/company-select';
 import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
 import { 
     getProject,
-    fetchUsers,
-    simpleUploadConfig } from '../lib/data/api';
+    fetchUsers } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
 import { Project, User } from '../lib/data/definitions'
-import  'ckeditor5-custom-build/build/ckeditor';
-import '../../packages/ckeditor5/styles.css'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor'
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -155,7 +151,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       console.log('Form failed validation:', newErrors);
     } else {
       try {
-        await upsertProject(formData as Project);
+        console.log('submitting', formData)
+        const result = await upsertProject(formData as Project);
+        console.log('result',result)
         navigate('/projects')
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -408,24 +406,10 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
               Description
             </label>
             <div className="relative">
-              <CKEditor
+              <CKWrapper
                 id="description"
                 data = {formData.description}
-                editor={ClassicEditor}
-                onChange={(event, editor) => {
-                  handleCKchange('description',editor.getData());
-                }}
-                onReady={ editor => {
-                      if (formData.description) editor.setData(formData.description)
-                  }}
-                // I have no idea why this works. Lots of conflicting advice on stackoverflow  //
-                // https://stackoverflow.com/questions/74559310/uncaught-syntaxerror-the-requested-module-ckeditor5-build-ckeditor-js-does-n 
-                
-                config={{
-                          simpleUpload: simpleUploadConfig(), 
-                          image: {upload: {types: [ 'png', 'jpeg','gif' ]}}
-                        }}
-                
+                onChange={handleCKchange}
               />
                 
                 {errors.description && <FormErrorMessage message={errors.description} />} 
