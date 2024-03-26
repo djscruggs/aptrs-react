@@ -46,7 +46,7 @@ export interface Project  {
 export interface Company  {
   id?: number;
   name?: string;
-  img?: string;
+  img?: string | File;
   address?: string; 
 };
 

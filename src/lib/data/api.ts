@@ -277,10 +277,13 @@ export async function getCompany(id: string | undefined) {
 
 export async function upsertCompany(formData: Company): Promise<any> {
   let url = apiUrl(`customer/company/add`);
+  console.log('form in api',formData)
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/company/edit/${formData['id']}/`);
   }
-  const response = await axios.post(url, formData, authHeaders());
+  const headers = authHeaders()
+  headers.headers['content-type'] = 'multipart/form-data'
+  const response = await axios.post(url, formData, headers);
   return response.data;
 }
 
