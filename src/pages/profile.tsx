@@ -1,4 +1,5 @@
 import PageTitle from "../components/page-title";
+import { useNavigate } from "react-router-dom";
 import ShowPasswordButton from '../components/show-password-button';
 import {PasswordDescription, validPassword} from '../components/passwordValidator';
 import { updateProfile, changePassword} from '../lib/data/api';
@@ -30,6 +31,7 @@ interface FormErrors {
   position?: string
   number?: string
   newpassword?: string
+  profilepic?: string
   newpassword_check?: string
   non_field_errors?: string[]
 }
@@ -42,7 +44,7 @@ export const Profile = () => {
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
-  const [file, setFile] = useState<File | null>(null);
+  
   const defaults = {
     id: currentUser.id,
     full_name: currentUser.full_name,
@@ -50,12 +52,16 @@ export const Profile = () => {
     number: currentUser.number,
     position: currentUser.position,
     groups: currentUser.groups,
+    profilepic: currentUser.profilepic,
     oldpassword: '',
     newpassword: '',
     newpassword_check: '',
   }
   const [formData, setFormData] = useState<UserForm>(defaults);
-  
+  //profile image input
+  const [file, setFile] = useState<File | null>(null);
+  const [fileDataURL, setFileDataURL] = useState<string | null>(formData.profilepic ? String(formData.profilepic) : null)
+  const navigate = useNavigate()
   
   const defaultCountry = currentUser.location.country 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -69,12 +75,6 @@ export const Profile = () => {
       [name]: inputValue,
     }));
   };
-  const handleProfilepic = (event: ChangeEvent<HTMLInputElement>): void => {
-    if (event.target.files) {
-      setFile(event.target?.files[0])
-    }
-
-  }
   const [passwordVisible, setPasswordVisible] = useState(false)
   function togglePasswordVisibility() {
     setPasswordVisible((prevState) => !prevState);
@@ -146,7 +146,10 @@ export const Profile = () => {
     setBtnDisabled(false);
     if(success){
       setEditing(false)
-    }    
+    }
+    // hacky -- forcing a full reload so that the profile pic is updated
+    // should use context but this is the only place it matters in the whole app
+    window.location.reload();     
   }
   const toggleEditing = () => {
     setEditing(!editing)
@@ -155,6 +158,49 @@ export const Profile = () => {
     if(!editing) {
       setPasswordVisible(false)
     }
+  }
+  const fileInput = (): JSX.Element => {
+    return (
+      <input type="file"
+        name="img"
+        onChange={handleImage}
+        accept="image/*"
+        className={`text-sm text-white
+                  file:text-white
+                    file:mr-5 file:py-2 file:px-6
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-primary
+                    file:cursor-pointer
+                    hover:file:bg-secondary`}
+      />
+    )
+  }
+  const handleImage = (e: ChangeEvent<HTMLInputElement>): void => {
+    const { files } = e.target
+    if (!files) return
+    const image = files[0]
+    if (image.size > 1_000_000) {
+      toast.error('Image must be less than 1MB')
+      return
+    }
+    setFile(image)
+    const fileReader = new FileReader()
+    fileReader.onload = (e) => {
+      const result = e.target?.result
+      if (result) {
+        if (typeof result === 'string') {
+          setFileDataURL(result)
+        } else {
+          setFileDataURL(null)
+        }
+      }
+    }
+    fileReader.readAsDataURL(image)
+  }
+  const removeImage = (): void => {
+    setFile(null)
+    setFileDataURL(null)
   }
   return (
     <>
@@ -252,20 +298,21 @@ export const Profile = () => {
         
         {editing && 
           <div className="max-w-sm mb-4">
-            <label 
-              htmlFor="profilepic"
-              className={StyleLabel}>
-              Upload photo
-            </label>
-            <input 
-              id="profilepic" 
-              name="profilepic"
-              type="file"
-              onChange={handleProfilepic}
-              className="text-xs"
-              >
-
-            </input>
+            {fileDataURL &&
+            <div>
+              <img src={fileDataURL} alt="cover photo" className="max-w-full max-h-60" />
+              <button className='underline text-red-500' onClick={removeImage}>Remove</button>
+            </div>
+          }
+          {!fileDataURL &&
+            <div className="flex flex-col items-center justify-end">
+              <p className="text-2xl text-center">Upload a profile picture</p>
+              <div className='mt-10 ml-36'>
+                {fileInput()}
+              </div>
+            </div>
+          }
+            
           </div>
         }
         {editing &&

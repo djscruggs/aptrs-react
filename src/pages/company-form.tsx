@@ -37,13 +37,14 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
-  const [file, setFile] = useState<File | null>(null)
+  
   const [formData, setFormData] = useState<Company>({
     name: '',
     address: '',
     img: '',
   });
-  
+  //logo input
+  const [file, setFile] = useState<File | null>(null)
   const [fileDataURL, setFileDataURL] = useState<string | null>(formData.img ? String(formData.img) : null)
   
   const [errors, setErrors] = useState<FormErrors>({});
@@ -124,7 +125,6 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
       toast.error('Image must be less than 1MB')
       return
     }
-    console.log(image)
     setFile(image)
     const fileReader = new FileReader()
     fileReader.onload = (e) => {
@@ -194,7 +194,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const fileInput = (): JSX.Element => {
     return (
       <input type="file"
-        name="coverPhoto"
+        name="img"
         onChange={handleImage}
         accept="image/*"
         className={`text-sm text-white
