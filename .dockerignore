@@ -1,0 +1,12 @@
+.env.*
+Dockerfile
+.dockerignore
+.vercel
+.yarn
+build
+.git
+.gitignore
+node_modules
+test-results
+playright-report
+README.md 

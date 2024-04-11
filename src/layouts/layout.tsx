@@ -1,7 +1,7 @@
 import SideNav from './sidenav'; 
 import { Toaster } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
-import {getInitials} from '../lib/utilities'
+import {getInitials, avatarUrl} from '../lib/utilities'
 import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
 
@@ -29,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children}) => {
                   <div className="avatar placeholder absolute top-0 right-0 pt-8 pr-14 flex items-center justify-center">
                      {currentUser.profilepic && 
                         <Link className='text-white' to="/profile">
-                          <Avatar src={currentUser.profilepic} size="lg"/>
+                          <Avatar src={avatarUrl(currentUser.profilepic)} size="lg"/>
                         </Link>
                       }
                       {!currentUser.profilepic &&

@@ -18,7 +18,7 @@ import ErrorPage from './pages/error-page';
 import AccessDenied from './pages/access-denied';
 import Profile from './pages/profile';
 import { useEffect } from 'react';
-import { refreshAuth, getAuthUser } from './lib/data/api';
+import { refreshAuth, getAuthUser, shouldRefreshToken } from './lib/data/api';
 import.meta.env.VITE_APP_ENV
 
 
@@ -26,12 +26,10 @@ const App: React.FC = () => {
   const user = getAuthUser()
   useEffect(() => {
     const refreshUser = async () => {
-      if('development' === import.meta.env.VITE_APP_ENV){
-        console.log('skipping refresh')
-      }
       console.log('refreshing at time ', new Date().toISOString())
       try {
         const refreshedUser = await refreshAuth();
+        console.log('refreshed is', refreshedUser)
         if(!refreshedUser){
           // can't use useNavigate outside of a Router component
           // see https://stackoverflow.com/questions/70491774/usenavigate-may-be-used-only-in-the-context-of-a-router-component
@@ -45,7 +43,10 @@ const App: React.FC = () => {
     const intervalId = setInterval(refreshUser, 600000);
     return () => clearInterval(intervalId);
   }, []);
-  
+  console.log('should refresh?', shouldRefreshToken())
+  if(shouldRefreshToken()){
+    refreshAuth()
+  }
   return (
         
         <Layout>

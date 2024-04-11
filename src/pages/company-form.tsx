@@ -169,6 +169,8 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     }
     if(file){
       formData.img = file
+    } else {
+      delete formData.img
     }
     
     if (Object.keys(newErrors).length >  0) {

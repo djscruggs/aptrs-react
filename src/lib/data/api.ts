@@ -94,10 +94,6 @@ export async function refreshAuth() {
     if(!user){
       return null
     }
-    if(import.meta.env.VITE_APP_ENV === 'development'){
-      console.log('skipping refresh in development environment')
-      return user;
-    }
     try {
     const body = {refresh: user.refresh}
     const url = apiUrl('auth/token/refresh/');

@@ -1,10 +1,9 @@
 import PageTitle from "../components/page-title";
-import { useNavigate } from "react-router-dom";
 import ShowPasswordButton from '../components/show-password-button';
 import {PasswordDescription, validPassword} from '../components/passwordValidator';
 import { updateProfile, changePassword} from '../lib/data/api';
 import { useCurrentUser } from '../lib/customHooks';
-import { User } from '../lib/data/definitions'
+import { User as BaseUser } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import Button from '../components/button';
 import { formatPhoneNumber } from 'react-phone-number-input'
@@ -16,7 +15,7 @@ import {
 } from '../lib/formstyles'
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { phoneRegex, emailRegex, parseErrors } from '../lib/utilities';
+import { phoneRegex, emailRegex, parseErrors, avatarUrl } from '../lib/utilities';
 import { WithAuth } from "../lib/authutils";
 import { 
   useState, 
@@ -35,9 +34,10 @@ interface FormErrors {
   newpassword_check?: string
   non_field_errors?: string[]
 }
-type UserForm = User & {
+interface UserForm extends BaseUser {
   newpassword?: string;
   newpassword_check?: string;
+  profilepic?: File
 };
 export const Profile = () => {
   const [currentUser, setCurrentUser] = useState(useCurrentUser())
@@ -52,7 +52,7 @@ export const Profile = () => {
     number: currentUser.number,
     position: currentUser.position,
     groups: currentUser.groups,
-    profilepic: currentUser.profilepic,
+    // profilepic: currentUser.profilepic, leaving this out because later I may have to set it as a file
     oldpassword: '',
     newpassword: '',
     newpassword_check: '',
@@ -60,14 +60,13 @@ export const Profile = () => {
   const [formData, setFormData] = useState<UserForm>(defaults);
   //profile image input
   const [file, setFile] = useState<File | null>(null);
-  const [fileDataURL, setFileDataURL] = useState<string | null>(formData.profilepic ? String(formData.profilepic) : null)
-  const navigate = useNavigate()
+  const [fileDataURL, setFileDataURL] = useState<string | null>(currentUser.profilepic ? avatarUrl(currentUser.profilepic) : null)
+  
   
   const defaultCountry = currentUser.location.country 
   const [errors, setErrors] = useState<FormErrors>({});
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
-    
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
     setFormData((prevFormData) => ({
@@ -86,8 +85,6 @@ export const Profile = () => {
       number:value
     })    
   };
-
-  
   
   const handleSubmit  = async (event: FormEvent<HTMLFormElement>) => {
     setSaveError('')
@@ -112,6 +109,11 @@ export const Profile = () => {
       setBtnDisabled(false);
       return null
     }
+    if(file){
+      formData.profilepic = file
+    } else {
+      delete formData.profilepic
+    }
     let success = false
     try {
       await updateProfile(formData, file);
@@ -124,7 +126,7 @@ export const Profile = () => {
     }
     if(formData.newpassword && formData.newpassword_check){
       try {
-      await changePassword(formData as User);
+      await changePassword(formData as UserForm);
       toast.success('Password updated')
       success = true
       } catch (error) {
@@ -140,7 +142,6 @@ export const Profile = () => {
         } catch (error){
           setSaveError(String(error))
         }
-        
       }
     }
     setBtnDisabled(false);

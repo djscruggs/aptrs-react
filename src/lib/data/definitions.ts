@@ -98,7 +98,7 @@ export type User = {
   is_staff?: boolean;
   is_active?: boolean;
   is_superuser?: boolean;
-  profilepic?: string;
+  profilepic?: File | string | undefined;
   number?: string;
   company?: string;
   position?: string;
