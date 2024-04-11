@@ -26,7 +26,6 @@ const App: React.FC = () => {
   const user = getAuthUser()
   useEffect(() => {
     const refreshUser = async () => {
-      console.log('refreshing at time ', new Date().toISOString())
       try {
         const refreshedUser = await refreshAuth();
         console.log('refreshed is', refreshedUser)
@@ -43,7 +42,6 @@ const App: React.FC = () => {
     const intervalId = setInterval(refreshUser, 600000);
     return () => clearInterval(intervalId);
   }, []);
-  console.log('should refresh?', shouldRefreshToken())
   if(shouldRefreshToken()){
     refreshAuth()
   }
