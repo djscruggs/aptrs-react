@@ -13,6 +13,7 @@ import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useData
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
+import { FunnelIcon } from '@heroicons/react/24/outline';
  
 export interface ProjectsProps {
   pageTitle: string; 
@@ -47,8 +48,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
     const formatted: ProjectWithActions[] = [];
     data.forEach((row: ProjectWithActions) => {
       row.actions = (<>
-                      <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-6" /></Link>
-                      <TrashIcon className="inline w-6 ml-2 cursor-pointer" onClick={()=> handleDelete([row.id])}/>
+                      <Link to={`/projects/${row.id}/edit`}><PencilSquareIcon className="inline w-5" /></Link>
+                      <TrashIcon className="inline w-5 ml-1 cursor-pointer" onClick={()=> handleDelete([row.id])}/>
                     </>)
       formatted.push(row)
     });
@@ -96,38 +97,60 @@ export function Projects(props:ProjectsProps): JSX.Element {
     }
   }
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
-
+  const HeaderFilter = ({label, name}: {label: string, name: string}):JSX.Element => {
+    return (
+      <><input type="text" className='p-2 border border-gray-300 rounded-md w-full' name={name.toLowerCase().replace(' ','')} placeholder={label} onChange={handleFilter}/><FunnelIcon className='-ml-6 w-4 h-4'/></>
+    )
+  }
   const columns: Column[] = [
     {
       name: 'Action',
       selector: (row: any) => row.actions,
-      maxWidth: '5em',
+      maxWidth: '2rem',
       omit: props.embedded
     },
     {
-      name: 'Name',
+      name: <HeaderFilter label='Name' name='name'/>,
       selector: (row: Project) => row.name,
-      sortable: true,
+      sortable: false,
+      maxWidth: '16rem',
     },
     {
-      name: 'Status',
+      name: <HeaderFilter label='Company' name='companyname'/>,
+      selector: (row: Project) => row.companyname,
+      maxWidth: '9rem',
+    },
+    {
+      name: <HeaderFilter label='Owner' name='owner'/>,
+      selector: (row: Project) => row.owner,
+      maxWidth: '7rem',
+    },
+    {
+      name: <HeaderFilter label='Status' name='status'/>,
       selector: (row: Project) => row.status,
+      maxWidth: '7rem',
     },
     {
-      name: 'Description',
-      selector: (row: Project) => row.description.length > 50 ? row.description.substring(0, 50) + '...' : row.description,
+      name: <HeaderFilter label='Project Type' name='projecttype'/>,
+      selector: (row: Project) => row.projecttype,
+      maxWidth: '200px',
     },
+    
     {
       name: 'Start Date',
       selector: (row: Project) => row.startdate,
-      sortable: true,
+      maxWidth: '120px',
     },
     {
       name: 'End Date',
       selector: (row: Project) => row.enddate,
+      maxWidth: '120px',
     },
   ];
   
+  const handleFilter = (event:any) => {
+    console.log(event.target.name, event.target.value)
+  }
   const handleNew = () => {
     navigate('/projects/new')
   }
@@ -202,6 +225,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
           </p>
         }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
             columns={columns}
@@ -216,6 +240,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             onChangePage={handlePageChange}
             paginationTotalRows={state.totalRows}
             striped
+            highlightOnHover
             onSelectedRowsChange={handleSelectedChange}
           />
         </div>  
@@ -224,4 +249,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
   )
 }
 
+
+
+
 export default WithAuth(Projects);
+
