@@ -62,7 +62,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
       case 'set-filter':{
-        console.log('set-filter', action.payload)
         let newQueryParams = {...state.queryParams, ...action.payload}
         return {...state, queryParams: newQueryParams};
       } 
