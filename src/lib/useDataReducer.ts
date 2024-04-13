@@ -23,6 +23,7 @@ error?: any;
 export type DatasetAction = 
 | { type: 'set-mode'; payload: DataMode }
 | { type: 'set-search'; payload: string }
+| { type: 'set-filter'; payload: DatasetState["queryParams"] }
 | { type: 'set-page'; payload: number }
 | { type: 'set-rows-per-page'; payload: number }
 | { type: 'set-error'; payload: any }

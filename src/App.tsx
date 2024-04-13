@@ -28,7 +28,6 @@ const App: React.FC = () => {
     const refreshUser = async () => {
       try {
         const refreshedUser = await refreshAuth();
-        console.log('refreshed is', refreshedUser)
         if(!refreshedUser){
           // can't use useNavigate outside of a Router component
           // see https://stackoverflow.com/questions/70491774/usenavigate-may-be-used-only-in-the-context-of-a-router-component

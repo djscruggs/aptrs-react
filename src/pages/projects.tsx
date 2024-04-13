@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchFilteredProjects, deleteProjects } from "../lib/data/api";
-import { RowsSkeleton } from '../components/skeletons'
 import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
@@ -13,7 +12,9 @@ import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useData
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
-import { FunnelIcon } from '@heroicons/react/24/outline';
+import HeaderFilter from "../components/headerFilter";
+import { CiCircleRemove } from "react-icons/ci";
+
  
 export interface ProjectsProps {
   pageTitle: string; 
@@ -60,6 +61,11 @@ export function Projects(props:ProjectsProps): JSX.Element {
   //partial reducer for search and pagination; the rest is handled by useDataReducer
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
+      case 'set-filter':{
+        console.log('set-filter', action.payload)
+        let newQueryParams = {...state.queryParams, ...action.payload}
+        return {...state, queryParams: newQueryParams};
+      } 
       case 'set-search': {
         if(state.queryParams.name === action.payload) {
           return state
@@ -73,9 +79,19 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [filterValues, setFilterValues] = useState({
+    name: '',
+    companyname: '',
+    owner: '',
+    status: '',
+    projecttype: '',
+    startdate: '',
+    enddate_before: ''
+  });
   
   
   useEffect(() => {
+    console.log(state.queryParams)
     loadData()
   }, [state.queryParams])
   
@@ -97,60 +113,71 @@ export function Projects(props:ProjectsProps): JSX.Element {
     }
   }
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
-  const HeaderFilter = ({label, name}: {label: string, name: string}):JSX.Element => {
-    return (
-      <><input type="text" className='p-2 border border-gray-300 rounded-md w-full' name={name.toLowerCase().replace(' ','')} placeholder={label} onChange={handleFilter}/><FunnelIcon className='-ml-6 w-4 h-4'/></>
-    )
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    console.log(name, value)
+    
+    // setFilterValues((prev:any) => ({...prev, [event.target.name]: event.target.value}))
+    // setFilterValues({...filterValues, [event.target.name]: event.target.value})
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+    
+    
+  }
+  const filterCommit = (event:any) => {
+    dispatch({ type: 'set-filter', payload: filterValues})
   }
   const columns: Column[] = [
     {
-      name: 'Action',
+      name: 'Actions',
       selector: (row: any) => row.actions,
       maxWidth: '2rem',
       omit: props.embedded
     },
     {
-      name: <HeaderFilter label='Name' name='name'/>,
+      name: <HeaderFilter label='Name' name='name' defaultValue={filterValues.name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.name,
       sortable: false,
       maxWidth: '16rem',
     },
     {
-      name: <HeaderFilter label='Company' name='companyname'/>,
+      name: <HeaderFilter label='Company' name='companyname' defaultValue={filterValues.companyname} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.companyname,
       maxWidth: '9rem',
     },
     {
-      name: <HeaderFilter label='Owner' name='owner'/>,
+      name: <HeaderFilter label='Owner' name='owner' defaultValue={filterValues.owner} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.owner,
       maxWidth: '7rem',
     },
     {
-      name: <HeaderFilter label='Status' name='status'/>,
+      name: <HeaderFilter label='Status' name='status' defaultValue={filterValues.status} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.status,
       maxWidth: '7rem',
     },
     {
-      name: <HeaderFilter label='Project Type' name='projecttype'/>,
+      name: <HeaderFilter label='Project Type' name='projecttype' defaultValue={filterValues.projecttype} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.projecttype,
       maxWidth: '200px',
     },
     
     {
-      name: 'Start Date',
+      name: <HeaderFilter label='Start Date' name='startdate' isDate={true} defaultValue={filterValues.startdate} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.startdate,
       maxWidth: '120px',
     },
     {
-      name: 'End Date',
+      name: <HeaderFilter label='End Date' name='enddate_before' isDate={true} defaultValue={filterValues.enddate_before} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.enddate,
       maxWidth: '120px',
     },
   ];
   
-  const handleFilter = (event:any) => {
-    console.log(event.target.name, event.target.value)
-  }
+  
+  
+  
   const handleNew = () => {
     navigate('/projects/new')
   }
@@ -193,6 +220,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
       navigate(location.pathname, { replace: true });
     }
   }
+  function isFiltered(queryParams: DatasetState['queryParams']): boolean {
+    const { limit, offset, ...rest } = queryParams;
+    return Object.values(rest).some(value => value !== '');
+  }
   const clearSearch = () => {
     return handleSearch('')
   }
@@ -206,7 +237,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
       <div className="mt-6 flow-root" >
         <div key={`searchkey-${state.queryParams.name}`}>
-          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name}/>
+          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name} placeHolder='Search by name'/>
         </div>
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
           New Project
@@ -224,9 +255,14 @@ export function Projects(props:ProjectsProps): JSX.Element {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
-        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        {/* {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}  */}
         
-        <div className={state.mode != 'idle' ? 'hidden' : ''}>
+        <div >
+          {isFiltered(state.queryParams) &&
+          <div className='text-sm text-center my-4'  onClick={clearSearch}>
+              <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
+          </div>
+          }
           <DataTable
             columns={columns}
             data={formatDataActions(state.data)}
@@ -239,8 +275,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
             onChangeRowsPerPage={handlePerRowsChange}
             onChangePage={handlePageChange}
             paginationTotalRows={state.totalRows}
-            striped
+            striped 
             highlightOnHover
+            fixedHeader
             onSelectedRowsChange={handleSelectedChange}
           />
         </div>  
@@ -248,9 +285,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
     </>
   )
 }
-
-
-
 
 export default WithAuth(Projects);
 
