@@ -122,7 +122,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     })
     dispatch({ type: 'reset'})
   }
-  const filterCommit = (event:any) => {
+  const filterCommit = () => {
     dispatch({ type: 'set-filter', payload: filterValues})
   }
   const columns: Column[] = [

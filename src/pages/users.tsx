@@ -16,6 +16,7 @@ import { useCurrentUser } from '../lib/customHooks';
 import { useDataReducer } from '../lib/useDataReducer';
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import SearchBar from "../components/searchbar";
+import {HeaderFilter, ClearFilter} from '../components/headerFilter'
 
 interface UserWithActions extends User {
   actions: JSX.Element;
@@ -53,9 +54,13 @@ export function Users() {
   if(!currentUser.isAdmin){
     navigate('/access-denied')
   }
-  const [users, setUsers] = useState<User[]>();
   const [selected, setSelected] = useState([])
-  
+  const [filterValues, setFilterValues] = useState({
+    username: '',
+    full_name: '',
+    is_active: '',
+    email: ''
+  });
   
   //modal state variables
   const [userId, setUserId] = useState('')
@@ -96,6 +101,25 @@ export function Users() {
   const deleteMultiple = () => {
     return handleDelete(selected)
   }
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+  }
+  const filterCommit = () => {
+    dispatch({ type: 'set-filter', payload: filterValues})
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      username: '',
+      full_name: '',
+      is_active: '',
+      email: ''
+    });
+    dispatch({ type: 'reset'})
+  }
   const columns: Column[] = [
     // full_name
     // email
@@ -107,9 +131,16 @@ export function Users() {
       maxWidth: '5em'
     },
     {
-      name: 'Name',
+      name: <HeaderFilter label='Name' name='full_name' defaultValue={filterValues.full_name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: User) => row.full_name,
-      sortable: true,
+    },
+    {
+      name: <HeaderFilter label='Username' name='username' defaultValue={filterValues.username} onCommit={filterCommit} onChange={handleFilter}/>,
+      selector: (row: User) => row.username,
+    },
+    {
+      name: <HeaderFilter label='Email' name='email' defaultValue={filterValues.email} onCommit={filterCommit} onChange={handleFilter}/>,
+      selector: (row: User) => row.email
     },
     {
       name: 'Phone',
@@ -124,12 +155,12 @@ export function Users() {
       selector: (row: User) => row.position
     },
     {
-      name: 'Admin?',
-      selector: (row: User) => row.is_superuser ? "Yes" : "No"
-    },
-    {
       name: 'Active?',
       selector: (row: User) => row.is_active ? "Yes" : "No"
+    },
+    {
+      name: 'Admin?',
+      selector: (row: User) => row.is_superuser ? "Yes" : "No"
     },
   ];
   const handleDelete = async (ids: any[]) => {
@@ -244,7 +275,9 @@ export function Users() {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
+        <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
         <div className='mt-20 w-xl'>
+          
           {state.mode == 'loading' && <RowsSkeleton numRows={state.queryParams.limit} />}
           <div className={state.mode != 'idle' ? 'hidden' : ''}>
             <DataTable

@@ -156,12 +156,8 @@ const Vulnerabilities = () => {
     vulnerabilityseverity: '',
     cvssscore: '',
   });
-  const filterCommit = (event:any) => {
+  const filterCommit = () => {
     dispatch({ type: 'set-filter', payload: filterValues})
-  }
-  function isFiltered(): boolean {
-    const { limit, offset, ...rest } = state.queryParams;
-    return Object.values(rest).some(value => value !== '');
   }
   const columns: Column[] = [
     {
