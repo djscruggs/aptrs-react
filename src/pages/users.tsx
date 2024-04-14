@@ -97,7 +97,6 @@ export function Users() {
     return handleDelete(selected)
   }
   const columns: Column[] = [
-    // filter params
     // full_name
     // email
     // position
@@ -117,16 +116,20 @@ export function Users() {
       selector: (row: User) => row.number
     },
     {
-      name: 'Address',
-      selector: (row: User) => row.email
-    },
-    {
       name: 'Company',
       selector: (row: User) => row.company
     },
     {
+      name: 'Position',
+      selector: (row: User) => row.position
+    },
+    {
       name: 'Admin?',
       selector: (row: User) => row.is_superuser ? "Yes" : "No"
+    },
+    {
+      name: 'Active?',
+      selector: (row: User) => row.is_active ? "Yes" : "No"
     },
   ];
   const handleDelete = async (ids: any[]) => {

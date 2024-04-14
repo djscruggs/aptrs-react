@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { BackspaceIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import { PiKeyReturnThin } from "react-icons/pi"
 import DatePicker from "react-datepicker";
+import { DatasetState } from '../lib/useDataReducer'
+import { CiCircleRemove } from "react-icons/ci";
 
 interface HeaderFilterProps {
   label: string;
@@ -12,7 +14,27 @@ interface HeaderFilterProps {
   onCommit: (event: any) => void;
 }
 
-export default function HeaderFilter({label, name, defaultValue, isDate = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
+export function isFiltered(queryParams: DatasetState['queryParams']): boolean {
+  const { limit, offset, ...rest } = queryParams;
+  return Object.values(rest).some(value => value !== '');
+}
+
+interface ClearFilterProps {
+  queryParams: DatasetState['queryParams'];
+  clearFilter: (event: any) => void;
+}
+export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.Element {
+  if(!isFiltered(queryParams)) {
+    return <></>
+  }
+  return (
+      <div className='text-sm text-center my-4'  onClick={clearFilter}>
+          <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
+      </div>
+  )
+}
+
+export function HeaderFilter({label, name, defaultValue, isDate = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
   const [active, setActive] = useState(Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)

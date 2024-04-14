@@ -12,8 +12,7 @@ import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useData
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
 import SearchBar from "../components/searchbar";
-import HeaderFilter from "../components/headerFilter";
-import { CiCircleRemove } from "react-icons/ci";
+import { HeaderFilter, ClearFilter} from "../components/headerFilter";
 import { RowsSkeleton } from '../components/skeletons'
 
  
@@ -218,10 +217,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
       navigate(location.pathname, { replace: true });
     }
   }
-  function isFiltered(): boolean {
-    const { limit, offset, ...rest } = state.queryParams;
-    return Object.values(rest).some(value => value !== '');
-  }
   const clearSearch = () => {
     return handleSearch('')
   }
@@ -253,11 +248,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
-        {isFiltered() &&
-          <div className='text-sm text-center my-4'  onClick={clearFilter}>
-              <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
-          </div>
-        }
+        <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable

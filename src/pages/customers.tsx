@@ -16,8 +16,7 @@ import CustomerForm from './customer-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
 import {Customer, Column, FilteredSet} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
-import { CiCircleRemove } from "react-icons/ci";
-import HeaderFilter from "../components/headerFilter";
+import { HeaderFilter, ClearFilter } from "../components/headerFilter";
 
 export function Customers() {
   const initialState: DatasetState = {
@@ -244,11 +243,7 @@ export function Customers() {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
-        {isFiltered() &&
-          <div className='text-sm text-center my-4'  onClick={clearFilter}>
-              <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
-          </div>
-          }
+        <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
