@@ -14,6 +14,7 @@ import Button from '../components/button';
 import SearchBar from "../components/searchbar";
 import HeaderFilter from "../components/headerFilter";
 import { CiCircleRemove } from "react-icons/ci";
+import { RowsSkeleton } from '../components/skeletons'
 
  
 export interface ProjectsProps {
@@ -22,14 +23,10 @@ export interface ProjectsProps {
   refresh?: boolean | undefined
   onClear?: () => void //call back to clear search if embedded
 }
-
-
  
 interface ProjectWithActions extends Project {
   actions: JSX.Element;
 }
-
-
 
 export function Projects(props:ProjectsProps): JSX.Element {
   const initialState: DatasetState = {
@@ -61,10 +58,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   //partial reducer for search and pagination; the rest is handled by useDataReducer
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
     switch (action.type) {
-      case 'set-filter':{
-        let newQueryParams = {...state.queryParams, ...action.payload}
-        return {...state, queryParams: newQueryParams};
-      } 
       case 'set-search': {
         if(state.queryParams.name === action.payload) {
           return state
@@ -114,16 +107,22 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
   const handleFilter = (event:any) => {
     const {name, value} = event.target
-    console.log(name, value)
-    
-    // setFilterValues((prev:any) => ({...prev, [event.target.name]: event.target.value}))
-    // setFilterValues({...filterValues, [event.target.name]: event.target.value})
     setFilterValues((prevFilterValues) => ({
       ...prevFilterValues,
       [name]: value,
     }));
-    
-    
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      name: '',
+      companyname: '',
+      owner: '',
+      status: '',
+      projecttype: '',
+      startdate: '',
+      enddate_before: ''
+    })
+    dispatch({ type: 'reset'})
   }
   const filterCommit = (event:any) => {
     dispatch({ type: 'set-filter', payload: filterValues})
@@ -219,8 +218,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
       navigate(location.pathname, { replace: true });
     }
   }
-  function isFiltered(queryParams: DatasetState['queryParams']): boolean {
-    const { limit, offset, ...rest } = queryParams;
+  function isFiltered(): boolean {
+    const { limit, offset, ...rest } = state.queryParams;
     return Object.values(rest).some(value => value !== '');
   }
   const clearSearch = () => {
@@ -255,13 +254,14 @@ export function Projects(props:ProjectsProps): JSX.Element {
           </p>
         }
         {/* {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}  */}
-        
-        <div >
-          {isFiltered(state.queryParams) &&
-          <div className='text-sm text-center my-4'  onClick={clearSearch}>
+        {isFiltered() &&
+          <div className='text-sm text-center my-4'  onClick={clearFilter}>
               <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
           </div>
           }
+        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        <div className={state.mode != 'idle' ? 'hidden' : ''}>
+          
           <DataTable
             columns={columns}
             data={formatDataActions(state.data)}

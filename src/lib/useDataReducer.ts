@@ -38,6 +38,10 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
     const result = reducer(state, action)
     if(result) return result
     switch (action.type) {
+      case 'set-filter':{
+        let newQueryParams = {...state.queryParams, ...action.payload}
+        return {...state, queryParams: newQueryParams};
+      }       
       case 'reset': {
         const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
         return {...initialState, queryParams: newQueryParams};

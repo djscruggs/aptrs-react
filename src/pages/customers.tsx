@@ -16,8 +16,8 @@ import CustomerForm from './customer-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
 import {Customer, Column, FilteredSet} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
-
-
+import { CiCircleRemove } from "react-icons/ci";
+import HeaderFilter from "../components/headerFilter";
 
 export function Customers() {
   const initialState: DatasetState = {
@@ -106,7 +106,43 @@ export function Customers() {
     loadData()
   }, [refresh, state.queryParams]);
   
-  
+  // filter params
+  // full_name
+  // company
+  // email
+  // position
+  // is_active
+  const [filterValues, setFilterValues] = useState({
+    full_name: '',
+    company: '',
+    email: '',
+    position: '',
+    is_active: '',
+  });
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      full_name: '',
+      company: '',
+      email: '',
+      position: '',
+      is_active: '',
+    });
+    dispatch({ type: 'reset'})
+  }
+  const filterCommit = (event:any) => {
+    dispatch({ type: 'set-filter', payload: filterValues})
+  }
+  function isFiltered(): boolean {
+    const { limit, offset, ...rest } = state.queryParams;
+    return Object.values(rest).some(value => value !== '');
+  }
   const columns: Column[] = [
     {
       name: 'Action',
@@ -114,22 +150,19 @@ export function Customers() {
       maxWidth: '5em'
     },
     {
-      name: 'Name',
+      name: <HeaderFilter label='Name' name='full_name' defaultValue={filterValues.full_name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Customer) => row.full_name,
-      sortable: true,
     },
     {
-      name: 'Company',
+      name: <HeaderFilter label='Company' name='company' defaultValue={filterValues.company} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Customer) => row.company,
-      sortable: true,
     },
     {
-      name: 'Position',
-      selector: (row: Customer) => row.position,
-      sortable: true,
+      name: <HeaderFilter label='Position' name='position' defaultValue={filterValues.position} onCommit={filterCommit} onChange={handleFilter}/>,
+      selector: (row: Customer) => row.position,      
     },
     {
-      name: 'Email',
+      name: <HeaderFilter label='Email' name='email' defaultValue={filterValues.email} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Customer) => row.email,
     },
     {
@@ -211,6 +244,11 @@ export function Customers() {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
+        {isFiltered() &&
+          <div className='text-sm text-center my-4'  onClick={clearFilter}>
+              <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
+          </div>
+          }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
@@ -225,6 +263,7 @@ export function Customers() {
               onChangeRowsPerPage={handlePerRowsChange}
               onChangePage={handlePageChange}
               striped
+              progressComponent={<RowsSkeleton numRows={state.queryParams.limit}/>}
               onSelectedRowsChange={handleSelectedChange}
           />
         </div>

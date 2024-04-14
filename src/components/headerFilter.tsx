@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { BackspaceIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import { PiKeyReturnThin } from "react-icons/pi"
 import DatePicker from "react-datepicker";
@@ -16,6 +16,7 @@ export default function HeaderFilter({label, name, defaultValue, isDate = false,
   const [active, setActive] = useState(Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)
+  const inputRef = useRef(null);
   const filterKeyDown = (event:any) => {
     if(event.key === 'Enter') {
       onCommit(event)
@@ -33,7 +34,7 @@ export default function HeaderFilter({label, name, defaultValue, isDate = false,
       onChange(event)
     }
   }
-  const handlBlur = () => {
+  const handleBlur = () => {
     setFocus(false)
     setActive(Boolean(value))
   }
@@ -56,20 +57,22 @@ export default function HeaderFilter({label, name, defaultValue, isDate = false,
     {active ? (
       <>
         {isDate ? (
-           <DatePicker
+          <DatePicker
            key={name}
+           ref={inputRef}
            id={name}
            name={name}
            placeholderText='Select date'
            dateFormat="yyyy-MM-dd"
            onChange={handleDatePicker}
            selected={value ? new Date(value) : ''}
-           onBlur={handlBlur}
+           onBlur={handleBlur}
            onKeyDown={filterKeyDown}
-         />
+          />
         ): (
         <input 
           type="text" className='p-2 border border-gray-300 rounded-md w-full' 
+          ref={inputRef}
           autoFocus={active} 
           key={label+name} 
           name={name} 
@@ -77,7 +80,7 @@ export default function HeaderFilter({label, name, defaultValue, isDate = false,
           value={value} 
           onKeyDown={filterKeyDown} 
           onChange={handleChange} 
-          onBlur={handlBlur}
+          onBlur={handleBlur}
         />)}
         {value && 
           <BackspaceIcon className='-ml-6 w-5 h-5 text-secondary' onClick={()=>clearValue()}/>

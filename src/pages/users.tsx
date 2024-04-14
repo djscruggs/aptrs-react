@@ -97,17 +97,11 @@ export function Users() {
     return handleDelete(selected)
   }
   const columns: Column[] = [
-    // "username": "manager",
-    //     "full_name": "manager user",
-    //     "email": "manager@manager.com",
-    //     "is_staff": true,
-    //     "is_active": true,
-    //     "is_superuser": false,
-    //     "profilepic": "/media/profile/avatar-1.svg",
-    //     "number": null,
-    //     "company": "AnoF PVT LTD",
-    //     "position": null,
-    //     "groups":
+    // filter params
+    // full_name
+    // email
+    // position
+    // is_active
     {
       name: 'Action',
       selector: (row: any) => row.actions,
