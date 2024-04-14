@@ -82,7 +82,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   
   
   useEffect(() => {
-    console.log(state.queryParams)
     loadData()
   }, [state.queryParams])
   
