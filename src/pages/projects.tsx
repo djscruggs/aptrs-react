@@ -253,15 +253,13 @@ export function Projects(props:ProjectsProps): JSX.Element {
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
         }
-        {/* {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>}  */}
         {isFiltered() &&
           <div className='text-sm text-center my-4'  onClick={clearFilter}>
               <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
           </div>
-          }
+        }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
-          
           <DataTable
             columns={columns}
             data={formatDataActions(state.data)}

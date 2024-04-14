@@ -12,7 +12,8 @@ import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { useVulnerabilityColor } from '../lib/customHooks';
 import { toast } from 'react-hot-toast';
-
+import { CiCircleRemove } from "react-icons/ci";
+import HeaderFilter from '../components/headerFilter';
 
 
 
@@ -50,8 +51,8 @@ const Vulnerabilities = () => {
   };
   const [state, dispatch] = useDataReducer(reducer, initialState);
   const [selected, setSelected] = useState([])
-  
   const navigate = useNavigate()
+  
   const loadData = async () => {
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
@@ -133,7 +134,36 @@ const Vulnerabilities = () => {
     return temp;
   
   }
-  
+  // vulnerabilityname
+  // vulnerabilityseverity
+  // cvssscore
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      vulnerabilityname: '',
+      vulnerabilityseverity: '',
+      cvssscore: '',
+    })
+    dispatch({ type: 'reset'})
+  }
+  const [filterValues, setFilterValues] = useState({
+    vulnerabilityname: '',
+    vulnerabilityseverity: '',
+    cvssscore: '',
+  });
+  const filterCommit = (event:any) => {
+    dispatch({ type: 'set-filter', payload: filterValues})
+  }
+  function isFiltered(): boolean {
+    const { limit, offset, ...rest } = state.queryParams;
+    return Object.values(rest).some(value => value !== '');
+  }
   const columns: Column[] = [
     {
       name: 'Action',
@@ -141,24 +171,23 @@ const Vulnerabilities = () => {
       maxWidth: '5em'
     },
     {
-      name: 'Name',
+      name: <HeaderFilter label='Name' name='vulnerabilityname' defaultValue={filterValues.vulnerabilityname} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: VulnWithActions) => row.vulnerabilityname,
-      sortable: true,
       maxWidth: '25em'
     },
     {
       name: 'Severity',
       selector: (row: VulnWithActions) => row.severity,
-      sortable: true,
       maxWidth: '5em'
     },
     {
-      name: 'CVSS 3.1',
+      name: <HeaderFilter label='CVSS 3.1' name='cvssscore' defaultValue={filterValues.cvssscore} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: VulnWithActions) => row.cvssscore,
-      maxWidth: '5em'
+      maxWidth: '25em'
     },
     
   ]
+  
   const deleteMultiple = () => {
     return handleDelete(selected)
   }
@@ -193,6 +222,11 @@ const Vulnerabilities = () => {
             Results for &quot;{state.queryParams.vulnerabilityname}&quot;
             <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
           </p>
+        }
+        {isFiltered() &&
+          <div className='text-sm text-center my-4'  onClick={clearFilter}>
+              <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
+          </div>
         }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
