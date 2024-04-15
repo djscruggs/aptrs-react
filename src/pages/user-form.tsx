@@ -83,7 +83,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const [errors, setErrors] = useState<FormErrors>({});
   
   function canSubmit():boolean {
-    if(!formData.id){
+    if(formData.id){
       return true;
     }
     return !btnDisabled && validPassword(formData.password) && formData.password == formData.password_check
@@ -486,8 +486,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               </Button>
               <Button 
                 className="bg-red-500 ml-1"
-                onClick = {closeModal}
-                disabled={!canSubmit()}>
+                onClick = {closeModal}>
                   Cancel
               </Button>
           </div>

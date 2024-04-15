@@ -10,6 +10,7 @@ interface HeaderFilterProps {
   name: string;
   defaultValue: string;
   isDate?: boolean;
+  isBoolean?: boolean;
   onChange: (event: any) => void;
   onCommit: (event: any) => void;
 }
@@ -34,7 +35,7 @@ export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.E
   )
 }
 
-export function HeaderFilter({label, name, defaultValue, isDate = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
+export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
   const [active, setActive] = useState(Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)
@@ -43,6 +44,17 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, onChang
     if(event.key === 'Enter') {
       onCommit(event)
     }
+  }
+  const handleRadioChange = (event:any) => {
+    setValue(event.target.value)
+    setFocus(true)
+    const ev = {
+      target: {
+        name: name,
+        value: event.target.value
+      }
+    }
+    onChange(ev)
   }
   const clearValue = () => {
     setValue('')
@@ -78,7 +90,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, onChang
     <>
     {active ? (
       <>
-        {isDate ? (
+        {isDate || isBoolean ? (
+          <>
+          {isDate ? (
           <DatePicker
            key={name}
            ref={inputRef}
@@ -90,7 +104,16 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, onChang
            selected={value ? new Date(value) : ''}
            onBlur={handleBlur}
            onKeyDown={filterKeyDown}
-          />
+          />) : (
+            <div className='block'>
+              <label className='ml-2'>{label}</label>
+              <div className='absolute top-9 bg-white z-50 p-1 border border-gray-300 rounded-md' onKeyDown={filterKeyDown}>
+                <div><input type='radio' name={name} value='1' checked={value==='1'} onChange={handleRadioChange} onBlur={handleBlur} /> Yes</div>
+                <div><input type='radio' name={name} value='0' checked={value==='0'} onChange={handleRadioChange} onBlur={handleBlur}/> No</div>
+              </div>
+            </div>
+          )}
+        </>
         ): (
         <input 
           type="text" className='p-2 border border-gray-300 rounded-md w-full' 
@@ -104,13 +127,16 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, onChang
           onChange={handleChange} 
           onBlur={handleBlur}
         />)}
-        {value && 
+        {value && !isBoolean && (
           <BackspaceIcon className='-ml-6 w-5 h-5 text-secondary' onClick={()=>clearValue()}/>
-        }
-        {active && focus &&
+        )}
+        {active && focus && !isBoolean &&
           <span className='absolute top-10 left-4 bg-white bg-opacity-75 p-1 w-5/8 border border-gray-300 rounded-md'><PiKeyReturnThin className='inline w-5 h-5' /> to search</span>
         }
-        {!value && 
+        {active && focus && isBoolean &&
+          <span className='absolute top-20 left-4 bg-white  p-1 w-5/8 border border-gray-300 rounded-md'><PiKeyReturnThin className='inline w-5 h-5' /> to search</span>
+        }
+        {!value && !isBoolean  && 
           <FunnelIcon key={name+ 'icon'} className='-ml-6 w-4 h-4' /> 
         }
       </>

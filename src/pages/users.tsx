@@ -58,7 +58,7 @@ export function Users() {
   const [filterValues, setFilterValues] = useState({
     username: '',
     full_name: '',
-    is_active: '',
+    is_active: 1,
     email: ''
   });
   
@@ -115,7 +115,7 @@ export function Users() {
     setFilterValues({
       username: '',
       full_name: '',
-      is_active: '',
+      is_active: 1,
       email: ''
     });
     dispatch({ type: 'reset'})
@@ -155,7 +155,7 @@ export function Users() {
       selector: (row: User) => row.position
     },
     {
-      name: 'Active?',
+      name: <HeaderFilter label='Active?' name='is_active' isBoolean={true} defaultValue={filterValues.is_active} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: User) => row.is_active ? "Yes" : "No"
     },
     {
