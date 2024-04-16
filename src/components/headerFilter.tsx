@@ -36,7 +36,7 @@ export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.E
 }
 
 export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
-  const [active, setActive] = useState(Boolean(defaultValue))
+  const [active, setActive] = useState(isBoolean ? false : Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)
   const inputRef = useRef(null);
