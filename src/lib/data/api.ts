@@ -159,9 +159,32 @@ export async function searchProjects(name:string) {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
+export async function getProjectReport(id: string, format:string) {
+  if(!id) {
+    throw new Error('Project ID is required to fetch a report')
+  }
+  const params = {
+    Format: format,
+    Type: "Re-Audit",
+    Standard: [
+      "OWASP Top 10 web",
+      "OWASP Top 10 API",
+      "NIST"
+    ]
+  }
+  const url = apiUrl(`project/report/${id}/`);
+  const response = await axios.post(url, params, authHeaders())
+  return response.data;
+}
 export async function getProject(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/get-project/${id}/`);
+  const response = await axios.get(url, authHeaders())
+  return response.data;
+}
+export async function getProjectScopes(id: string | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`project/scope/${id}/`);
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
