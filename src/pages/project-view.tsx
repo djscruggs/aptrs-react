@@ -384,10 +384,10 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
   const [scopeError, setScopeError] = useState('')
   
   const saveScope = async () => {
-    if(!validator.isURL(scope)){
-      setScopeError('Invalid URL')
-      return
-    }
+    // if(!validator.isURL(scope)){
+    //   setScopeError('Invalid URL')
+    //   return
+    // }
     setSaving(true)
     const data = [{scope, description}]
     try {
@@ -406,11 +406,11 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
   }
   const handleScopeChange = (event: any) => {
     setScope(event.target.value)
-    if(!validator.isURL(event.target.value)){
-      setScopeError('Invalid URL')
-    } else {
-      setScopeError('')
-    }
+    // if(!validator.isURL(event.target.value)){
+    //   setScopeError('Invalid URL')
+    // } else {
+    //   setScopeError('')
+    // }
   }
   const handleDescriptionChange = (event: any) => {
     setDescription(event.target.value)
@@ -423,8 +423,8 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
             type="text"
             name='scope'
             id='scope'
-            placeholder='http://example.com'
-            className={scopeError ? StyleTextfieldError : StyleTextfield}
+            placeholder='Host name or IP address'
+            className={StyleTextfield}
             value={scope}
             onChange={handleScopeChange}
           />
