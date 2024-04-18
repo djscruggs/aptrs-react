@@ -188,6 +188,23 @@ export async function getProjectScopes(id: string | undefined) {
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function insertProjectScopes(projectId: number , scope: any): Promise<any> {
+  const url = apiUrl(`project/scope/add/${projectId}/`);
+  const response = await axios.post(url, scope, authHeaders())
+  return response.data;
+}
+export async function updateProjectScope(id: number , scope: any): Promise<any> {
+  const url = apiUrl(`project/scope/edit/${id}/`);
+  const response = await axios.post(url, scope, authHeaders())
+  return response.data;
+}
+export async function deleteProjectScope(id: number | number[] ): Promise<any> {
+  const url = apiUrl('project/scope/delete/');
+  let toDelete = Array.isArray(id) ? id : [id]
+  const response = await axios.delete(url, {data: toDelete, ...authHeaders()})
+  return response.data;
+}
+
 export async function deleteProjects(ids: any[]): Promise<any> {
   const url = apiUrl('project/delete-project/');
   const config = {
