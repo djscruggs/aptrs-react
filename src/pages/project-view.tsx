@@ -181,7 +181,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                   <Tab key="summary" value="summary">Summary</Tab>
                   <Tab key="vulnerabilities" value="vulnerabilities">Vulnerabilities</Tab>
                   <Tab key="scopes" value="scopes">Scopes</Tab>
-                  <Tab key="report" value="report">Report</Tab>
+                  <Tab key="report" value="report">Reports</Tab>
                 </TabsHeader>
                 <TabsBody>
                   <TabPanel value="summary">
@@ -363,6 +363,7 @@ interface ReportFormProps {
 }
 function ReportForm(props: ReportFormProps){
   const {projectId, scopes} = props
+  const [error, setError] = useState('')
   if(!scopes || scopes.length === 0){
     return (
       <>
@@ -375,18 +376,18 @@ function ReportForm(props: ReportFormProps){
     projectId: projectId,
     Format: '',
     Type: '',
-    Standard: []
+    Standard: [] as string[]
   })
   const [loading, setLoading] = useState(false)
   const handleChange = (event:any) => {
     setFormData({...formData, [event.target.name]: event.target.value})
   }
   const handleCheckboxChange = (event:any) => {
-    const {Standard} = formData
+    const { Standard } = formData;
     if(Standard?.includes(event.target.value)){
       setFormData({...formData, Standard: Standard.filter((item:string)=>item !== event.target.value)})
     } else {
-      setFormData({...formData, Standard: [...Standard || [], event.target.value]})
+      setFormData({...formData, Standard: [...Standard, event.target.value]})
     }
   }
   const isValid = () => {
@@ -394,13 +395,21 @@ function ReportForm(props: ReportFormProps){
   }
   const fetchReport = async () => {
     setLoading(true)
-    const report = await getProjectReport(formData)
-    setLoading(false)
-    console.log(report)
+    try {
+      const report = await getProjectReport(formData)
+      console.log(report)
+    } catch(error){
+      setError("Error fetching report")
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+    
   }
   
   return(
     <>
+    {error && <FormErrorMessage message={error}/>}
     <label htmlFor='Format'>Format</label>
     <select name='Format' id='Format' className={StyleTextfield} onChange={handleChange}>
       <option value="">Select...</option>
