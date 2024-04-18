@@ -16,11 +16,11 @@ import { getProject,
         deleteProjectScope } from '../lib/data/api';
 import { Project, Vulnerability } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
-import { ModalErrorMessage, StyleLabel, StyleTextfield, StyleTextfieldError } from '../lib/formstyles';
+import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
 import PageTitle from '../components/page-title';
 import { useDebounce } from '@uidotdev/usehooks';
 import { toast } from 'react-hot-toast';
-import { List, ListItem, Spinner } from '@material-tailwind/react';
+import { List, ListItem, Select, Spinner } from '@material-tailwind/react';
 import {
   Tabs,
   TabsHeader,
@@ -61,7 +61,6 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const debouncedValue = useDebounce<string>(searchValue, 500)
   const [searchResults, setSearchResults] = useState<{ id:number, vulnerabilityname: string }[]>([])
   const [showSearchResults, setShowSearchResults] = useState(false)
-  const [reportFormat, setReportFormat] = useState('')
   const [editingScope, setEditingScope] = useState<number | null>(null)  
   const [newScope, setNewScope] = useState(false)
   const navigate = useNavigate()
@@ -120,11 +119,6 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     if(event.target.value==''){
       setSearchResults([])
     }
-  }
-  const fetchReport = async () => {
-    if(!id) return
-    const report = await getProjectReport(id, reportFormat)
-    console.log(report)
   }
   async function deleteFinding(event:any, id:any): Promise<void> {
     event.stopPropagation()
@@ -347,11 +341,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     
                   </TabPanel>
                   <TabPanel value="report">
-                    <div className="mt-4">
-                      <label className={StyleLabel}>
-                        Report
-                      </label>
-                      <button className='bg-primary text-white p-2 rounded-md block' onClick={()=>fetchReport()}>Fetch Report</button>
+                    <div className="mt-4 max-w-xs">
+                      <ReportForm projectId={Number(id)} scopes={scopes} />
                     </div>
                   </TabPanel>
                     
@@ -366,7 +357,105 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   );
 }
 
-
+interface ReportFormProps {
+  projectId: number
+  scopes: any[]
+}
+function ReportForm(props: ReportFormProps){
+  const {projectId, scopes} = props
+  if(!scopes || scopes.length === 0){
+    return (
+      <>
+      <FormErrorMessage message="No scopes defined"/>
+      <p>Please add at least one scope to this project to generate a report.</p>
+      </>
+    )
+  }
+  const [formData, setFormData] = useState({
+    projectId: projectId,
+    Format: '',
+    Type: '',
+    Standard: []
+  })
+  const [loading, setLoading] = useState(false)
+  const handleChange = (event:any) => {
+    setFormData({...formData, [event.target.name]: event.target.value})
+  }
+  const handleCheckboxChange = (event:any) => {
+    const {Standard} = formData
+    if(Standard?.includes(event.target.value)){
+      setFormData({...formData, Standard: Standard.filter((item:string)=>item !== event.target.value)})
+    } else {
+      setFormData({...formData, Standard: [...Standard || [], event.target.value]})
+    }
+  }
+  const isValid = () => {
+    return formData.Format && formData.Type && formData.Standard && formData.Standard.length > 0
+  }
+  const fetchReport = async () => {
+    setLoading(true)
+    const report = await getProjectReport(formData)
+    setLoading(false)
+    console.log(report)
+  }
+  
+  return(
+    <>
+    <label htmlFor='Format'>Format</label>
+    <select name='Format' id='Format' className={StyleTextfield} onChange={handleChange}>
+      <option value="">Select...</option>
+      <option value="pdf">PDF</option>
+      <option value="html">HTML</option>
+      <option value="docx">Microsoft Word</option>
+      <option value="excel">Microsoft Excel</option>
+    </select>
+    <label htmlFor='Type'>Type</label>
+    <select name='Type' id='Type' className={StyleTextfield} onChange={handleChange}>
+      <option value="">Select...</option>
+      <option value="Re-Audit">Re-Audit</option>
+      <option value="Re-Assessment">Re-Assessment</option>
+    </select>
+    <div className='mt-4'>
+      <input 
+        type="checkbox" 
+        id="Standard_0"
+        name="Standard[]" 
+        value="OWASP Top 10 web" 
+        className={StyleCheckbox}
+        onChange={handleCheckboxChange}
+      /> 
+      <label className='ml-2' htmlFor='Standard_0'>
+          OWASP Top 10 web
+      </label>
+    </div>
+    <div>
+      <input 
+        type="checkbox" 
+        id="Standard_1"
+        name="Standard[]" 
+        value="OWASP Top 10 API" 
+        className={StyleCheckbox}
+        onChange={handleCheckboxChange}
+      /> 
+      <label className='ml-2' htmlFor='Standard_1'>
+        OWASP Top 10 API
+      </label>
+    </div>
+    <div>
+      <input 
+        type="checkbox" 
+        id="Standard_2"
+        name="Standard[]" 
+        value="NIST" 
+        className={StyleCheckbox}
+        onChange={handleCheckboxChange}
+      /> 
+      <label className='ml-2' htmlFor='Standard_2'>NIST</label>
+    </div>
+    <button className='bg-primary text-white p-2 rounded-md block mt-6 disabled:opacity-50' disabled={loading || !isValid()} onClick={()=>fetchReport()}>Fetch Report</button>
+    </>
+  )
+}
 
 interface ScopeFormProps {
   projectId: number
