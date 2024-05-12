@@ -32,7 +32,7 @@ import { BackspaceIcon } from '@heroicons/react/24/outline'
 import { useVulnerabilityColor } from '../lib/customHooks';
 import { XCircleIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import validator from 'validator'
+import {saveAs} from 'file-saver'
 
 
 interface ProjectViewProps {
@@ -341,7 +341,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     
                   </TabPanel>
                   <TabPanel value="report">
-                    <div className="mt-4 max-w-xs">
+                    <div className="mt-4 max-w-lg">
                       <ReportForm projectId={Number(id)} scopes={scopes} />
                     </div>
                   </TabPanel>
@@ -364,14 +364,6 @@ interface ReportFormProps {
 function ReportForm(props: ReportFormProps){
   const {projectId, scopes} = props
   const [error, setError] = useState('')
-  if(!scopes || scopes.length === 0){
-    return (
-      <>
-      <FormErrorMessage message="No scopes defined"/>
-      <p>Please add at least one scope to this project to generate a report.</p>
-      </>
-    )
-  }
   const [formData, setFormData] = useState({
     projectId: projectId,
     Format: '',
@@ -396,8 +388,14 @@ function ReportForm(props: ReportFormProps){
   const fetchReport = async () => {
     setLoading(true)
     try {
-      const report = await getProjectReport(formData)
-      console.log(report)
+      const response = await getProjectReport(formData)
+      const file = new Blob([response.data], { type: "application/pdf" });
+      console.log(file)
+      
+      const fileURL = URL.createObjectURL(file);
+      console.log(fileURL)
+      
+      // window.open(fileURL, '_blank');
     } catch(error){
       setError("Error fetching report")
       console.error(error)
@@ -405,6 +403,14 @@ function ReportForm(props: ReportFormProps){
       setLoading(false)
     }
     
+  }
+  if(!scopes || scopes.length === 0){
+    return (
+      <>
+      <FormErrorMessage message="No scopes defined"/>
+      <p>Please add at least one scope to this project to generate a report.</p>
+      </>
+    )
   }
   
   return(
@@ -414,7 +420,6 @@ function ReportForm(props: ReportFormProps){
     <select name='Format' id='Format' className={StyleTextfield} onChange={handleChange}>
       <option value="">Select...</option>
       <option value="pdf">PDF</option>
-      <option value="html">HTML</option>
       <option value="docx">Microsoft Word</option>
       <option value="excel">Microsoft Excel</option>
     </select>

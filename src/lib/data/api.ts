@@ -166,10 +166,12 @@ interface ReportParams {
   Standard: string[];
 }
 export async function getProjectReport(props: ReportParams) {
+  console.log(props)
   const {projectId, ...params} = props
+  
   const url = apiUrl(`project/report/${projectId}/`);
-  const response = await axios.post(url, params, authHeaders())
-  return response.data;
+  const response = await axios.post(url,params, authHeaders())
+  return response
 }
 export async function getProject(id: string | undefined) {
   if(!id) return null;

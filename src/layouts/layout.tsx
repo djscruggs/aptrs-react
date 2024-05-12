@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children}) => {
               
             <div className="flex-grow p-6 md:overflow-y-auto md:p-12 cursor-pointer">
                 {currentUser &&
-                  <div className="avatar placeholder absolute top-0 right-0 pt-8 pr-14 flex items-center justify-center">
+                  <div className="avatar placeholder absolute top-0 right-0 pt-4 pr-14 flex items-center justify-center">
                      {currentUser.profilepic && 
                         <Link className='text-white' to="/profile">
                           <Avatar src={avatarUrl(currentUser.profilepic)} size="lg"/>

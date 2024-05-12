@@ -23,6 +23,7 @@
     "browserslist-to-esbuild": "^2.1.1",
     "ckeditor5-custom-build": "file:packages/ckeditor5",
     "clsx": "^2.0.0",
+    "file-saver": "^2.0.5",
     "react": "^18.2.0",
     "react-data-table-component": "^7.6.1",
     "react-datepicker": "^4.24.0",
