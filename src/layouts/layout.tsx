@@ -1,18 +1,23 @@
 import SideNav from './sidenav'; 
+import { Outlet } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
 import {getInitials, avatarUrl} from '../lib/utilities'
 import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
+import { useEffect, useState } from 'react';
+import {LoginUser} from '../lib/data/definitions'
 
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-const Layout: React.FC<LayoutProps> = ({ children}) => {
-  const currentUser = useCurrentUser()
-  // can't use useLocation here because the layout it outside of the  Router in App.tsx
-  const location = document.location
+const Layout: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<LoginUser | null>(useCurrentUser())
+  // can't use useLocation here because the layout is outside of the  Router in App.tsx
+  const location = useLocation();
+  useEffect(() => {
+    const user = useCurrentUser()
+    setCurrentUser(user)
+  }, [location.pathname])
+   console.log('top of return, currentUser is ', currentUser)
   
   return (
         <>
@@ -41,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children}) => {
                       }
                   </div>
                 }
-              {children}
+              <Outlet />
             </div>
           </div>
         </>

@@ -168,9 +168,8 @@ interface ReportParams {
 export async function getProjectReport(props: ReportParams) {
   console.log(props)
   const {projectId, ...params} = props
-  
   const url = apiUrl(`project/report/${projectId}/`);
-  const response = await axios.post(url,params, authHeaders())
+  const response = await axios.get(url, {params:{...params,  responseType: 'blob'}, ...authHeaders()})
   return response
 }
 export async function getProject(id: string | undefined) {

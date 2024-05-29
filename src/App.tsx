@@ -1,6 +1,6 @@
 // App.tsx
-import React, {useState} from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Route, BrowserRouter as Router, Routes, Navigate } from 'react-router-dom';
 import Layout from './layouts/layout';
 import Home from './pages/home';
 import Login from './pages/login';
@@ -46,41 +46,48 @@ const App: React.FC = () => {
   }
   return (
         
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            {user &&
-            <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/companies" element={<Companies />} />
-            <Route path="/customers" element={<Customers />} />
-            <Route path="/projects" element={<Projects pageTitle='Projects' hideActions={false}/>} />
-            <Route path="/projects/new" element={<ProjectForm />} />
-            <Route path="/projects/:id" element={<ProjectView />} />
-            <Route path="/projects/:id/edit" element={<ProjectForm />} />
-            
-            <Route path="/projects/:projectId/vulnerability/add" element={<VulnerabilityForm action='addToProject' />} />
-            <Route path="/projects/:projectId/vulnerability/add/:id" element={<VulnerabilityForm action='addToProject'/>} />
-            <Route path="/projects/:projectId/vulnerability/edit/:id" element={<VulnerabilityForm action='saveToProject'/>} />
-            <Route path="/companies/:id/edit" element={<CompanyForm />} />
-            <Route path="/companies/new" element={<CompanyForm />} />
-            <Route path="/vulnerabilities" element={<Vulnerabilities />} />
-            <Route path="/vulnerabilities/:id/edit" element={<VulnerabilityForm />} />
-            <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/profile" element={<Profile />} />
-            </>
-            }
-            <Route path="/access-denied" element={<AccessDenied />} />
-            <Route path="/error" element={<ErrorPage />} />
-            
-            <Route path="404" element={<ErrorPage is404={true}/>} />
-            <Route path="*" element={<ErrorPage is404={true}/>} />
-          </Routes>
-        </Layout>
+        
+          <Router>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                {user ? 
+                  <>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/companies" element={<Companies />} />
+                    <Route path="/customers" element={<Customers />} />
+                    <Route path="/projects" element={<Projects pageTitle='Projects' hideActions={false}/>} />
+                    <Route path="/projects/new" element={<ProjectForm />} />
+                    <Route path="/projects/:id" element={<ProjectView />} />
+                    <Route path="/projects/:id/edit" element={<ProjectForm />} />
+                    
+                    <Route path="/projects/:projectId/vulnerability/add" element={<VulnerabilityForm action='addToProject' />} />
+                    <Route path="/projects/:projectId/vulnerability/add/:id" element={<VulnerabilityForm action='addToProject'/>} />
+                    <Route path="/projects/:projectId/vulnerability/edit/:id" element={<VulnerabilityForm action='saveToProject'/>} />
+                    <Route path="/companies/:id/edit" element={<CompanyForm />} />
+                    <Route path="/companies/new" element={<CompanyForm />} />
+                    <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+                    <Route path="/vulnerabilities/:id/edit" element={<VulnerabilityForm />} />
+                    <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/profile" element={<Profile />} />
+                    
+                    <Route path="*" element={<ErrorPage is404={true}/>} />
+                  </>
+                : 
+                  <>
+                    <Route path="404" element={<ErrorPage is404={true}/>} />
+                    <Route path="/access-denied" element={<AccessDenied />} />
+                    <Route path="/error" element={<ErrorPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />}/>
+                  </>
+                }
+              </Route>
+            </Routes>
+          </Router>
+        
   
   );
 };
-
 export default App;

@@ -364,6 +364,7 @@ interface ReportFormProps {
 function ReportForm(props: ReportFormProps){
   const {projectId, scopes} = props
   const [error, setError] = useState('')
+  const [reportUrl, setReportUrl] = useState('')
   const [formData, setFormData] = useState({
     projectId: projectId,
     Format: '',
@@ -389,10 +390,11 @@ function ReportForm(props: ReportFormProps){
     setLoading(true)
     try {
       const response = await getProjectReport(formData)
-      const file = new Blob([response.data], { type: "application/pdf" });
+      const file = new Blob([response.data], { type: `application/${formData.Format}` });
       console.log(file)
       
-      const fileURL = URL.createObjectURL(file);
+      const fileURL = URL.createObjectURL(file)
+      setReportUrl(fileURL)
       console.log(fileURL)
       
       // window.open(fileURL, '_blank');
@@ -412,7 +414,6 @@ function ReportForm(props: ReportFormProps){
       </>
     )
   }
-  
   return(
     <>
     {error && <FormErrorMessage message={error}/>}
@@ -467,7 +468,9 @@ function ReportForm(props: ReportFormProps){
       <label className='ml-2' htmlFor='Standard_2'>NIST</label>
     </div>
     <button className='bg-primary text-white p-2 rounded-md block mt-6 disabled:opacity-50' disabled={loading || !isValid()} onClick={()=>fetchReport()}>Fetch Report</button>
+    <iframe className='w-full h-[80vh]' src={reportUrl}></iframe>
     </>
+    
   )
 }
 
