@@ -17,8 +17,7 @@ const Layout: React.FC = () => {
     const user = useCurrentUser()
     setCurrentUser(user)
   }, [location.pathname])
-   console.log('top of return, currentUser is ', currentUser)
-  
+   
   return (
         <>
           <Toaster />
