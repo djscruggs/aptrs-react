@@ -275,8 +275,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                             })
                           }
                       
-                        <ListItem key='addNew' className="cursor-pointer w-xs" onClick={()=>handleSelectedItem('new')}><DocumentPlusIcon className="h-6 w-6 mr-1"/> Add New 
-                            or
+                        <ListItem key='addNew' className="cursor-pointer w-xs" onClick={()=>handleSelectedItem('new')}>
+                          <DocumentPlusIcon className="h-6 w-6 mr-1"/> 
+                            {showUploadCsv ? '': 'Add New or '}
                             <span className={`ml-1 cursor-pointer ${showUploadCsv ? 'text-secondary' : 'text-primary'}`} onClick={toggleShowUploadCsv}>
                               
                               {showUploadCsv ? 'Cancel Upload' : 'Upload CSV'}
