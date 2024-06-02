@@ -1,6 +1,7 @@
 import React, { 
   useState, 
   useEffect,
+  useRef
 } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { WithAuth } from "../lib/authutils";
@@ -30,10 +31,9 @@ import {
 } from "@material-tailwind/react";
 import { BackspaceIcon } from '@heroicons/react/24/outline'
 import { useVulnerabilityColor } from '../lib/customHooks';
-import { XCircleIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
+import {  DocumentPlusIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import {saveAs} from 'file-saver'
-
+import { uploadProjectVulnerabilities } from '../lib/data/api';
 
 interface ProjectViewProps {
   id?: string; // Make the ID parameter optional
@@ -61,7 +61,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const debouncedValue = useDebounce<string>(searchValue, 500)
   const [searchResults, setSearchResults] = useState<{ id:number, vulnerabilityname: string }[]>([])
   const [showSearchResults, setShowSearchResults] = useState(false)
-  const [editingScope, setEditingScope] = useState<number | null>(null)  
+  const [editingScope, setEditingScope] = useState<number | null>(null)
+  const [showUploadCsv, setShowUploadCsv] = useState(false)
   const [newScope, setNewScope] = useState(false)
   const navigate = useNavigate()
   
@@ -134,6 +135,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
       toast.error(String(error))
     }
   }
+  
   async function deleteScope(event:any, id:any): Promise<void> {
     event.stopPropagation()
     if (!confirm('Are you sure?')) {
@@ -166,7 +168,11 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     }
 
   }
-  
+  const toggleShowUploadCsv = (event:any) => {
+    event.stopPropagation()
+    event.preventDefault()
+    setShowUploadCsv(!showUploadCsv)
+  }
   
   if(loading) return <FormSkeleton numInputs={6} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
@@ -174,7 +180,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   return (
         <>
           {typeof(project) == 'object' && (
-            <Tabs value='summary'>
+            <Tabs value='vulnerabilities'>
               <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader>
@@ -265,12 +271,20 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     
                       <List className='max-w-xs'>
                           {searchResults.map((item, index)=>{
-                              return <ListItem key={`search-${index}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
+                              return <ListItem key={`search-${item.id}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
                             })
                           }
                       
-                        <ListItem key='addNew' className="cursor-pointer w-xs" onClick={()=>handleSelectedItem('new')}><DocumentPlusIcon className="h-6 w-6 mr-1"/> Add New</ListItem>
+                        <ListItem key='addNew' className="cursor-pointer w-xs" onClick={()=>handleSelectedItem('new')}><DocumentPlusIcon className="h-6 w-6 mr-1"/> Add New 
+                            or
+                            <span className={`ml-1 cursor-pointer ${showUploadCsv ? 'text-secondary' : 'text-primary'}`} onClick={toggleShowUploadCsv}>
+                              
+                              {showUploadCsv ? 'Cancel Upload' : 'Upload CSV'}
+                            </span>
+                          
+                        </ListItem> 
                       </List>
+                      <CSVInput projectId={Number(id)} visible={showUploadCsv}/>
                     </div>
                     
                     <div className='w-full'>
@@ -279,9 +293,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                         <div className='p-2 w-1/4'>Severity</div>
                         <div className='p-2 w-1/4'>Score</div>
                       </div>
-                      { findings.map((v, index)=>{
+                      { findings.map((v)=>{
                           return(
-                          <div className='flex' key={`finding-${index}`} >
+                          <div className='flex' key={`finding-${v.id}`} >
                               <div className='p-2 w-1/2'>
                                 <PencilSquareIcon className="w-4 h-4 inline mr-2" onClick={()=>editSelectedItem(v.id)}/>
                                 <TrashIcon onClick={(event)=>deleteFinding(event, v.id)} className="w-4 h-4 inline mr-2" />
@@ -389,7 +403,9 @@ function ReportForm(props: ReportFormProps){
   const fetchReport = async () => {
     setLoading(true)
     try {
+      
       const response = await getProjectReport(formData)
+      console.log(response.data)
       const file = new Blob([response.data], { type: `application/${formData.Format}` });
       console.log(file)
       
@@ -558,4 +574,85 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
     )
 }
 
+interface CSVInputProps {
+  projectId: number
+  visible: boolean
+  
+}
+const CSVInput = ({projectId, visible = false}: CSVInputProps): JSX.Element => {
+  // /api/project/vulnerability/Nessus/csv/<project-id>/
+  const fileInput = useRef<HTMLInputElement>(null)
+  const [csvFileName, setCsvFileName] = useState('')
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+  useEffect(() => {
+    if(visible){
+      setCsvFileName('')
+      setCsvFile(null)
+    }
+  }, [visible])
+  const handleFile = (event:any) => {
+    console.log(event.target.files[0])
+    setCsvFileName(event.target.files[0].name)
+    setCsvFile(event.target.files[0])
+    
+  }
+  const resetUploader = () => {
+    setCsvFileName('')
+    setCsvFile(null)
+    if(fileInput.current){
+      fileInput.current.value = ''
+    }
+  }
+  const deleteCsvFile = () => {
+    resetUploader()
+  }
+  const handleCSVUpload = (event:any) => {
+    console.log(event)
+    if(csvFile){
+      try {
+        const result = uploadProjectVulnerabilities(projectId, csvFile)
+        console.log(result)
+        resetUploader()
+      } catch(error){
+        console.error(error)
+      }
+    }
+    
+  }
+  if(!visible){
+    return <></>
+  }
+  console.log(csvFile)
+  console.log(csvFileName)
+  return (
+    <>
+      <input type="file"
+        id="csv"
+        key="csv"
+        name="csv"
+        accept="text/csv"
+        onChange={handleFile}
+        ref={fileInput}
+        className={`text-sm text-white
+                  file:text-white
+                    file:mr-5 file:py-2 file:px-6
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-primary
+                    file:cursor-pointer
+                    ${csvFile ? 'opacity-75' : ''}
+                    hover:file:bg-secondary`}
+      />
+      {csvFileName && 
+        <>
+        <div className='text-md text-primary mt-2 ml-2'>
+          <BackspaceIcon className="w-4 h-4 inline mr-2 text-secondary" onClick={deleteCsvFile}/>
+          {csvFileName}
+        </div>
+        <button className='bg-primary text-sm text-white p-2 rounded-full block mt-4' onClick={handleCSVUpload}>Upload Now</button>
+        </>
+      }
+    </>
+  )
+}
 export default WithAuth(ProjectView);

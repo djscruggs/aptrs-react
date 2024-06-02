@@ -169,6 +169,7 @@ export async function getProjectReport(props: ReportParams) {
   console.log(props)
   const {projectId, ...params} = props
   const url = apiUrl(`project/report/${projectId}/`);
+  console.log('url', url, 'params', params)
   const response = await axios.get(url, {params:{...params,  responseType: 'blob'}, ...authHeaders()})
   return response
 }
@@ -275,6 +276,14 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
   }
   const response = await axios.post(url, data, authHeaders());
   return response.data;
+}
+export async function uploadProjectVulnerabilities(projectId: number, file: File): Promise<any> {
+  console.log('starting upload')
+  const url = apiUrl(`project/vulnerability/Nessus/csv/${projectId}/`)
+  console.log('url', url)
+  const response = await axios.post(url, file, authHeaders())
+  console.log(response)
+  return response.data
 }
 export async function updateProjectInstance(data: any): Promise<any> {
   const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
