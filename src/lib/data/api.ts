@@ -6,7 +6,9 @@ import {  Company,
           Vulnerability,
           FilteredSet} from './definitions'
 import axios from 'axios'
-
+interface AuthHeaders {
+  headers: Record<string, string>;
+}
 
 function apiUrl(endpoint:string = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
@@ -280,9 +282,10 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
 export async function uploadProjectVulnerabilities(projectId: number, file: File): Promise<any> {
   console.log('starting upload')
   const url = apiUrl(`project/vulnerability/Nessus/csv/${projectId}/`)
-  console.log('url', url)
-  const response = await axios.post(url, file, authHeaders())
-  console.log(response)
+  const config: AuthHeaders = authHeaders()
+  config.headers['content-type'] = 'multipart/form-data'
+  const data = {file: file} 
+  const response = await axios.post(url, data, config)
   return response.data
 }
 export async function updateProjectInstance(data: any): Promise<any> {
@@ -434,7 +437,7 @@ export async function updateProfile(formData: User, profilepic:File|null = null)
   const temp = formData as any;
   delete temp.id;
   delete temp.profilepic
-  const config:any = authHeaders()
+  const config: AuthHeaders = authHeaders()
 if(profilepic) {
     config.headers['content-type'] = 'multipart/form-data'
     temp.profilepic = profilepic

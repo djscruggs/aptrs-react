@@ -285,7 +285,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           
                         </ListItem> 
                       </List>
-                      <CSVInput projectId={Number(id)} visible={showUploadCsv}/>
+                      <CSVInput projectId={Number(id)} visible={showUploadCsv} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
                     </div>
                     
                     <div className='w-full'>
@@ -578,9 +578,10 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
 interface CSVInputProps {
   projectId: number
   visible: boolean
-  
+  afterUpload: (data: any) => void
+  afterUploadError: (error: any) => void
 }
-const CSVInput = ({projectId, visible = false}: CSVInputProps): JSX.Element => {
+const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: CSVInputProps): JSX.Element => {
   // /api/project/vulnerability/Nessus/csv/<project-id>/
   const fileInput = useRef<HTMLInputElement>(null)
   const [csvFileName, setCsvFileName] = useState('')
@@ -607,15 +608,15 @@ const CSVInput = ({projectId, visible = false}: CSVInputProps): JSX.Element => {
   const deleteCsvFile = () => {
     resetUploader()
   }
-  const handleCSVUpload = (event:any) => {
-    console.log(event)
+  const handleCSVUpload = async (event:any) : Promise<void> => {
     if(csvFile){
       try {
-        const result = uploadProjectVulnerabilities(projectId, csvFile)
-        console.log(result)
+        const result = await uploadProjectVulnerabilities(projectId, csvFile)
         resetUploader()
+        afterUpload(result)
       } catch(error){
         console.error(error)
+        afterUploadError(error)
       }
     }
     
@@ -623,8 +624,6 @@ const CSVInput = ({projectId, visible = false}: CSVInputProps): JSX.Element => {
   if(!visible){
     return <></>
   }
-  console.log(csvFile)
-  console.log(csvFileName)
   return (
     <>
       <input type="file"
