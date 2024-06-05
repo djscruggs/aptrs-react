@@ -33,13 +33,13 @@ const Layout: React.FC = () => {
                   <div className="avatar placeholder absolute top-0 right-0 pt-4 pr-14 flex items-center justify-center">
                      {currentUser.profilepic && 
                         <Link className='text-white' to="/profile">
-                          <Avatar src={avatarUrl(currentUser.profilepic)} size="lg"/>
+                          <Avatar src={avatarUrl(currentUser.profilepic as string)} size="lg"/>
                         </Link>
                       }
                       {!currentUser.profilepic &&
                         <div className="bg-primary text-neutral-content rounded-full w-12 h-12 flex items-center justify-center">
                           <Link className='text-white' to="/profile">
-                            {getInitials(currentUser.full_name)}
+                            {getInitials(currentUser.full_name as string)}
                           </Link>
                         </div>
                       }
