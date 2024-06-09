@@ -45,22 +45,22 @@ export const passwordRegex = /^(?=.*[A-Z])(?=.*[@#$%!^&*]).{10,}$/;
 
 
 export const parseErrors = (error: any): any => {
-  console.log('top of parse errors, error is', error)
-  if(typeof error === 'string') {
-    console.log('error is string')
-    return error
+  try {
+    if(typeof error === 'string') {
+      return error
+    }
+    if (error?.request?.response) {
+      const errors: { [key: string]: string[] }  = JSON.parse(error?.request?.response);
+      let transformed:any = {}
+      Object.entries(errors).map((item, index) => {
+        transformed[item[0]] = item[1][0]
+      })
+      return transformed;
+    }
+  } catch {
+    return 'Fatal API Error'
   }
-  if (error?.request?.response) {
-    const errors: { [key: string]: string[] }  = JSON.parse(error?.request?.response);
-    let transformed:any = {}
-    Object.entries(errors).map((item, index) => {
-      transformed[item[0]] = item[1][0]
-    })
-    console.log('transformed is', transformed)
-    return transformed;
-  }
-  console.log('bottom of parse errors, error is', error)
-  return error;
+  return error
 }
 
 

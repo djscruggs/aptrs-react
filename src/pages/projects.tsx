@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchFilteredProjects, deleteProjects } from "../lib/data/api";
+import { fetchFilteredProjects, fetchMyProjects, deleteProjects } from "../lib/data/api";
 import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
@@ -11,14 +11,15 @@ import { Project, Column, FilteredSet} from '../lib/data/definitions'
 import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import DataTable from 'react-data-table-component';
 import Button from '../components/button';
-import SearchBar from "../components/searchbar";
 import { HeaderFilter, ClearFilter} from "../components/headerFilter";
 import { RowsSkeleton } from '../components/skeletons'
+import { ErrorPage } from './error-page'
 
  
 export interface ProjectsProps {
   pageTitle: string; 
   embedded?: boolean;
+  mine?: boolean;
   refresh?: boolean | undefined
   onClear?: () => void //call back to clear search if embedded
 }
@@ -94,13 +95,19 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const loadData = async () => {
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
-      const data:FilteredSet = await fetchFilteredProjects(state.queryParams)
+      let data:FilteredSet
+      if(props.mine){
+        data = await fetchMyProjects()
+      } else {
+        data = await fetchFilteredProjects(state.queryParams)
+      }
       dispatch({ type: 'set-data', payload: {data} });
     } catch(error){
       dispatch({ type: 'set-error', payload: error });
     } finally {
       dispatch({ type: 'set-mode', payload: 'idle' });
     }
+    console.log('after load')
   }
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
   const handleFilter = (event:any) => {
@@ -222,7 +229,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
   
   if(state.error){
     console.error(state.error)
-    navigate('/error')
+    console.log('state.error is', state.error)
+    return <ErrorPage message={state.error}/>
   }
   return(
     <>

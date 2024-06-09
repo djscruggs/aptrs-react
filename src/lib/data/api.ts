@@ -149,6 +149,11 @@ export async function fetchProjects() {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
+export async function fetchMyProjects() {
+  const url = apiUrl('project/my-projects/');
+  const response = await axios.get(url,authHeaders());
+  return response.data;
+}
 export async function fetchFilteredProjects(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
   const response = await axios.get(url, { params: params, ...authHeaders() });

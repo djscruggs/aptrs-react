@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
-import SearchBar from '../components/searchbar';
 import { WithAuth } from "../lib/authutils";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import Button from '../components/button';

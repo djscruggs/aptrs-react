@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { fetchFilteredCustomers } from "../lib/data/api";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { RowsSkeleton } from '../components/skeletons'
-import SearchBar from '../components/searchbar';
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';

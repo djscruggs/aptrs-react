@@ -15,7 +15,6 @@ import { toast } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
 import { useDataReducer } from '../lib/useDataReducer';
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
-import SearchBar from "../components/searchbar";
 import {HeaderFilter, ClearFilter} from '../components/headerFilter'
 
 interface UserWithActions extends User {

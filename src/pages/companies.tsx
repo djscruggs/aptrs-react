@@ -12,7 +12,6 @@ import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
 import { useDataReducer, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
-import SearchBar from "../components/searchbar";
 
 export function Companies() {
   const initialState: DatasetState = {
