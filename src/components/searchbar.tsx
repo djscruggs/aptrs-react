@@ -1,6 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import {Button} from '@material-tailwind/react'
 
+/* example usage
+  <div key={`searchkey-${state.queryParams.name}`}>
+    <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name} placeHolder='Search by name'/>
+  </div>
+*/
+
 type SearchBarProps = {
   onSearch: (searchTerm: string) => void;
   onClear?: () => void; //optional function to call if the search box is cleared

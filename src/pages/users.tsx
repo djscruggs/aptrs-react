@@ -254,9 +254,7 @@ export function Users() {
         
         {/* END modal content */}
       <div className="mt-6 flow-root">
-        <div key={`searchkey-${state.queryParams.full_name}`}>
-          <SearchBar onSearch={handleSearch} onClear={()=>handleSearch('')} searchTerm={state.queryParams.full_name} />
-        </div>
+        
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New User
         </Button>

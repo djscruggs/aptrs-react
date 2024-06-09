@@ -412,6 +412,7 @@ function ReportForm(props: ReportFormProps){
       
       const fileURL = URL.createObjectURL(file)
       setReportUrl(fileURL)
+      window.open(fileURL, '_blank')
       console.log(fileURL)
       
       // window.open(fileURL, '_blank');

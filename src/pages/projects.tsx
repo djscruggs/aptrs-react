@@ -228,9 +228,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
       <div className="mt-6 flow-root" >
-        <div key={`searchkey-${state.queryParams.name}`}>
-          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name} placeHolder='Search by name'/>
-        </div>
+        
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
           New Project
         </Button>

@@ -194,9 +194,6 @@ const Vulnerabilities = () => {
     <>
       <PageTitle title='Vulnerabilities' />
       <div className="mt-6 flow-root" >
-        <div key={`searchkey-${state.queryParams.vulnerabilityname}`}>
-          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.vulnerabilityname} />
-        </div>
         <Button 
           className='btn bg-primary float-right m-2 mr-0' 
           onClick={()=> navigate('/vulnerabilities/new')}

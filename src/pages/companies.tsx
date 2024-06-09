@@ -186,9 +186,7 @@ export function Companies() {
         }
         {/* END modal content */}
       <div className="mt-6 flow-root">
-        <div key={`searchkey-${state.queryParams.name}`}>
-          <SearchBar onSearch={handleSearch} onClear={clearSearch} searchTerm={state.queryParams.name}/>
-        </div>
+        
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New Company
         </Button>
