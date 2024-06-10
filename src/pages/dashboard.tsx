@@ -7,7 +7,7 @@ const Dashboard = () => {
   
   return (
     <>
-      <PageTitle title={'Latest Projects'} />
+      <PageTitle title={'My Projects'} />
       <div className="w-full">
         <div className="w-full">
           <Projects pageTitle='' embedded={true} mine={true} />

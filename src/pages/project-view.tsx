@@ -180,7 +180,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   return (
         <>
           {typeof(project) == 'object' && (
-            <Tabs value='vulnerabilities'>
+            <Tabs value='summary'>
               <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader>

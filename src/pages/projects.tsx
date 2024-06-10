@@ -43,6 +43,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
   }
   function formatDataActions(data:any):ProjectWithActions[] {
+    if(!data){
+      return []
+    }
     const formatted: ProjectWithActions[] = [];
     data.forEach((row: ProjectWithActions) => {
       row.actions = (<>
@@ -97,17 +100,25 @@ export function Projects(props:ProjectsProps): JSX.Element {
       dispatch({ type: 'set-mode', payload: 'loading' });
       let data:FilteredSet
       if(props.mine){
-        data = await fetchMyProjects()
+        const _data = await fetchMyProjects()
+        //format object shape to match expected data shape
+        const data = {
+            count: _data.length,
+            previous: null,
+            results: _data
+        }
+        dispatch({ type: 'set-data', payload: {data} });
       } else {
         data = await fetchFilteredProjects(state.queryParams)
+        dispatch({ type: 'set-data', payload: {data} });
       }
-      dispatch({ type: 'set-data', payload: {data} });
+      console.log('data loaded', data)
+      
     } catch(error){
       dispatch({ type: 'set-error', payload: error });
     } finally {
       dispatch({ type: 'set-mode', payload: 'idle' });
     }
-    console.log('after load')
   }
   const onRowClicked = (row:any) => navigate(`/projects/${row.id}`);
   const handleFilter = (event:any) => {
@@ -140,39 +151,39 @@ export function Projects(props:ProjectsProps): JSX.Element {
       omit: props.embedded
     },
     {
-      name: <HeaderFilter label='Name' name='name' defaultValue={filterValues.name} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Name' : <HeaderFilter label='Name' name='name' defaultValue={filterValues.name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.name,
       sortable: false,
       maxWidth: '16rem',
     },
     {
-      name: <HeaderFilter label='Company' name='companyname' defaultValue={filterValues.companyname} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Company' : <HeaderFilter label='Company' name='companyname' defaultValue={filterValues.companyname} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.companyname,
       maxWidth: '9rem',
     },
     {
-      name: <HeaderFilter label='Owner' name='owner' defaultValue={filterValues.owner} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Owner' : <HeaderFilter label='Owner' name='owner' defaultValue={filterValues.owner} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.owner,
       maxWidth: '7rem',
     },
     {
-      name: <HeaderFilter label='Status' name='status' defaultValue={filterValues.status} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Status' : <HeaderFilter label='Status' name='status' defaultValue={filterValues.status} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.status,
       maxWidth: '7rem',
     },
     {
-      name: <HeaderFilter label='Project Type' name='projecttype' defaultValue={filterValues.projecttype} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Project Type' : <HeaderFilter label='Project Type' name='projecttype' defaultValue={filterValues.projecttype} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.projecttype,
       maxWidth: '200px',
     },
     
     {
-      name: <HeaderFilter label='Start Date' name='startdate' isDate={true} defaultValue={filterValues.startdate} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Start Date' : <HeaderFilter label='Start Date' name='startdate' isDate={true} defaultValue={filterValues.startdate} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.startdate,
       maxWidth: '120px',
     },
     {
-      name: <HeaderFilter label='End Date' name='enddate_before' isDate={true} defaultValue={filterValues.enddate_before} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'End Date' : <HeaderFilter label='End Date' name='enddate_before' isDate={true} defaultValue={filterValues.enddate_before} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.enddate,
       maxWidth: '120px',
     },
