@@ -2,6 +2,7 @@ const withMT = require("@material-tailwind/react/utils/withMT");
  
 module.exports = withMT({
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: 'class',
   /* These text colors are generated dynamically in vulnerabilities
      Tailwindcss can't create them at compile time so we explicitly add them here. */
   safelist: [

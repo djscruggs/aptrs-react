@@ -1,5 +1,5 @@
 import {Vulnerability, Column, FilteredSet} from '../lib/data/definitions';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
@@ -12,7 +12,7 @@ import DataTable from 'react-data-table-component';
 import { useVulnerabilityColor } from '../lib/customHooks';
 import { toast } from 'react-hot-toast';
 import { HeaderFilter, ClearFilter } from '../components/headerFilter';
-
+import { ThemeContext } from '../layouts/layout';
 
 
 interface VulnWithActions extends Vulnerability {
@@ -28,6 +28,7 @@ const Vulnerabilities = () => {
     queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
     totalRows: 0,
   };
+  const theme = useContext(ThemeContext);
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
@@ -224,6 +225,7 @@ const Vulnerabilities = () => {
               onChangePage={handlePageChange}
               striped
               onSelectedRowsChange={handleSelectedChange}
+              theme={theme}
           />
         </div>
       </div>

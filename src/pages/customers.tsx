@@ -2,8 +2,10 @@ import {
         useEffect, 
         useState, 
         useRef, 
-        useCallback } from 'react'
+        useCallback,
+        useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../layouts/layout';
 import { fetchFilteredCustomers } from "../lib/data/api";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { RowsSkeleton } from '../components/skeletons'
@@ -18,6 +20,7 @@ import DataTable from 'react-data-table-component';
 import { HeaderFilter, ClearFilter } from "../components/headerFilter";
 
 export function Customers() {
+  const theme = useContext(ThemeContext);
   const initialState: DatasetState = {
     mode: 'idle',
     data: [],
@@ -252,6 +255,7 @@ export function Customers() {
               striped
               progressComponent={<RowsSkeleton numRows={state.queryParams.limit}/>}
               onSelectedRowsChange={handleSelectedChange}
+              theme={theme}
           />
         </div>
       </div>

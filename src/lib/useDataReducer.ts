@@ -24,6 +24,7 @@ export type DatasetAction =
 | { type: 'set-mode'; payload: DataMode }
 | { type: 'set-search'; payload: string }
 | { type: 'set-filter'; payload: DatasetState["queryParams"] }
+| { type: 'set-sort'; payload: {sort: string, order_by: '' | 'asc' | 'desc'}}
 | { type: 'set-page'; payload: number }
 | { type: 'set-rows-per-page'; payload: number }
 | { type: 'set-error'; payload: any }
@@ -42,8 +43,12 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
         let newQueryParams = {...state.queryParams, ...action.payload}
         return {...state, queryParams: newQueryParams};
       }       
+      case 'set-sort': {
+        let newQueryParams = {...state.queryParams, sort: action.payload.sort, order_by: action.payload.order_by}
+        return {...state, queryParams: newQueryParams};
+      }
       case 'reset': {
-        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
+        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT, sort: '', order_by: ''};
         return {...initialState, queryParams: newQueryParams};
       }
       case 'set-mode': {
@@ -76,7 +81,7 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
         return {...state, error: parseErrors(action.payload)};
       }
       case 'clear-search': {
-        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT};
+        const newQueryParams = {offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT, sort: '', order_by: ''};
         if(JSON.stringify(state.queryParams) == JSON.stringify(newQueryParams)){
           return state
         }

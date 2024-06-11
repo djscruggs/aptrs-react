@@ -84,7 +84,7 @@ export type PermissionGroup = {
 
 //react data table types
 export type Column = { //used for data tables
-  name: string;
+  name: string | JSX.Element;
   selector: (row: any) => any;
   sortable?: boolean
   maxWidth?: string

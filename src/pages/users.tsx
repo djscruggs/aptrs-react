@@ -1,5 +1,5 @@
 import { User, Column, FilteredSet } from '../lib/data/definitions'
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredUsers, deleteUsers } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
@@ -16,6 +16,7 @@ import { useCurrentUser } from '../lib/customHooks';
 import { useDataReducer } from '../lib/useDataReducer';
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import {HeaderFilter, ClearFilter} from '../components/headerFilter'
+import { ThemeContext } from '../layouts/layout';
 
 interface UserWithActions extends User {
   actions: JSX.Element;
@@ -28,6 +29,7 @@ export function Users() {
     queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
     totalRows: 0,
   }
+  const theme = useContext(ThemeContext);
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
@@ -46,6 +48,13 @@ export function Users() {
       }
     }
   }
+  const handleSort = (name: any, sortDirection: string) => {
+    
+    if(name && sortDirection){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: sortDirection as '' | 'asc' | 'desc'} });
+      loadData()
+    }
+  }
   const [state, dispatch] = useDataReducer(reducer, initialState);
   //super user check to prevent url tampering
   const navigate = useNavigate()
@@ -57,6 +66,7 @@ export function Users() {
   const [filterValues, setFilterValues] = useState({
     username: '',
     full_name: '',
+    company: '',
     is_active: 1,
     email: ''
   });
@@ -115,7 +125,8 @@ export function Users() {
       username: '',
       full_name: '',
       is_active: 1,
-      email: ''
+      email: '',
+      company: ''
     });
     dispatch({ type: 'reset'})
   }
@@ -132,34 +143,34 @@ export function Users() {
     {
       name: <HeaderFilter label='Name' name='full_name' defaultValue={filterValues.full_name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: User) => row.full_name,
+      sortable: true,
     },
     {
       name: <HeaderFilter label='Username' name='username' defaultValue={filterValues.username} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: User) => row.username,
+      sortable: true,
     },
     {
       name: <HeaderFilter label='Email' name='email' defaultValue={filterValues.email} onCommit={filterCommit} onChange={handleFilter}/>,
-      selector: (row: User) => row.email
+      selector: (row: User) => row.email,
+      sortable: true,
     },
     {
       name: 'Phone',
       selector: (row: User) => row.number
     },
     {
-      name: 'Company',
-      selector: (row: User) => row.company
-    },
-    {
       name: 'Position',
       selector: (row: User) => row.position
     },
     {
-      name: <HeaderFilter label='Active?' name='is_active' isBoolean={true} defaultValue={filterValues.is_active} onCommit={filterCommit} onChange={handleFilter}/>,
-      selector: (row: User) => row.is_active ? "Yes" : "No"
+      name: <HeaderFilter label='Active?' name='is_active' isBoolean={true} defaultValue={String(filterValues.is_active)} handleSort={handleSort} onCommit={filterCommit} onChange={handleFilter}/>,
+      selector: (row: User) => row.is_active ? "Yes" : "No",
     },
     {
       name: 'Admin?',
-      selector: (row: User) => row.is_superuser ? "Yes" : "No"
+      selector: (row: User) => row.is_superuser ? "Yes" : "No",
+      sortable: true,
     },
   ];
   const handleDelete = async (ids: any[]) => {
@@ -219,6 +230,8 @@ export function Users() {
     }
   }
   useEffect(() => {
+
+    console.log(state.queryParams)
     loadData();
   }, [refresh, state.queryParams]);
 
@@ -278,18 +291,20 @@ export function Users() {
           {state.mode == 'loading' && <RowsSkeleton numRows={state.queryParams.limit} />}
           <div className={state.mode != 'idle' ? 'hidden' : ''}>
             <DataTable
-                  columns={columns}
-                  data={state.data}
-                  selectableRows
-                  pagination
-                  paginationServer
-                  paginationPerPage={state.queryParams.limit}
-                  onChangeRowsPerPage={handlePerRowsChange}
-                  onChangePage={handlePageChange}
-                  paginationTotalRows={state.totalRows}
-                  striped
-                  onSelectedRowsChange={handleSelectedChange}
-              />
+                columns={columns}
+                data={state.data}
+                onSort={handleSort}
+                selectableRows
+                pagination
+                paginationServer
+                paginationPerPage={state.queryParams.limit}
+                onChangeRowsPerPage={handlePerRowsChange}
+                onChangePage={handlePageChange}
+                paginationTotalRows={state.totalRows}
+                striped
+                onSelectedRowsChange={handleSelectedChange}
+                theme={theme}
+            />
           </div>
         </div>
       </div>

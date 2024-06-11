@@ -1,10 +1,11 @@
 import {Company, Column, FilteredSet} from '../lib/data/definitions'
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredCompanies, deleteCompanies } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
+import { ThemeContext } from '../layouts/layout';
 import Button from '../components/button';
 import CompanyForm from './company-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
@@ -14,6 +15,7 @@ import { toast } from 'react-hot-toast';
 import { useDataReducer, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 
 export function Companies() {
+  const theme = useContext(ThemeContext);
   const initialState: DatasetState = {
     mode: 'idle',
     data: [],
@@ -219,6 +221,7 @@ export function Companies() {
             onChangeRowsPerPage={handlePerRowsChange}
             onChangePage={handlePageChange}
             paginationTotalRows={state.totalRows}
+            theme={theme}
           />
         </div>
       </div>

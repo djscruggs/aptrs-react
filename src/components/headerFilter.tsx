@@ -13,6 +13,7 @@ interface HeaderFilterProps {
   isBoolean?: boolean;
   onChange: (event: any) => void;
   onCommit: (event: any) => void;
+  handleSort?: (name: string, order: string) => void;
 }
 
 export function isFiltered(queryParams: DatasetState['queryParams']): boolean {
@@ -35,7 +36,8 @@ export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.E
   )
 }
 
-export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit}: HeaderFilterProps): JSX.Element {
+export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit, handleSort}: HeaderFilterProps): JSX.Element {
+  console.log('name', name)
   const [active, setActive] = useState(isBoolean ? false : Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)
@@ -145,6 +147,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
           <span onClick={()=>setActive(true)}>{label} 
           <FunnelIcon key={name+ 'icon'} className='ml-2 w-4 h-4 inline'/></span>
         </>
+    )}
+    {handleSort && (
+      <span onClick={()=>handleSort(name, 'asc')}>sort</span>
     )}
     </>
   )

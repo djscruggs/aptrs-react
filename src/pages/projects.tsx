@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { ThemeContext } from '../layouts/layout';
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchFilteredProjects, fetchMyProjects, deleteProjects } from "../lib/data/api";
 import { toast } from 'react-hot-toast';
@@ -34,7 +35,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
     data: [],
     queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
     totalRows: 0,
+    sortField: '',
+    sortDirection: ''
   };
+  const theme = useContext(ThemeContext);
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
@@ -83,7 +87,11 @@ export function Projects(props:ProjectsProps): JSX.Element {
     startdate: '',
     enddate_before: ''
   });
-  
+  const handleSort = (column: any, sortDirection: string) => {
+    if(column.name?.props?.name && sortDirection){
+      dispatch({ type: 'set-sort', payload: {sort: column.name?.props?.name, order_by: sortDirection as '' | 'asc' | 'desc'} });
+    }
+  }
   
   useEffect(() => {
     loadData()
@@ -112,8 +120,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
         data = await fetchFilteredProjects(state.queryParams)
         dispatch({ type: 'set-data', payload: {data} });
       }
-      console.log('data loaded', data)
-      
     } catch(error){
       dispatch({ type: 'set-error', payload: error });
     } finally {
@@ -153,23 +159,26 @@ export function Projects(props:ProjectsProps): JSX.Element {
     {
       name: props.mine ? 'Name' : <HeaderFilter label='Name' name='name' defaultValue={filterValues.name} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.name,
-      sortable: false,
+      sortable: !props.mine,
       maxWidth: '16rem',
     },
     {
       name: props.mine ? 'Company' : <HeaderFilter label='Company' name='companyname' defaultValue={filterValues.companyname} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.companyname,
       maxWidth: '9rem',
+      sortable: !props.mine,
     },
     {
       name: props.mine ? 'Owner' : <HeaderFilter label='Owner' name='owner' defaultValue={filterValues.owner} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.owner,
       maxWidth: '7rem',
+      sortable: !props.mine,
     },
     {
       name: props.mine ? 'Status' : <HeaderFilter label='Status' name='status' defaultValue={filterValues.status} onCommit={filterCommit} onChange={handleFilter}/>,
       selector: (row: Project) => row.status,
       maxWidth: '7rem',
+      sortable: !props.mine,
     },
     {
       name: props.mine ? 'Project Type' : <HeaderFilter label='Project Type' name='projecttype' defaultValue={filterValues.projecttype} onCommit={filterCommit} onChange={handleFilter}/>,
@@ -272,6 +281,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             data={formatDataActions(state.data)}
             selectableRows={!props.embedded}
             onRowClicked={onRowClicked}
+            onSort={handleSort}
             progressPending={state.mode != 'idle'}
             pagination
             paginationServer
@@ -283,6 +293,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             highlightOnHover
             fixedHeader
             onSelectedRowsChange={handleSelectedChange}
+            theme={theme}
           />
         </div>  
       </div>
