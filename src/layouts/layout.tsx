@@ -12,7 +12,12 @@ import { ThemeIcon } from '../components/themeIcon';
 
 export const ThemeContext = createContext('light')
 const Layout: React.FC = () => {
-  const [theme, setTheme] = useState('light')
+  let defaultMode = 'light'
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    defaultMode = 'dark'
+    document.documentElement.classList.add('dark')
+  }
+  const [theme, setTheme] = useState(defaultMode)
   const toggleTheme = () => {
     if(theme === 'light'){
       document.documentElement.classList.add('dark')
