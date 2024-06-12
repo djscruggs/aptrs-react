@@ -16,7 +16,7 @@ import { useCurrentUser } from '../lib/customHooks';
 import { useDataReducer } from '../lib/useDataReducer';
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 import {HeaderFilter, ClearFilter} from '../components/headerFilter'
-import { ThemeContext } from '../lib/theme';
+import { ThemeContext } from '../layouts/layout';
 
 interface UserWithActions extends User {
   actions: JSX.Element;

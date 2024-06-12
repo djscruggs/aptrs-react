@@ -11,11 +11,14 @@ import {
 import { useCurrentUser } from '../lib/customHooks';
 import clsx from 'clsx';
 // ... (Icons and other imports)
-import { ThemeIcon } from '../lib/theme';
+import { ThemeIcon } from '../components/themeIcon';
 
+interface NavLinksProps {
+  theme: string;
+  toggleTheme: () => void;
+}
 
-
-const NavLinks: React.FC = () => {
+const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
   
   const pathname = useLocation().pathname;
   const currentUser = useCurrentUser()
@@ -50,8 +53,8 @@ const NavLinks: React.FC = () => {
           </Link>
         );
       })}
-      <div className='h-[48px] md:hidden mt-8px'>
-        <ThemeIcon />
+      <div className='h-[48px] md:hidden mt-1.5'>
+        <ThemeIcon theme={theme} toggleTheme={toggleTheme}/>
       </div>
     </>
   );

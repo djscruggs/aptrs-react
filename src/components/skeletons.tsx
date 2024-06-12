@@ -39,7 +39,7 @@ export const FormSkeleton: React.FC<FormSkeletonProps> = ({ numInputs = 3, class
 export function CardSkeleton() {
   return (
     <div
-      className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-lightest p-2 shadow-sm`}
+      className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-lightest dark:bg-gray-70 p-2 shadow-sm`}
     >
       <div className="flex p-4">
         <div className="h-5 w-5 rounded-md bg-gray-lighter" />
@@ -80,7 +80,7 @@ export function RevenueChartSkeleton() {
 
 export function RowSkeleton() {
   return (
-    <div className="flex flex-row items-center justify-between border-b bg-gray-lightest border-white rounded-md m-2 py-4">
+    <div className="flex flex-row items-center justify-between border-b bg-gray-lightest dark:bg-gray-dark border-white dark:border-gray-darker rounded-md m-2 py-4">
       
     </div>
   );
@@ -91,12 +91,10 @@ interface TableSkeletonProps {
 export const TableSkeleton: React.FC<TableSkeletonProps> = ({ numRows = 20 }) => {
   const rowSkeletons = Array.from({ length: numRows }, (_, i) => <RowSkeleton key={i} />);
   return (
-    <div
-      className={`${shimmer} relative flex w-full flex-col overflow-hidden md:col-span-4 lg:col-span-4`}
-    >
-      <div className="mb-4 h-8 w-36 rounded-md bg-gray-lightest" />
-      <div className="flex grow flex-col justify-between rounded-xl bg-gray-lightest p-4">
-        <div className="bg-white ">
+    <div className={`${shimmer} relative flex w-full flex-col overflow-hidden md:col-span-4 lg:col-span-4 dark:bg-gray-darkest `}>
+      <div className="mb-4 h-8 w-36 rounded-md bg-gray-lightest dark:bg-gray-darkest" />
+      <div className="flex grow flex-col justify-between rounded-xl bg-gray-lightest dark:bg-gray-darkest p-4">
+        <div className="bg-white dark:bg-gray-dark">
         {rowSkeletons}
           
           
@@ -114,7 +112,7 @@ export const RowsSkeleton: React.FC<RowsSkeletonProps> = ({ numRows = 3 }) => {
     rowSkeletons.push(<RowSkeleton key={i} />);
   }
   return(
-    <div className="bg-white ">
+    <div className="bg-white dark:bg-gray-darkest">
       {rowSkeletons}
     </div>
   )

@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { ThemeContext } from '../lib/theme';
+import { ThemeContext } from '../layouts/layout';
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchFilteredProjects, fetchMyProjects, deleteProjects } from "../lib/data/api";
 import { toast } from 'react-hot-toast';
@@ -38,12 +38,13 @@ export function Projects(props:ProjectsProps): JSX.Element {
     sortField: '',
     sortDirection: ''
   };
-  const theme = useContext(ThemeContext);
-  console.log('theme in projects', theme)
+  
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
   const search = params.get('name') || '';
+  const theme = useContext(ThemeContext);
+ 
   if(search){
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
   }
@@ -253,7 +254,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
     console.log('state.error is', state.error)
     return <ErrorPage message={state.error}/>
   }
-  console.log('theme in projects', theme)
   return(
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
@@ -295,7 +295,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             highlightOnHover
             fixedHeader
             onSelectedRowsChange={handleSelectedChange}
-            theme={theme}
+            theme={useContext(ThemeContext)}
           />
         </div>  
       </div>

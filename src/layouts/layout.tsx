@@ -6,13 +6,22 @@ import { useCurrentUser } from '../lib/customHooks';
 import { getInitials, avatarUrl } from '../lib/utilities'
 import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, createContext } from 'react';
 import {LoginUser} from '../lib/data/definitions'
-import { ThemeContext, ThemeIcon } from '../lib/theme';
+import { ThemeIcon } from '../components/themeIcon';
 
+export const ThemeContext = createContext('light')
 const Layout: React.FC = () => {
-  const theme = useContext(ThemeContext)
-  console.log('theme in layout', theme)
+  const [theme, setTheme] = useState('light')
+  const toggleTheme = () => {
+    if(theme === 'light'){
+      document.documentElement.classList.add('dark')
+      setTheme('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      setTheme('light')
+    }
+  }
   const [currentUser, setCurrentUser] = useState<LoginUser | null>(useCurrentUser())
   // can't use useLocation here because the layout is outside of the  Router in App.tsx
   const location = useLocation();
@@ -29,15 +38,15 @@ const Layout: React.FC = () => {
               
                 {location.pathname !== '/' &&
                   <div className="w-full flex-none md:w-64">
-                    <SideNav />
+                    <SideNav theme={theme} toggleTheme={toggleTheme} />
                   </div>
                 }   
                 
               <div className="flex-grow p-6 md:overflow-y-auto md:p-12 cursor-pointer">
                   {currentUser &&
                     <>
-                      <div className='md:absolute top-6 right-32'>
-                        <ThemeIcon size='md'/>
+                      <div className='hidden md:block md:absolute md:top-6 md:right-32'>
+                        <ThemeIcon size='md' theme={theme} toggleTheme={toggleTheme}/>
                       </div>
 
                       <div className="md:flex md:items-center md:justify-center avatar placeholder absolute top-0 right-0 pt-4 pr-14 hidden ">

@@ -5,7 +5,7 @@ import {
         useCallback,
         useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../lib/theme';
+import { ThemeContext } from '../layouts/layout';
 import { fetchFilteredCustomers } from "../lib/data/api";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { RowsSkeleton } from '../components/skeletons'
@@ -239,7 +239,7 @@ export function Customers() {
           </p>
         }
         <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
-        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        {state.mode === 'loading' && <div className="mt-16 "><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>
           <DataTable
               columns={columns}

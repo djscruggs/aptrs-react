@@ -12,7 +12,7 @@ import DataTable from 'react-data-table-component';
 import { useVulnerabilityColor } from '../lib/customHooks';
 import { toast } from 'react-hot-toast';
 import { HeaderFilter, ClearFilter } from '../components/headerFilter';
-import { ThemeContext } from '../lib/theme';
+import { ThemeContext } from '../layouts/layout';
 
 
 interface VulnWithActions extends Vulnerability {
