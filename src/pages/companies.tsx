@@ -5,7 +5,7 @@ import { fetchFilteredCompanies, deleteCompanies } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
-import { ThemeContext } from '../layouts/layout';
+import { ThemeContext } from '../lib/theme';
 import Button from '../components/button';
 import CompanyForm from './company-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'

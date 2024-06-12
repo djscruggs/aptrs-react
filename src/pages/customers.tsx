@@ -5,7 +5,7 @@ import {
         useCallback,
         useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../layouts/layout';
+import { ThemeContext } from '../lib/theme';
 import { fetchFilteredCustomers } from "../lib/data/api";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { RowsSkeleton } from '../components/skeletons'

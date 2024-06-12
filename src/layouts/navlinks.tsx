@@ -11,7 +11,7 @@ import {
 import { useCurrentUser } from '../lib/customHooks';
 import clsx from 'clsx';
 // ... (Icons and other imports)
-
+import { ThemeIcon } from '../lib/theme';
 
 
 
@@ -50,6 +50,9 @@ const NavLinks: React.FC = () => {
           </Link>
         );
       })}
+      <div className='h-[48px] md:hidden mt-8px'>
+        <ThemeIcon />
+      </div>
     </>
   );
 };
