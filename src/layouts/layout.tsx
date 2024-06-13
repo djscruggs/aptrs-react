@@ -12,12 +12,8 @@ import { ThemeIcon } from '../components/themeIcon';
 
 export const ThemeContext = createContext('light')
 const Layout: React.FC = () => {
-  let defaultMode = 'light'
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    defaultMode = 'dark'
-    document.documentElement.classList.add('dark')
-  }
-  const [theme, setTheme] = useState(defaultMode)
+  
+  const [theme, setTheme] = useState('light')
   const toggleTheme = () => {
     if(theme === 'light'){
       document.documentElement.classList.add('dark')
@@ -27,6 +23,12 @@ const Layout: React.FC = () => {
       setTheme('light')
     }
   }
+  useEffect(() => {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark')
+      setTheme('dark')
+    }
+  }, [])
   const [currentUser, setCurrentUser] = useState<LoginUser | null>(useCurrentUser())
   // can't use useLocation here because the layout is outside of the  Router in App.tsx
   const location = useLocation();
