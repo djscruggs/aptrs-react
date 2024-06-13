@@ -49,9 +49,9 @@ export function Users() {
     }
   }
   const handleSort = (name: any, sortDirection: string) => {
-    
-    if(name && sortDirection){
-      dispatch({ type: 'set-sort', payload: {sort: name, order_by: sortDirection as '' | 'asc' | 'desc'} });
+    let order_by = sortDirection ? sortDirection : 'asc'
+    if(name){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: order_by as 'asc' | 'desc'} });
       loadData()
     }
   }
@@ -141,19 +141,40 @@ export function Users() {
       maxWidth: '5em'
     },
     {
-      name: <HeaderFilter label='Name' name='full_name' defaultValue={filterValues.full_name} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Name' 
+              name='full_name' 
+              defaultValue={filterValues.full_name} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: User) => row.full_name,
-      sortable: true,
     },
     {
-      name: <HeaderFilter label='Username' name='username' defaultValue={filterValues.username} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Username' 
+              name='username' 
+              defaultValue={filterValues.username} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: User) => row.username,
-      sortable: true,
     },
     {
-      name: <HeaderFilter label='Email' name='email' defaultValue={filterValues.email} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+                label='Email' 
+                name='email' 
+                defaultValue={filterValues.email} 
+                onCommit={filterCommit} 
+                onChange={handleFilter} 
+                currentFilter={state.queryParams}
+                handleSort={handleSort}
+             />,
       selector: (row: User) => row.email,
-      sortable: true,
     },
     {
       name: 'Phone',
@@ -164,7 +185,17 @@ export function Users() {
       selector: (row: User) => row.position
     },
     {
-      name: <HeaderFilter label='Active?' name='is_active' isBoolean={true} defaultValue={String(filterValues.is_active)} handleSort={handleSort} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: 
+        <HeaderFilter 
+          label='Active?' 
+          name='is_active' 
+          isBoolean={true} 
+          defaultValue={String(filterValues.is_active)}          
+          onCommit={filterCommit} 
+          onChange={handleFilter} 
+          currentFilter={state.queryParams}
+          handleSort={handleSort} 
+        />,
       selector: (row: User) => row.is_active ? "Yes" : "No",
     },
     {
@@ -230,8 +261,6 @@ export function Users() {
     }
   }
   useEffect(() => {
-
-    console.log(state.queryParams)
     loadData();
   }, [refresh, state.queryParams]);
 
@@ -293,7 +322,6 @@ export function Users() {
             <DataTable
                 columns={columns}
                 data={state.data}
-                onSort={handleSort}
                 selectableRows
                 pagination
                 paginationServer

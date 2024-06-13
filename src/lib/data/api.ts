@@ -399,6 +399,10 @@ export async function fetchUsers() {
 }
 export async function fetchFilteredUsers(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl('auth/users/filter/');
+  if(params?.sort && params?.sort === ''){
+    delete params.order_by
+    delete params.sort
+  }
   const response = await axios.get(url, { params: params, ...authHeaders() });
   return response.data;
 }

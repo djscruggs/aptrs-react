@@ -4,6 +4,7 @@ import { PiKeyReturnThin } from "react-icons/pi"
 import DatePicker from "react-datepicker";
 import { DatasetState } from '../lib/useDataReducer'
 import { CiCircleRemove } from "react-icons/ci";
+import { BiSortAZ, BiSortZA } from "react-icons/bi";
 
 interface HeaderFilterProps {
   label: string;
@@ -17,15 +18,16 @@ interface HeaderFilterProps {
 }
 
 export function isFiltered(queryParams: DatasetState['queryParams']): boolean {
-  const { limit, offset, ...rest } = queryParams;
+  const { limit, offset, order_by, sort, ...rest } = queryParams;
   return Object.values(rest).some(value => value !== '');
 }
 
 interface ClearFilterProps {
   queryParams: DatasetState['queryParams'];
   clearFilter: (event: any) => void;
+  
 }
-export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.Element {
+export function ClearFilter({queryParams, clearFilter }: ClearFilterProps): JSX.Element {
   if(!isFiltered(queryParams)) {
     return <></>
   }
@@ -35,9 +37,18 @@ export function ClearFilter({queryParams, clearFilter}: ClearFilterProps): JSX.E
       </div>
   )
 }
-
-export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit, handleSort}: HeaderFilterProps): JSX.Element {
-  // console.log('name', name)
+interface HeaderFilterProps {
+  label: string;
+  name: string;
+  defaultValue: string;
+  isDate?: boolean;
+  isBoolean?: boolean;
+  onChange: (event: any) => void;
+  onCommit: (event: any) => void;
+  handleSort?: (name: string, order: string) => void;
+  currentFilter: DatasetState['queryParams'];
+  }
+export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit, handleSort, currentFilter }: HeaderFilterProps): JSX.Element {
   const [active, setActive] = useState(isBoolean ? false : Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
   const [focus, setFocus] = useState(false)
@@ -88,6 +99,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
       onChange(event)
     }
   }
+  const isSorted = currentFilter?.sort === name
+  
+  const sortDirection = isSorted ? currentFilter.order_by : ''
   return (
     <>
     {active ? (
@@ -141,6 +155,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         {!value && !isBoolean  && 
           <FunnelIcon key={name+ 'icon'} className='-ml-6 w-4 h-4' /> 
         }
+        {handleSort && (
+          <span onClick={()=>handleSort(name, 'asc')}>sort</span>
+        )}
       </>
      ) : (
         <>
@@ -149,7 +166,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         </>
     )}
     {handleSort && (
-      <span onClick={()=>handleSort(name, 'asc')}>sort</span>
+      <span onClick={()=>handleSort(name, ['asc',''].includes(sortDirection)  ? 'desc' : 'asc')} className={`cursor-pointer ${sortDirection === '' ? 'opacity-50 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
+        {sortDirection === 'asc' ? <BiSortAZ className='inline w-5 h-5' /> : <BiSortZA className='inline w-5 h-5' />}
+      </span>
     )}
     </>
   )
