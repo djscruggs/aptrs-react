@@ -133,7 +133,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         </>
         ): (
         <input 
-          type="text" className='p-2 border border-gray-300 rounded-md w-full' 
+          type="text" className='p-2 border border-gray-300 rounded-md w-full mr-2' 
           ref={inputRef}
           autoFocus={active} 
           key={label+name} 
@@ -156,9 +156,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         {!value && !isBoolean  && 
           <FunnelIcon key={name+ 'icon'} className='-ml-6 w-4 h-4' /> 
         }
-        {handleSort && (
-          <span onClick={()=>handleSort(name, 'asc')}>sort</span>
-        )}
+        
       </>
      ) : (
         <>
@@ -167,7 +165,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         </>
     )}
     {handleSort && (
-      <span onClick={()=>handleSort(name, nextSort)} className={`cursor-pointer ml-1 ${sortDirection === '' ? 'opacity-50 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
+      <span onClick={()=>handleSort(name, nextSort)} className={`cursor-pointer ml-1 ${sortDirection === '' ? 'opacity-20 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
         {(sortDirection === 'asc' || sortDirection === '') ? <FaArrowUp className='inline w-4 h-4' /> : <FaArrowDown className='inline w-4 h-4' />}
       </span>
     )}

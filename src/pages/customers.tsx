@@ -45,6 +45,13 @@ export function Customers() {
       }
     }
   };
+  const handleSort = (name: any, sortDirection: string) => {
+    let order_by = sortDirection ? sortDirection : 'asc'
+    if(name){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: order_by as 'asc' | 'desc'} });
+      loadData()
+    }
+  }
   const [state, dispatch] = useDataReducer(reducer, initialState);
   const navigate = useNavigate()
   
@@ -144,22 +151,54 @@ export function Customers() {
     {
       name: 'Action',
       selector: (row: any) => row.actions,
-      maxWidth: '5em'
+      maxWidth: '1rem'
     },
     {
-      name: <HeaderFilter label='Name' name='full_name' defaultValue={filterValues.full_name} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Name' 
+              name='full_name' 
+              defaultValue={filterValues.full_name} 
+              currentFilter={state.queryParams}
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              handleSort={handleSort}
+            />,
       selector: (row: Customer) => row.full_name,
     },
     {
-      name: <HeaderFilter label='Company' name='company' defaultValue={filterValues.company} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Company' 
+              name='company' 
+              defaultValue={filterValues.company} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+            />,
       selector: (row: Customer) => row.company,
     },
     {
-      name: <HeaderFilter label='Position' name='position' defaultValue={filterValues.position} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Position' 
+              name='position' 
+              defaultValue={filterValues.position} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+            />,
       selector: (row: Customer) => row.position,      
     },
     {
-      name: <HeaderFilter label='Email' name='email' defaultValue={filterValues.email} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Email' 
+              name='email' 
+              defaultValue={filterValues.email} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+            />,
       selector: (row: Customer) => row.email,
     },
     {

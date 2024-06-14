@@ -159,14 +159,29 @@ const Vulnerabilities = () => {
   const filterCommit = () => {
     dispatch({ type: 'set-filter', payload: filterValues})
   }
+  const handleSort = (name: string, sortDirection: string) => {
+    let order_by = sortDirection ? sortDirection : 'asc'
+    if(name){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: order_by as 'asc' | 'desc'} });
+      loadData()
+    }
+  }
   const columns: Column[] = [
     {
       name: 'Action',
       selector: (row: VulnWithActions) => row.actions,
-      maxWidth: '5em'
+      maxWidth: '1rem'
     },
     {
-      name: <HeaderFilter label='Name' name='vulnerabilityname' defaultValue={filterValues.vulnerabilityname} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='Name' 
+              name='vulnerabilityname' 
+              defaultValue={filterValues.vulnerabilityname} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: VulnWithActions) => row.vulnerabilityname,
       maxWidth: '25em'
     },
@@ -176,7 +191,15 @@ const Vulnerabilities = () => {
       maxWidth: '5em'
     },
     {
-      name: <HeaderFilter label='CVSS 3.1' name='cvssscore' defaultValue={filterValues.cvssscore} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: <HeaderFilter 
+              label='CVSS 3.1' 
+              name='cvssscore' 
+              defaultValue={filterValues.cvssscore} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: VulnWithActions) => row.cvssscore,
       maxWidth: '25em'
     },

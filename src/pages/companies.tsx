@@ -84,7 +84,7 @@ export function Companies() {
     {
       name: 'Action',
       selector: (row: any) => row.actions,
-      maxWidth: '5em'
+      maxWidth: '1rem'
     },
     {
       name: 'Name',

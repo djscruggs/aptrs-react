@@ -48,7 +48,7 @@ export function Users() {
       }
     }
   }
-  const handleSort = (name: any, sortDirection: string) => {
+  const handleSort = (name: string, sortDirection: string) => {
     let order_by = sortDirection ? sortDirection : 'asc'
     if(name){
       dispatch({ type: 'set-sort', payload: {sort: name, order_by: order_by as 'asc' | 'desc'} });
@@ -138,7 +138,7 @@ export function Users() {
     {
       name: 'Action',
       selector: (row: any) => row.actions,
-      maxWidth: '5em'
+      maxWidth: '1rem'
     },
     {
       name: <HeaderFilter 

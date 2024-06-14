@@ -89,9 +89,10 @@ export function Projects(props:ProjectsProps): JSX.Element {
     startdate: '',
     enddate_before: ''
   });
-  const handleSort = (column: any, sortDirection: string) => {
-    if(column.name?.props?.name && sortDirection){
-      dispatch({ type: 'set-sort', payload: {sort: column.name?.props?.name, order_by: sortDirection as '' | 'asc' | 'desc'} });
+  const handleSort = (name: string, sortDirection: string) => {
+    if(name && sortDirection){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: sortDirection as 'asc' | 'desc'} });
+      loadData()
     }
   }
   
@@ -155,48 +156,116 @@ export function Projects(props:ProjectsProps): JSX.Element {
     {
       name: 'Actions',
       selector: (row: any) => row.actions,
-      maxWidth: '2rem',
+      maxWidth: '1rem',
       omit: props.embedded
     },
     {
-      name: props.mine ? 'Name' : <HeaderFilter label='Name' name='name' defaultValue={filterValues.name} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Name' 
+            : 
+            <HeaderFilter 
+              label='Name' 
+              name='name' 
+              defaultValue={filterValues.name} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.name,
-      sortable: !props.mine,
       maxWidth: '16rem',
     },
     {
-      name: props.mine ? 'Company' : <HeaderFilter label='Company' name='companyname' defaultValue={filterValues.companyname} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Company' 
+            : 
+            <HeaderFilter 
+              label='Company' 
+              name='companyname' 
+              defaultValue={filterValues.companyname} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.companyname,
       maxWidth: '9rem',
-      sortable: !props.mine,
     },
     {
-      name: props.mine ? 'Owner' : <HeaderFilter label='Owner' name='owner' defaultValue={filterValues.owner} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Owner' 
+            : 
+            <HeaderFilter 
+              label='Owner' 
+              name='owner' 
+              defaultValue={filterValues.owner} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.owner,
       maxWidth: '7rem',
-      sortable: !props.mine,
     },
     {
-      name: props.mine ? 'Status' : <HeaderFilter label='Status' name='status' defaultValue={filterValues.status} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Status' 
+            : 
+            <HeaderFilter 
+              label='Status' 
+              name='status' 
+              defaultValue={filterValues.status} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.status,
       maxWidth: '7rem',
-      sortable: !props.mine,
     },
     {
-      name: props.mine ? 'Project Type' : <HeaderFilter label='Project Type' name='projecttype' defaultValue={filterValues.projecttype} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Project Type' 
+            : 
+            <HeaderFilter 
+              label='Project Type' 
+              name='projecttype' 
+              defaultValue={filterValues.projecttype} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.projecttype,
       maxWidth: '200px',
     },
     
     {
-      name: props.mine ? 'Start Date' : <HeaderFilter label='Start Date' name='startdate' isDate={true} defaultValue={filterValues.startdate} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'Start Date' 
+            : 
+            <HeaderFilter 
+              label='Start Date' 
+              name='startdate' 
+              isDate={true} 
+              defaultValue={filterValues.startdate} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.startdate,
-      maxWidth: '120px',
+      
     },
     {
-      name: props.mine ? 'End Date' : <HeaderFilter label='End Date' name='enddate_before' isDate={true} defaultValue={filterValues.enddate_before} onCommit={filterCommit} onChange={handleFilter}/>,
+      name: props.mine ? 'End Date' 
+            
+      : 
+            <HeaderFilter 
+              label='End Date' 
+              name='enddate_before' 
+              isDate={true} 
+              defaultValue={filterValues.enddate_before} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: Project) => row.enddate,
-      maxWidth: '120px',
     },
   ];
   
@@ -248,6 +317,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const clearSearch = () => {
     return handleSearch('')
   }
+  
   
   if(state.error){
     console.error(state.error)
