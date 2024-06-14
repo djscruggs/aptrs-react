@@ -294,7 +294,7 @@ export function Users() {
         }
         
         {/* END modal content */}
-      <div className="mt-6 flow-root">
+      <div className="flow-root">
         
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New User

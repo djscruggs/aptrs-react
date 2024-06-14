@@ -257,7 +257,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   return(
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
-      <div className="mt-6 flow-root" >
+      <div className="flow-root" >
         
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
           New Project

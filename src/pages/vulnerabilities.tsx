@@ -193,7 +193,7 @@ const Vulnerabilities = () => {
   return(
     <>
       <PageTitle title='Vulnerabilities' />
-      <div className="mt-6 flow-root" >
+      <div className="flow-root" >
         <Button 
           className='btn bg-primary float-right m-2 mr-0' 
           onClick={()=> navigate('/vulnerabilities/new')}
