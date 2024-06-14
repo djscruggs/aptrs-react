@@ -173,10 +173,8 @@ interface ReportParams {
   Standard: string[];
 }
 export async function getProjectReport(props: ReportParams) {
-  console.log(props)
   const {projectId, ...params} = props
   const url = apiUrl(`project/report/${projectId}/`);
-  console.log('url', url, 'params', params)
   const response = await axios.get(url, {params:{...params,  responseType: 'blob'}, ...authHeaders()})
   return response
 }
@@ -285,7 +283,6 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
   return response.data;
 }
 export async function uploadProjectVulnerabilities(projectId: number, file: File): Promise<any> {
-  console.log('starting upload')
   const url = apiUrl(`project/vulnerability/Nessus/csv/${projectId}/`)
   const config: AuthHeaders = authHeaders()
   config.headers['content-type'] = 'multipart/form-data'
@@ -326,7 +323,6 @@ export async function getCompany(id: string | undefined) {
 
 export async function upsertCompany(formData: Company): Promise<any> {
   let url = apiUrl(`customer/company/add`);
-  console.log('form in api',formData)
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/company/edit/${formData['id']}/`);
   }
@@ -439,7 +435,6 @@ export async function upsertUser(formData: User): Promise<any> {
     url = apiUrl(`auth/edituser/${formData['id']}`);
   }
   const response = await axios.post(url, temp, authHeaders());
-  console.log(response)
   return response.data;
 }
 export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {

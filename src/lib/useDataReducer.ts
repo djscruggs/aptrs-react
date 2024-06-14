@@ -44,7 +44,6 @@ export const useDataReducer = (reducer: (state: DatasetState, action: any) => Da
         return {...state, queryParams: newQueryParams};
       }       
       case 'set-sort': {
-        console.log('set-sort called', action.payload)
         let newQueryParams = {...state.queryParams, sort: action.payload.sort, order_by: action.payload.order_by}
         return {...state, queryParams: newQueryParams};
       }

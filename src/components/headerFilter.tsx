@@ -4,7 +4,7 @@ import { PiKeyReturnThin } from "react-icons/pi"
 import DatePicker from "react-datepicker";
 import { DatasetState } from '../lib/useDataReducer'
 import { CiCircleRemove } from "react-icons/ci";
-import { BiSortAZ, BiSortZA } from "react-icons/bi";
+import { FaArrowUp, FaArrowDown, FaFileArrowUp } from "react-icons/fa6";
 
 interface HeaderFilterProps {
   label: string;
@@ -100,8 +100,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
     }
   }
   const isSorted = currentFilter?.sort === name
-  
   const sortDirection = isSorted ? currentFilter.order_by : ''
+  const nextSort = sortDirection === 'asc' ? 'desc' : 'asc'
+  
   return (
     <>
     {active ? (
@@ -166,8 +167,8 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
         </>
     )}
     {handleSort && (
-      <span onClick={()=>handleSort(name, ['asc',''].includes(sortDirection)  ? 'desc' : 'asc')} className={`cursor-pointer ${sortDirection === '' ? 'opacity-50 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
-        {sortDirection === 'asc' ? <BiSortAZ className='inline w-5 h-5' /> : <BiSortZA className='inline w-5 h-5' />}
+      <span onClick={()=>handleSort(name, nextSort)} className={`cursor-pointer ml-1 ${sortDirection === '' ? 'opacity-50 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
+        {(sortDirection === 'asc' || sortDirection === '') ? <FaArrowUp className='inline w-4 h-4' /> : <FaArrowDown className='inline w-4 h-4' />}
       </span>
     )}
     </>

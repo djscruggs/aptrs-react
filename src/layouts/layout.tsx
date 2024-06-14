@@ -52,11 +52,11 @@ const Layout: React.FC = () => {
               <div className="flex-grow p-6 md:overflow-y-auto md:p-12 cursor-pointer">
                   {currentUser &&
                     <>
-                      <div className='hidden md:block md:absolute md:top-6 md:right-32 -z-10'>
+                      <div className='hidden md:block md:absolute md:top-6 md:right-32'>
                         <ThemeIcon size='md' theme={theme} toggleTheme={toggleTheme}/>
                       </div>
 
-                      <div className="md:flex md:items-center md:justify-center avatar placeholder absolute top-0 right-0 pt-4 pr-14 hidden -z-10">
+                      <div className="md:flex md:items-center md:justify-center avatar placeholder absolute top-0 right-0 pt-4 pr-14 hidden">
                         {currentUser.profilepic && 
                             <Link className='text-white' to="/profile">
                               <Avatar src={avatarUrl(currentUser.profilepic as string)} size="lg"/>
@@ -72,7 +72,7 @@ const Layout: React.FC = () => {
                       </div>
                       </>
                     }
-                <div className='mt-10'>
+                <div className='mt-10 z-10 bg-white dark:bg-gray-darkest'>
                   <Outlet />
                 </div>
               </div>
