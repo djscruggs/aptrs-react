@@ -445,8 +445,8 @@ function ReportForm(props: ReportFormProps){
     <label htmlFor='Type'>Type</label>
     <select name='Type' id='Type' className={StyleTextfield} onChange={handleChange}>
       <option value="">Select...</option>
+      <option value="Audit">Audit</option>
       <option value="Re-Audit">Re-Audit</option>
-      <option value="Re-Assessment">Re-Assessment</option>
     </select>
     <div className='mt-4'>
       <input 
