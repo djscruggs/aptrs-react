@@ -57,6 +57,7 @@ export interface Customer  {
   number?: string;
   position?: string;
   company?: string; 
+  is_active?: boolean;
   password?: string
   password_check?: string
 };

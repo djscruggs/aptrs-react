@@ -165,17 +165,20 @@ export function Customers() {
             />,
       selector: (row: Customer) => row.full_name,
     },
+    
     {
       name: <HeaderFilter 
-              label='Company' 
-              name='company' 
-              defaultValue={filterValues.company} 
+              label='Active?' 
+              name='is_active' 
+              defaultValue={filterValues.is_active} 
               onCommit={filterCommit} 
               onChange={handleFilter}
               currentFilter={state.queryParams}
               handleSort={handleSort}
+              isBoolean={true}
             />,
-      selector: (row: Customer) => row.company,
+      selector: (row: Customer) => row.is_active ? 'Yes' : 'No',
+      maxWidth: '120px'
     },
     {
       name: <HeaderFilter 
