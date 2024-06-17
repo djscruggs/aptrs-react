@@ -202,6 +202,15 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                             {project.name}
                           </div>
                         </div>
+                        <div className="w-full mb-4">
+                          <label className={StyleLabel}>
+                            Project Owner
+                          </label>
+                          
+                          <div className="relative cursor-text">
+                            {project.owner}
+                          </div>
+                        </div>
                         <div className="mt-4">
                           <label className={StyleLabel}>
                             Type
@@ -264,28 +273,41 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                   </TabPanel>
                   <TabPanel value="vulnerabilities">
                     <div className="relative max-w-xl">
-                      <input list="searchResults" placeholder='Search & add' value={searchValue} onFocus={()=>setShowSearchResults(true)} onBlur={()=>setShowSearchResults(false)} className="border border-gray-200 p-2 rounded-md w-3/4 " type="text" onChange={handleNameSearch} />
+                      <input 
+                        list="searchResults" 
+                        placeholder='Search & add' value={searchValue} 
+                        onFocus={()=>setShowSearchResults(true)} 
+                        onBlur={()=>setShowSearchResults(false)} 
+                        className="border border-gray-200 p-2 rounded-md w-3/4 " 
+                        type="text" 
+                        onChange={handleNameSearch} 
+                      />
                       {spinner && <Spinner className="h-6 w-6 -ml-8 inline" />}
                       {!spinner && searchValue && <BackspaceIcon onClick={()=>setSearchValue('')}className="text-secondary w-6 h-6 inline -ml-8" />}
                       
                     
                       <List className='max-w-xs'>
                           {searchResults.map((item, index)=>{
-                              return <ListItem key={`search-${item.id}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} >{item?.vulnerabilityname}</ListItem>
+                              return <><ListItem key={`search-${item.id}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} ><DocumentPlusIcon className="h-6 w-6 mr-1"/>{item?.vulnerabilityname}</ListItem></>
                             })
                           }
                       
-                        <ListItem key='addNew' className="cursor-pointer w-xs" onClick={()=>handleSelectedItem('new')}>
-                          <DocumentPlusIcon className="h-6 w-6 mr-1"/> 
-                            {showUploadCsv ? '': 'Add New or '}
-                            <span className={`ml-1 cursor-pointer ${showUploadCsv ? 'text-secondary' : 'text-primary'}`} onClick={toggleShowUploadCsv}>
-                              
-                              {showUploadCsv ? 'Cancel Upload' : 'Upload CSV'}
-                            </span>
-                          
-                        </ListItem> 
                       </List>
+                      
+                            <button key='addNewVulnerability' className="bg-primary text-white p-2 rounded-md" onClick={()=>handleSelectedItem('new')}>Add New</button>
+
+                            {showUploadCsv ? 
+                              <span className='text-secondary ml-4 underline' onClick={toggleShowUploadCsv}>cancel</span>
+                            :
+                              <button className={`ml-1 cursor-pointer bg-secondary text-white p-2 rounded-md`} onClick={toggleShowUploadCsv}>
+                                Upload CSV
+                              </button>
+                            }
+                            
+                      <div className='mt-4'>
                       <CSVInput projectId={Number(id)} visible={showUploadCsv} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
+                      
+                      </div>
                     </div>
                     
                     <div className='w-full'>
@@ -650,7 +672,7 @@ const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: C
           <BackspaceIcon className="w-4 h-4 inline mr-2 text-secondary" onClick={deleteCsvFile}/>
           {csvFileName}
         </div>
-        <button className='bg-primary text-sm text-white p-2 rounded-full block mt-4' onClick={handleCSVUpload}>Upload Now</button>
+        <button className='bg-secondary text-sm text-white p-2 rounded-full block mt-4' onClick={handleCSVUpload}>Upload Now</button>
         </>
       }
     </>
