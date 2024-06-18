@@ -4,7 +4,7 @@ import { PiKeyReturnThin } from "react-icons/pi"
 import DatePicker from "react-datepicker";
 import { DatasetState } from '../lib/useDataReducer'
 import { CiCircleRemove } from "react-icons/ci";
-import { FaArrowUp, FaArrowDown, FaFileArrowUp } from "react-icons/fa6";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa6";
 
 interface HeaderFilterProps {
   label: string;
@@ -47,7 +47,7 @@ interface HeaderFilterProps {
   onCommit: (event: any) => void;
   handleSort?: (name: string, order: string) => void;
   currentFilter: DatasetState['queryParams'];
-  }
+}
 export function HeaderFilter({label, name, defaultValue, isDate = false, isBoolean = false, onChange, onCommit, handleSort, currentFilter }: HeaderFilterProps): JSX.Element {
   const [active, setActive] = useState(isBoolean ? false : Boolean(defaultValue))
   const [value, setValue] = useState(defaultValue)
@@ -154,14 +154,14 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
           <span className='absolute top-20 left-4 bg-white  p-1 w-5/8 border border-gray-300 rounded-md'><PiKeyReturnThin className='inline w-5 h-5' /> to search</span>
         }
         {!value && !isBoolean  && 
-          <FunnelIcon key={name+ 'icon'} className='-ml-6 w-4 h-4' /> 
+          <FunnelIcon key={name+ 'icon'} className='-ml-6 w-3 h-3' /> 
         }
         
       </>
      ) : (
         <>
           <span onClick={()=>setActive(true)}>{label} 
-          <FunnelIcon key={name+ 'icon'} className='ml-2 w-4 h-4 inline'/></span>
+          <FunnelIcon key={name+ 'icon'} className='ml-2 w-3 h-3 inline'/></span>
         </>
     )}
     {handleSort && (

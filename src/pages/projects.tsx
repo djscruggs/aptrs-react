@@ -34,17 +34,14 @@ export function Projects(props:ProjectsProps): JSX.Element {
     mode: 'idle',
     data: [],
     queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
-    totalRows: 0,
-    sortField: '',
-    sortDirection: ''
-  };
+    totalRows: 0
+  }
   
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
   const search = params.get('name') || '';
-  const theme = useContext(ThemeContext);
- 
+  
   if(search){
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
   }
@@ -86,6 +83,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
     owner: '',
     status: '',
     projecttype: '',
+    testingtype: '',
     startdate: '',
     enddate_before: ''
   });
@@ -145,7 +143,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
       status: '',
       projecttype: '',
       startdate: '',
-      enddate_before: ''
+      enddate_before: '',
+      testingtype: ''
     })
     dispatch({ type: 'reset'})
   }
@@ -156,8 +155,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
     {
       name: 'Actions',
       selector: (row: any) => row.actions,
-      maxWidth: '1rem',
-      omit: props.embedded
+      omit: props.embedded,
+      maxWidth: '1rem'
     },
     {
       name: props.mine ? 'Name' 
@@ -223,7 +222,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       name: props.mine ? 'Project Type' 
             : 
             <HeaderFilter 
-              label='Project Type' 
+              label='Type' 
               name='projecttype' 
               defaultValue={filterValues.projecttype} 
               onCommit={filterCommit} 
@@ -232,14 +231,27 @@ export function Projects(props:ProjectsProps): JSX.Element {
               handleSort={handleSort}
               />,
       selector: (row: Project) => row.projecttype,
-      maxWidth: '200px',
+    },
+    {
+      name: props.mine ? 'Testing Type' 
+            : 
+            <HeaderFilter 
+              label='Testing Type' 
+              name='testingtype' 
+              defaultValue={filterValues.testingtype} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
+      selector: (row: Project) => row.testingtype,
     },
     
     {
-      name: props.mine ? 'Start Date' 
+      name: props.mine ? 'Starts' 
             : 
             <HeaderFilter 
-              label='Start Date' 
+              label='Starts' 
               name='startdate' 
               isDate={true} 
               defaultValue={filterValues.startdate} 
@@ -249,14 +261,14 @@ export function Projects(props:ProjectsProps): JSX.Element {
               handleSort={handleSort}
               />,
       selector: (row: Project) => row.startdate,
-      
+      maxWidth: '7rem',
     },
     {
-      name: props.mine ? 'End Date' 
+      name: props.mine ? 'Ends' 
             
       : 
             <HeaderFilter 
-              label='End Date' 
+              label='Ends' 
               name='enddate_before' 
               isDate={true} 
               defaultValue={filterValues.enddate_before} 
@@ -266,6 +278,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
               handleSort={handleSort}
               />,
       selector: (row: Project) => row.enddate,
+      maxWidth: '7rem',
     },
   ];
   
@@ -317,13 +330,30 @@ export function Projects(props:ProjectsProps): JSX.Element {
   const clearSearch = () => {
     return handleSearch('')
   }
-  
-  
   if(state.error){
     console.error(state.error)
     console.log('state.error is', state.error)
     return <ErrorPage message={state.error}/>
   }
+  const customStyles = {
+    // rows: {
+    //   style: {
+    //     minHeight: '72px', // override the row height
+    //   },
+    // },
+    headCells: {
+      style: {
+        paddingLeft: '4px', // override the cell padding for head cells
+        paddingRight: '4px',
+      },
+    },
+    cells: {
+      style: {
+        paddingLeft: '4px', // override the cell padding for data cells
+        paddingRight: '4px',
+      },
+    },
+  };
   return(
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
@@ -353,7 +383,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
             data={formatDataActions(state.data)}
             selectableRows={!props.embedded}
             onRowClicked={onRowClicked}
-            onSort={handleSort}
             progressPending={state.mode != 'idle'}
             pagination
             paginationServer
@@ -365,6 +394,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             highlightOnHover
             fixedHeader
             onSelectedRowsChange={handleSelectedChange}
+            customStyles={customStyles}
             theme={useContext(ThemeContext)}
           />
         </div>  
