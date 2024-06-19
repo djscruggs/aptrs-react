@@ -172,9 +172,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           <PageTitle title={id ? "Edit Project" : "Create Project"} />
       
           <div className='grid grid-cols-2'>
-            <div className="w-full p-4 pl-0">
-              
-                <div className="mt-4">
+            <div className="w-full ">
+              <div className='flex'>
+                <div className="mt-0 w-1/2 pr-2">
                   <label
                     className={StyleLabel}
                     htmlFor="name"
@@ -194,8 +194,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     />
                     {errors.name && <p>{errors.name}</p>} 
                   </div>
-                </div>
-                <div className="mt-4">
+              </div>  
+              <div className="mt-0 w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="projecttype"
@@ -217,7 +217,30 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.projecttype && <p>{errors.projecttype}</p>} 
                   </div>
                 </div>
-                <div className="mt-4">
+              </div>
+              <div className='flex mt-4'>
+                <div className="mt-0 w-1/2 pr-2">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="testingtype"
+                  >
+                    Testing Type
+                  </label>
+                  <div className="relative">
+                    <input
+                      name="testingtype"
+                      id="testingtype"
+                      value = {formData.testingtype || ''}
+                      placeholder='Black Box, White Box etc'
+                      onChange={handleChange}
+                      className={StyleTextfield}
+                      type="text"
+                      required
+                    />
+                    {errors.testingtype && <FormErrorMessage message={errors.testingtype} />} 
+                  </div>
+                </div>
+                <div className="mt-0 w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="status"
@@ -239,8 +262,68 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.status && <p>{errors.status}</p>} 
                   </div>
                 </div>
-                
-                <div className="mt-4">
+              </div>
+              <div className="mt-8 min-h-[200px] w-full">
+                <label
+                  className={StyleLabel}
+                  htmlFor="description"
+                >
+                  Description
+                </label>
+              <div className="relative">
+                <CKWrapper
+                  id="description"
+                  data = {formData.description}
+                  onChange={handleCKchange}
+                />
+                  
+                {errors.description && <FormErrorMessage message={errors.description} />} 
+              </div>
+              </div>
+            </div>
+            <div className="w-full pl-8">
+              <div className='flex mb-4'>
+                <div className="mt-0 w-1/2">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="startdate"
+                  >
+                    Start Date
+                  </label>
+                  <div className="relative mt-4 border p-1 rounded-md">
+                      <DatePicker
+                        id="startdate"
+                        name="startdate"
+                        placeholderText='Select date'
+                        dateFormat="yyyy-MM-dd"
+                        onChange={(date:string) => handleDatePicker('startdate', date)}
+                        selected={formData.startdate ? new Date(formData.startdate) : ''}
+                      />
+                    {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
+                  </div>
+                </div>
+                <div className="mt-0 w-1/2 ml-2 ">
+                  <label
+                    className={StyleLabel}
+                    htmlFor="enddate"
+                  >
+                    End Date
+                  </label>
+                  <div className="relative mt-4 border p-1 rounded-md">
+                    <DatePicker
+                      id="enddate"
+                      name="enddate"
+                      placeholderText='Select date'
+                      dateFormat="yyyy-MM-dd"
+                      onChange={(date:string) => handleDatePicker('enddate', date)}
+                      selected={formData.enddate ? new Date(formData.enddate) : ''}
+                    />
+                    {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
+                  </div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className="mt-0 w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="companyname"
@@ -262,78 +345,55 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       />
                     }
                     {formData.id &&
-                      <span>{formData.companyname}</span>
+                      <div className='mt-5'>{formData.companyname}</div>
                     }
                     
                     {errors.companyname && <FormErrorMessage message={errors.companyname} />} 
                   </div>
                 </div>
-                
-              
-            </div>
-            <div className="w-full p-4">
-              <div className='grid grid-cols-2'>
-                <div className="mt-4">
+                <div className="mt-0 w-1/2">
                   <label
                     className={StyleLabel}
-                    htmlFor="startdate"
+                    htmlFor="owner"
                   >
-                    Start Date
+                    Project Owner
                   </label>
                   <div className="relative">
-                      <DatePicker
-                        id="startdate"
-                        name="startdate"
-                        placeholderText='Select date'
-                        dateFormat="yyyy-MM-dd"
-                        onChange={(date:string) => handleDatePicker('startdate', date)}
-                        selected={formData.startdate ? new Date(formData.startdate) : ''}
+                    {currentUser?.isAdmin  &&
+                    <>
+                      {!users && <SingleInputSkeleton />}
+                      <select name="owner"
+                              id="owner"
+                              value={formData.owner} 
+                              onChange={handleChange}
+                              className={StyleTextfield}
+                      >
+                          
+                          {users && users.map(user =>
+                            <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
+                          )};
+                    
+                      </select>
+                      </>
+                    }
+                    {!currentUser?.isAdmin  &&
+                      <input
+                        name='owner'
+                        value = {formData.owner}
+                        onChange={handleChange}
+                        className={StyleTextfield}
+                        type="text"
+                        placeholder={currentUser.username} 
+                        disabled={true}
                       />
-                    {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <label
-                    className={StyleLabel}
-                    htmlFor="enddate"
-                  >
-                    End Date
-                  </label>
-                  <div className="relative">
-                    <DatePicker
-                      id="enddate"
-                      name="enddate"
-                      placeholderText='Select date'
-                      dateFormat="yyyy-MM-dd"
-                      onChange={(date:string) => handleDatePicker('enddate', date)}
-                      selected={formData.enddate ? new Date(formData.enddate) : ''}
-                    />
-                    {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
+
+                    }
+                    {errors.owner && <FormErrorMessage message={errors.owner} />} 
                   </div>
                 </div>
               </div>
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="testingtype"
-                >
-                  Testing Type
-                </label>
-                <div className="relative">
-                  <input
-                    name="testingtype"
-                    id="testingtype"
-                    value = {formData.testingtype || ''}
-                    placeholder='Black Box, White Box etc'
-                    onChange={handleChange}
-                    className={StyleTextfield}
-                    type="text"
-                    required
-                  />
-                  {errors.testingtype && <FormErrorMessage message={errors.testingtype} />} 
-                </div>
-              </div>
-              <div className="mt-4">
+              
+              <div className="mt-9">
                 <label
                   className={StyleLabel}
                   htmlFor="projectexception"
@@ -341,82 +401,25 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   Project Exception
                 </label>
                 <div className="relative">
-                  <input
-                    name="projectexception"
+                  <CKWrapper
                     id="projectexception"
-                    value = {formData.projectexception || ''}
-                    onChange={handleChange}
-                    className={StyleTextfield}
-                    type="text"
+                    data = {formData.projectexception}
+                    onChange={handleCKchange}
                   />
+                  
                   {errors.projectexception && <FormErrorMessage message={errors.projectexception} />} 
                 </div>
               </div>
               
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="owner"
-                >
-                  Project Owner
-                </label>
-                <div className="relative">
-                  {currentUser?.isAdmin  &&
-                  <>
-                    {!users && <SingleInputSkeleton />}
-                    <select name="owner"
-                            id="owner"
-                            value={formData.owner} 
-                            onChange={handleChange}
-                            className={StyleTextfield}
-                    >
-                        
-                        {users && users.map(user =>
-                          <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
-                        )};
-                  
-                    </select>
-                    </>
-                  }
-                  {!currentUser?.isAdmin  &&
-                    <input
-                      name='owner'
-                      value = {formData.owner}
-                      onChange={handleChange}
-                      className={StyleTextfield}
-                      type="text"
-                      placeholder={currentUser.username} 
-                      disabled={true}
-                    />
-
-                  }
-                  {errors.owner && <FormErrorMessage message={errors.owner} />} 
-                </div>
-              </div>
+              
               
             </div>
             
           </div>
 
-          <div className="mt-4 min-h-[200px] w-full">
-            <label
-              className={StyleLabel}
-              htmlFor="description"
-            >
-              Description
-            </label>
-            <div className="relative">
-              <CKWrapper
-                id="description"
-                data = {formData.description}
-                onChange={handleCKchange}
-              />
-                
-                {errors.description && <FormErrorMessage message={errors.description} />} 
-            </div>
-          </div>
+          
           <div className="p-2 flex">
-            <div className="w-1/2 flex justify-left mt-4">
+            <div className="w-1/2 flex justify-left mt-2">
               <Button 
                 type="submit" 
                 className="w-sm bg-primary"
