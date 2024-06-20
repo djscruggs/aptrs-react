@@ -28,11 +28,7 @@ export default function FilterInput(props: FilterInputProps) {
           e.preventDefault();
           e.stopPropagation();
           if (filteredArray.length > 0) {
-            //create object that matches the shape of an HTML input event
-            const obj = {target: {name: name, value:filteredArray[kbIndex].value}} 
-            onSelect(obj as React.ChangeEvent<HTMLInputElement>);
-            setFilteredArray([]);
-            setKbIndex(0);
+            propagateChange(filteredArray[kbIndex].value);
           }
         }
         if(e.key === "Escape" || e.key === "Tab") {
@@ -49,6 +45,20 @@ export default function FilterInput(props: FilterInputProps) {
     }
     return;
   }
+  const propagateChange = (value:string) => {
+    setSearch(value);
+    const obj = formatValue(value);
+    onSelect(obj);
+    setFilteredArray([]);
+    setKbIndex(0);
+    
+  }
+  const formatValue = (value:string) => {
+    // formats value as change event
+    const obj = {target: {name: name, value:value}} 
+    return obj as React.ChangeEvent<HTMLInputElement>
+  }
+  
   return (
     <div className="relative">
       <input
@@ -63,7 +73,12 @@ export default function FilterInput(props: FilterInputProps) {
       {search.length > 0 && filteredArray.length > 0 &&
         <div className="absolute top-50 z-[1000] left-1 bg-white border-gray-lighter border rounded-b-md max-h-[200px] overflow-y-scroll">
           {filteredArray?.map((item, index) => (
-            <FilterItem item={item} index={index} kbIndex={kbIndex} name={name} />
+            <FilterItem 
+              item={item} 
+              index={index} 
+              kbIndex={kbIndex} 
+              name={name} 
+              onClick={propagateChange}/>
           ))}
         </div>
       }
@@ -72,10 +87,10 @@ export default function FilterInput(props: FilterInputProps) {
   
 }
 
-function FilterItem(props: {item: {label: string, value: string}, index: number, kbIndex: number, name: string}) {
-  const {item, index, kbIndex, name} = props;
+function FilterItem(props: {item: {label: string, value: string}, index: number, kbIndex: number, name: string, onClick: (value: string) => void}) {
+  const {item, index, kbIndex, name, onClick} = props;
   const display = item.value !== item.label ? `${item.value} - ${item.label}` : item.value;
   return (
-    <div id={`item-${name}-${index}`} className={`p-2 hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{display}</div>
+    <div onClick={() => onClick(item.value)} id={`item-${name}-${index}`} className={`p-2 hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{display}</div>
   )
 }
