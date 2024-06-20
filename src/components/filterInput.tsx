@@ -5,7 +5,7 @@ interface FilterInputProps {
   searchArray: {label: string, value: string}[] | undefined;
   defaultValue: string;
   name: string;
-  onSelect: (value: string) => void;
+  onSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function FilterInput(props: FilterInputProps) {
@@ -28,11 +28,12 @@ export default function FilterInput(props: FilterInputProps) {
           e.preventDefault();
           e.stopPropagation();
           if (filteredArray.length > 0) {
-            onSelect(filteredArray[kbIndex].value);
+            //create object that matches the shape of an HTML input event
+            const obj = {target: {name: name, value:filteredArray[kbIndex].value}} 
+            onSelect(obj as React.ChangeEvent<HTMLInputElement>);
             setFilteredArray([]);
             setKbIndex(0);
           }
-          
         }
         if(e.key === "Escape" || e.key === "Tab") {
           setFilteredArray([]);
@@ -52,6 +53,7 @@ export default function FilterInput(props: FilterInputProps) {
     <div className="relative">
       <input
         type="text"
+        placeholder='Type to see options'
         value={search}
         onFocus={() => setKbIndex(0)}
         className={StyleTextfield}
@@ -61,11 +63,19 @@ export default function FilterInput(props: FilterInputProps) {
       {search.length > 0 && filteredArray.length > 0 &&
         <div className="absolute top-50 z-[1000] left-1 bg-white border-gray-lighter border rounded-b-md max-h-[200px] overflow-y-scroll">
           {filteredArray?.map((item, index) => (
-            <div id={`item-${name}-${index}`} className={`p-2 hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{item.value} - {item.label}</div>
+            <FilterItem item={item} index={index} kbIndex={kbIndex} name={name} />
           ))}
         </div>
       }
     </div>
     )
   
+}
+
+function FilterItem(props: {item: {label: string, value: string}, index: number, kbIndex: number, name: string}) {
+  const {item, index, kbIndex, name} = props;
+  const display = item.value !== item.label ? `${item.value} - ${item.label}` : item.value;
+  return (
+    <div id={`item-${name}-${index}`} className={`p-2 hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{display}</div>
+  )
 }

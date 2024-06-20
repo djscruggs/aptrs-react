@@ -10,7 +10,7 @@ import FilterInput from '../components/filterInput';
 interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   name: string
   value: any,
-  changeHandler: React.ChangeEventHandler | undefined
+  changeHandler: React.ChangeEventHandler | ((e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void)
   error?: boolean
   required?:boolean
 }
@@ -30,6 +30,12 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
     }
     loadCompanies()
   }, []);
+  const handleChange = (event:React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    //create object that matches the shape of an HTML input event
+    // const obj = {target: {name:props.name, value:value}} 
+    props.changeHandler && props.changeHandler(event)
+    
+  }
   if(typeof companies === 'undefined'){
     return (<SingleInputSkeleton />)
   }
@@ -39,10 +45,10 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
               name={props.name}
               defaultValue={props.value}
               searchArray={companies && companies.map(company => ({label: company.name as string, value: company.name as string}))}
-              onSelect={props.changeHandler}
+              onSelect={handleChange}
             />
            
-           {companies && (
+           {/* {companies && (
             <select name={props.name}
               value={props.value} 
               onChange={props.changeHandler}
@@ -54,7 +60,7 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
                 <option key={company.id} value={company.name}>{company.name}</option>
            ))}
             </select>
-          )}
+          )} */}
           </>
   )
 }

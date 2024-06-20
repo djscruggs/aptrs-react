@@ -103,7 +103,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     }));
   }
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-    console.log(event.target.name, event.target.value)
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -368,22 +367,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                           name='owner'
                           defaultValue={formData.owner}
                           searchArray={users && users.map(user => ({label: user.full_name as string, value: user.username as string}))}
-                          onSelect={(value:string) => handleChange({target: {name: 'owner', value: value}} as unknown as ChangeEvent<HTMLInputElement>)}
+                          onSelect={handleChange}
                         />
-                    }
-                      
-                    
-                    {!currentUser?.isAdmin  &&
-                      <input
-                        name='owner'
-                        value = {formData.owner}
-                        onChange={handleChange}
-                        className={StyleTextfield}
-                        type="text"
-                        placeholder={currentUser.username} 
-                        disabled={true}
-                      />
-
                     }
                     {errors.owner && <FormErrorMessage message={errors.owner} />} 
                   </div>
