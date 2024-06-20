@@ -12,6 +12,7 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
+import FilterInput from '../components/filterInput';
 import CKWrapper from '../components/ckwrapper';
 import CompanySelect from '../components/company-select';
 import { WithAuth } from "../lib/authutils";
@@ -102,12 +103,14 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     }));
   }
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
+    console.log(event.target.name, event.target.value)
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
   };
+  
   const handleDatePicker = (input: string, value:string): void => {
     console.log(input, value)
     const formattedDate = new Date(value).toLocaleDateString('en-CA'); // 'en-CA' is the locale for Canada, which uses the 'yyyy-MM-dd' format
@@ -174,7 +177,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           <div className='grid grid-cols-2'>
             <div className="w-full ">
               <div className='flex'>
-                <div className="mt-0 w-1/2 pr-2">
+                <div className="w-1/2 pr-2">
                   <label
                     className={StyleLabel}
                     htmlFor="name"
@@ -195,7 +198,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.name && <p>{errors.name}</p>} 
                   </div>
               </div>  
-              <div className="mt-0 w-1/2">
+              <div className="w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="projecttype"
@@ -219,7 +222,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 </div>
               </div>
               <div className='flex mt-4'>
-                <div className="mt-0 w-1/2 pr-2">
+                <div className="w-1/2 pr-2">
                   <label
                     className={StyleLabel}
                     htmlFor="testingtype"
@@ -240,7 +243,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.testingtype && <FormErrorMessage message={errors.testingtype} />} 
                   </div>
                 </div>
-                <div className="mt-0 w-1/2">
+                <div className="w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="status"
@@ -283,7 +286,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
             </div>
             <div className="w-full pl-8">
               <div className='flex mb-4'>
-                <div className="mt-0 w-1/2">
+                <div className="w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="startdate"
@@ -302,7 +305,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
                   </div>
                 </div>
-                <div className="mt-0 w-1/2 ml-2 ">
+                <div className="w-1/2 ml-2 ">
                   <label
                     className={StyleLabel}
                     htmlFor="enddate"
@@ -323,7 +326,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 </div>
               </div>
               <div className='flex'>
-                <div className="mt-0 w-1/2">
+                <div className="w-1/2">
                   <label
                     className={StyleLabel}
                     htmlFor="companyname"
@@ -333,6 +336,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   
                   
                   <div className="relative">
+                    
                     {/* only show company select for new objects */}
                     {!formData.id  &&
                       <CompanySelect 
@@ -351,7 +355,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     {errors.companyname && <FormErrorMessage message={errors.companyname} />} 
                   </div>
                 </div>
-                <div className="mt-0 w-1/2">
+                <div className="w-1/2 pl-2">
                   <label
                     className={StyleLabel}
                     htmlFor="owner"
@@ -360,22 +364,15 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                     {currentUser?.isAdmin  &&
-                    <>
-                      {!users && <SingleInputSkeleton />}
-                      <select name="owner"
-                              id="owner"
-                              value={formData.owner} 
-                              onChange={handleChange}
-                              className={StyleTextfield}
-                      >
-                          
-                          {users && users.map(user =>
-                            <option key={user.id} value={user.username}>{user.full_name} ({user.username})</option>
-                          )};
-                    
-                      </select>
-                      </>
+                      <FilterInput
+                          name='owner'
+                          defaultValue={formData.owner}
+                          searchArray={users && users.map(user => ({label: user.full_name as string, value: user.username as string}))}
+                          onSelect={(value:string) => handleChange({target: {name: 'owner', value: value}} as unknown as ChangeEvent<HTMLInputElement>)}
+                        />
                     }
+                      
+                    
                     {!currentUser?.isAdmin  &&
                       <input
                         name='owner'

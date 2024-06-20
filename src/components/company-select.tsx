@@ -5,6 +5,7 @@ import { StyleTextfield } from '../lib/formstyles';
 import { StyleTextfieldError } from '../lib/formstyles';
 import {SingleInputSkeleton} from './skeletons'
 import {sortByPropertyName} from '../lib/utilities'
+import FilterInput from '../components/filterInput';
 
 interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   name: string
@@ -34,6 +35,12 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
   }
   return (
           <>
+            <FilterInput
+              name={props.name}
+              defaultValue={props.value}
+              searchArray={companies && companies.map(company => ({label: company.name as string, value: company.name as string}))}
+              onSelect={props.changeHandler}
+            />
            
            {companies && (
             <select name={props.name}
