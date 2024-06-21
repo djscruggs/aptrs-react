@@ -18,9 +18,18 @@ export default function FilterInput(props: FilterInputProps) {
     if(e.target?.value==''){
       setKbIndex(0);
     }
-    setSearch(e.target.value);
+    propagateChange(e.target.value);
     setFilteredArray(searchArray?.filter(item => item.label.toLowerCase().includes(e.target.value.toLowerCase()) || item.value.toLowerCase().includes(e.target.value.toLowerCase())) || []);
   }
+  const propagateChange = (value:string) => {
+    setSearch(value);
+    const obj = formatValue(value);
+    onSelect(obj);
+    setFilteredArray([]);
+    setKbIndex(0);
+    
+  }
+  
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (searchArray) {
         if (e.key === "Enter") {
@@ -44,14 +53,6 @@ export default function FilterInput(props: FilterInputProps) {
         }
     }
     return;
-  }
-  const propagateChange = (value:string) => {
-    setSearch(value);
-    const obj = formatValue(value);
-    onSelect(obj);
-    setFilteredArray([]);
-    setKbIndex(0);
-    
   }
   const formatValue = (value:string) => {
     // formats value as change event

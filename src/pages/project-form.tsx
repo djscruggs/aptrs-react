@@ -15,18 +15,16 @@ import PageTitle from '../components/page-title';
 import FilterInput from '../components/filterInput';
 import CKWrapper from '../components/ckwrapper';
 import CompanySelect from '../components/company-select';
+import UserSelect from '../components/user-select';
 import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
 import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
-import { 
-    getProject,
-    fetchUsers } from '../lib/data/api';
+import { getProject } from '../lib/data/api';
 import { upsertProject} from '../lib/data/api';
-import { Project, User } from '../lib/data/definitions'
+import { Project } from '../lib/data/definitions'
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { sortByPropertyName } from '../lib/utilities';
 import { useCurrentUser } from '../lib/customHooks';
 
 interface FormErrors {
@@ -69,7 +67,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     owner: currentUser.username,
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [users, setUsers] = useState<User[]>();
   useEffect(() => {
     const loadData = async () => {    
       if (id) {
@@ -85,13 +82,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           setLoading(false);
         }
       }
-      fetchUsers()
-      .then((data) => {
-        const sorted = sortByPropertyName(data, 'full_name')
-        setUsers(sorted)
-      }).catch((error) => {
-        setSaveError(error)
-      })
+      
     };
     loadData();
   }, [id]);
@@ -363,11 +354,13 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </label>
                   <div className="relative">
                     {currentUser?.isAdmin  &&
-                      <FilterInput
+                      <UserSelect
                           name='owner'
                           defaultValue={formData.owner}
-                          searchArray={users && users.map(user => ({label: user.full_name as string, value: user.username as string}))}
-                          onSelect={handleChange}
+                          value={formData.owner || ''} 
+                          changeHandler={handleChange} 
+                          required={true}
+                          error={errors.owner ? true : false}
                         />
                     }
                     {errors.owner && <FormErrorMessage message={errors.owner} />} 
