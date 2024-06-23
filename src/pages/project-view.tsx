@@ -636,10 +636,12 @@ const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: C
     if(csvFile){
       try {
         const result = await uploadProjectVulnerabilities(projectId, csvFile)
+        toast.success('Upload complete')
         resetUploader()
         afterUpload(result)
       } catch(error){
         console.error(error)
+        toast.error(String(error))
         afterUploadError(error)
       }
     }
