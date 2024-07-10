@@ -667,6 +667,7 @@ const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: C
   }
   return (
     <>
+      <p className='text-sm my-2 ml-2'>Click <span className='font-bold'>Choose File</span> to select a CSV</p>
       <input type="file"
         id="csv"
         key="csv"
