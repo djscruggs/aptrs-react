@@ -452,6 +452,7 @@ function ReportForm(props: ReportFormProps){
         link.click();
         document.body.removeChild(link);
       }
+      toast.success('Report downloaded')
       
     } catch(error){
       setError("Error fetching report")
