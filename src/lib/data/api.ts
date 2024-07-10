@@ -6,11 +6,12 @@ import {  Company,
           Vulnerability,
           FilteredSet} from './definitions'
 import axios from 'axios'
+import saveAs from 'file-saver'
 interface AuthHeaders {
   headers: Record<string, string>;
 }
 
-function apiUrl(endpoint:string = ''): string {
+export function apiUrl(endpoint:string = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
 }
 export function uploadUrl(): string {
@@ -167,15 +168,20 @@ export async function searchProjects(name:string) {
   return response.data;
 }
 interface ReportParams {
-  projectId: number;
-  Format: string;
-  Type: string;
-  Standard: string[];
+  projectId: number
+  Format: string
+  Type: string
+  Standard: string[]
 }
 export async function getProjectReport(props: ReportParams) {
   const {projectId, ...params} = props
-  const url = apiUrl(`project/report/${projectId}/`);
-  const response = await axios.get(url, {params:{...params,  responseType: 'blob'}, ...authHeaders()})
+  const url = apiUrl(`project/report/${projectId}/`)
+  const config = {
+    responseType: 'blob' as const,
+    ...authHeaders(),
+    params: params
+  }
+  const response = await axios.get(url, config)
   return response
 }
 export async function getProject(id: string | undefined) {

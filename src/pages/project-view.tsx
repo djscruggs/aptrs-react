@@ -14,7 +14,10 @@ import { getProject,
         insertProjectScopes,
         updateProjectScope,
         getProjectReport,
-        deleteProjectScope } from '../lib/data/api';
+        deleteProjectScope, 
+        apiUrl,
+        authHeaders, getAuthUser } from '../lib/data/api';
+import axios from 'axios';
 import { Project, Vulnerability } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
@@ -427,18 +430,29 @@ function ReportForm(props: ReportFormProps){
   const fetchReport = async () => {
     setLoading(true)
     try {
-      
       const response = await getProjectReport(formData)
-      console.log(response.data)
-      const file = new Blob([response.data], { type: `application/${formData.Format}` });
-      console.log(file)
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'report';
+      if (contentDisposition && contentDisposition.includes('filename=')) {
+        filename = contentDisposition
+          .split('filename=')[1]
+          .split(';')[0]
+          .replace(/"/g, '');
+      }
+      const contentType = response.headers['content-type'];
+      const blob = new Blob([response.data], { type: contentType });
+      if (formData.Format === 'pdf') {
+        const pdfURL = URL.createObjectURL(blob);
+        window.open(pdfURL);
+      } else {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
       
-      const fileURL = URL.createObjectURL(file)
-      setReportUrl(fileURL)
-      window.open(fileURL, '_blank')
-      console.log(fileURL)
-      
-      // window.open(fileURL, '_blank');
     } catch(error){
       setError("Error fetching report")
       console.error(error)
