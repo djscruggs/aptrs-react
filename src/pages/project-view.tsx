@@ -297,19 +297,17 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           }
                       
                       </List>
-                      
-                            <button key='addNewVulnerability' className="bg-primary text-white p-2 rounded-md" onClick={()=>handleSelectedItem('new')}>Add New</button>
-
-                            {showUploadCsv ? 
-                              <span className='text-secondary ml-4 underline' onClick={toggleShowUploadCsv}>cancel</span>
-                            :
+                      {!showUploadCsv &&
+                            <>
+                              <button key='addNewVulnerability' className="bg-primary text-white p-2 rounded-md" onClick={()=>handleSelectedItem('new')}>Add New</button>                            
                               <button className={`ml-1 cursor-pointer bg-secondary text-white p-2 rounded-md`} onClick={toggleShowUploadCsv}>
-                                Upload CSV
+                                  Upload CSV
                               </button>
-                            }
-                            
+                            </>
+                      }
+                      
                       <div className='mt-4'>
-                      <CSVInput projectId={Number(id)} visible={showUploadCsv} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
+                      <CSVInput projectId={Number(id)} visible={showUploadCsv} hide={(event)=>toggleShowUploadCsv(event)} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
                       
                       </div>
                     </div>
@@ -617,10 +615,11 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
 interface CSVInputProps {
   projectId: number
   visible: boolean
+  hide: () => void
   afterUpload: (data: any) => void
   afterUploadError: (error: any) => void
 }
-const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: CSVInputProps): JSX.Element => {
+const CSVInput = ({projectId, visible = false, hide, afterUpload, afterUploadError}: CSVInputProps): JSX.Element => {
   // /api/project/vulnerability/Nessus/csv/<project-id>/
   const fileInput = useRef<HTMLInputElement>(null)
   const [csvFileName, setCsvFileName] = useState('')
@@ -667,7 +666,7 @@ const CSVInput = ({projectId, visible = false, afterUpload, afterUploadError}: C
   }
   return (
     <>
-      <p className='text-sm my-2 ml-2'>Click <span className='font-bold'>Choose File</span> to select a CSV</p>
+      <p className='text-sm my-2'>Click <span className='font-bold'>Choose File</span> to select a CSV or <span className='underline cursor-pointer text-secondary' onClick={hide}>cancel</span></p>
       <input type="file"
         id="csv"
         key="csv"
