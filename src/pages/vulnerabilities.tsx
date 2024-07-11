@@ -1,4 +1,4 @@
-import {Vulnerability, Column, FilteredSet} from '../lib/data/definitions';
+import {Vulnerability, Column, FilteredSet, VulnWithActions} from '../lib/data/definitions';
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
@@ -15,10 +15,6 @@ import { HeaderFilter, ClearFilter } from '../components/headerFilter';
 import { ThemeContext } from '../layouts/layout';
 
 
-interface VulnWithActions extends Vulnerability {
-  actions?: JSX.Element;
-  severity?:JSX.Element;
-}
 
  
 const Vulnerabilities = () => {

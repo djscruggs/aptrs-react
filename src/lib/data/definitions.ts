@@ -108,6 +108,11 @@ export type User = {
   password?: string;
   password_check?: string;  
 }
+export interface VulnWithActions extends Vulnerability {
+  actions?: JSX.Element;
+  severity?:JSX.Element;
+}
+
 export type IPAddressInfo = {
   ip: string;
   network: string;

@@ -1,9 +1,10 @@
 import React, { 
   useState, 
   useEffect,
-  useRef
+  useRef,
+  useContext
 } from 'react';
-import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { WithAuth } from "../lib/authutils";
 import { FormSkeleton } from '../components/skeletons'
 import { getProject, 
@@ -14,17 +15,15 @@ import { getProject,
         insertProjectScopes,
         updateProjectScope,
         getProjectReport,
-        deleteProjectScope, 
-        apiUrl,
-        authHeaders, getAuthUser } from '../lib/data/api';
-import axios from 'axios';
-import { Project, Vulnerability } from '../lib/data/definitions'
+        deleteProjectScope} from '../lib/data/api';
+import DataTable from 'react-data-table-component';
+import { Project, Vulnerability, VulnWithActions, Column } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
 import PageTitle from '../components/page-title';
 import { useDebounce } from '@uidotdev/usehooks';
 import { toast } from 'react-hot-toast';
-import { List, ListItem, Select, Spinner } from '@material-tailwind/react';
+import { List, ListItem, Spinner } from '@material-tailwind/react';
 import {
   Tabs,
   TabsHeader,
@@ -38,6 +37,7 @@ import {  DocumentPlusIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { uploadProjectVulnerabilities } from '../lib/data/api';
 import vulnerabilities from './vulnerabilities';
+import { ThemeContext } from '../layouts/layout';
 
 interface ProjectViewProps {
   id?: string; // Make the ID parameter optional
@@ -60,23 +60,13 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [findings, setFindings] = useState<Vulnerability[]>([])
   const [loadingError, setLoadingError] = useState(false);
   const [refresh, setRefresh] = useState(false) //setting to true refreshes the data
-  const [searchValue, setSearchValue] = useState('')
-  const [spinner, setSpinner] = useState(false) //shows spinner for vulnerability search
-  const debouncedValue = useDebounce<string>(searchValue, 500)
-  const [searchResults, setSearchResults] = useState<{ id:number, vulnerabilityname: string }[]>([])
-  const [showSearchResults, setShowSearchResults] = useState(false)
+  
   const [editingScope, setEditingScope] = useState<number | null>(null)
-  const [showUploadCsv, setShowUploadCsv] = useState(false)
   const [newScope, setNewScope] = useState(false)
-  const navigate = useNavigate()
   
   const loadScopes = async () => {
     const _scopes = await getProjectScopes(id) as Scope[]
     setScopes(_scopes)
-  }
-  const loadFindings = async () => {
-    const _findings = await fetchProjectFindings(id) as Vulnerability[]
-    setFindings(_findings)
   }
   useEffect(() => {
     const loadData = async () => {
@@ -87,7 +77,6 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
           setProject(projectData as Project);
           //TODO pagination on findings
           // api/project/vulnerability/instances/filter/ <vulnerability-id>/?URL=&Parameter=&status=&limit=1&offset=0 
-          loadFindings()
           loadScopes()
         } catch (error) {
           console.error("Error fetching project data:", error);
@@ -101,44 +90,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     loadData();
   }, [id, refresh]);
   
-  useEffect(() => {
-    
-    if(debouncedValue){
-      setSpinner(true)
-      searchVulnerabilities(debouncedValue).then((data) => {
-        //filter out the ones that are already in the project
-        const filteredData = data.filter((item: { vulnerabilityname: string }) => {
-          return !findings.some((finding) => finding.vulnerabilityname === item.vulnerabilityname);
-        });
-        setSearchResults(filteredData);
-      }).catch((error) => {
-        console.error(error)
-        // toast.error(error.)
-      }).finally(() => {
-        setSpinner(false)
-      })
-    }
-  }, [debouncedValue]);
-  const handleNameSearch = (event:any) => {
-    setSearchValue(event.target.value)
-    if(event.target.value==''){
-      setSearchResults([])
-    }
-  }
-  async function deleteFinding(event:any, id:any): Promise<void> {
-    event.stopPropagation()
-    if (!confirm('Are you sure?')) {
-      return;
-    }
-    try {
-      await deleteProjectVulnerabilities([id])
-      setRefresh(true)
-      toast.success('Vulnerability deleted')
-    } catch(error){
-      console.log(error)
-      toast.error(String(error))
-    }
-  }
+  
+  
   
   async function deleteScope(event:any, id:any): Promise<void> {
     event.stopPropagation()
@@ -155,28 +108,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     }
   }
   
-  const handleSelectedItem = (vid:string | number, name: string = '') => {
-    setSearchValue(name.trim());
-    setSpinner(true)
-    setShowSearchResults(false)
-    setSearchResults([])
-    if(vid==='new'){
-      return navigate(`/projects/${id}/vulnerability/add`)
-    } else if (vid) {
-        navigate(`/projects/${id}/vulnerability/add/${vid}`)
-    }
-  }
-  const editSelectedItem = (vid:string | number | undefined | null) => {
-    if(vid){
-      navigate(`/projects/${id}/vulnerability/edit/${vid}`)
-    }
-
-  }
-  const toggleShowUploadCsv = (event:any) => {
-    event.stopPropagation()
-    event.preventDefault()
-    setShowUploadCsv(!showUploadCsv)
-  }
+  
   
   if(loading) return <FormSkeleton numInputs={6} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
@@ -184,7 +116,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   return (
         <>
           {typeof(project) == 'object' && (
-            <Tabs value='summary'>
+            <Tabs value='vulnerabilities'>
               <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader>
@@ -276,64 +208,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     </div>
                   </TabPanel>
                   <TabPanel value="vulnerabilities">
-                    <div className="relative max-w-xl">
-                      <input 
-                        list="searchResults" 
-                        placeholder='Search & add' value={searchValue} 
-                        onFocus={()=>setShowSearchResults(true)} 
-                        onBlur={()=>setShowSearchResults(false)} 
-                        className="border border-gray-200 p-2 rounded-md w-3/4 " 
-                        type="text" 
-                        onChange={handleNameSearch} 
-                      />
-                      {spinner && <Spinner className="h-6 w-6 -ml-8 inline" />}
-                      {!spinner && searchValue && <BackspaceIcon onClick={()=>setSearchValue('')}className="text-secondary w-6 h-6 inline -ml-8" />}
-                      
+                      <VulnerabilityList projectId={Number(id)} findings={findings} />
                     
-                      <List className='max-w-xs'>
-                          {searchResults.map((item, index)=>{
-                              return <><ListItem key={`search-${item.id}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} ><DocumentPlusIcon className="h-6 w-6 mr-1"/>{item?.vulnerabilityname}</ListItem></>
-                            })
-                          }
-                      
-                      </List>
-                      {!showUploadCsv &&
-                            <>
-                              <button key='addNewVulnerability' className="bg-primary text-white p-2 rounded-md" onClick={()=>handleSelectedItem('new')}>Add New</button>                            
-                              <button className={`ml-1 cursor-pointer bg-secondary text-white p-2 rounded-md`} onClick={toggleShowUploadCsv}>
-                                  Upload CSV
-                              </button>
-                            </>
-                      }
-                      
-                      <div className='mt-4'>
-                      <CSVInput projectId={Number(id)} visible={showUploadCsv} hide={(event)=>toggleShowUploadCsv(event)} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
-                      
-                      </div>
-                    </div>
-                    
-                    <div className='w-full'>
-                      <div className='flex border-bottom border-black' key='finding-header'>
-                        <div className='p-2 w-1/2'>Name</div>
-                        <div className='p-2 w-1/4'>Severity</div>
-                        <div className='p-2 w-1/4'>Score</div>
-                      </div>
-                      { findings.map((v)=>{
-                          return(
-                          <div className='flex' key={`finding-${v.id}`} >
-                              <div className='p-2 w-1/2'>
-                                <PencilSquareIcon className="w-4 h-4 inline mr-2" onClick={()=>editSelectedItem(v.id)}/>
-                                <TrashIcon onClick={(event)=>deleteFinding(event, v.id)} className="w-4 h-4 inline mr-2" />
-                                {v?.vulnerabilityname}
-                              </div>
-                              <div className={`p-2 w-1/4 text-[${useVulnerabilityColor(v.cvssscore)[1]}]`}>{useVulnerabilityColor(v.cvssscore)[0]}</div>
-                              <div className='p-2 w-1/4'>{v?.cvssscore}</div>
-                          </div>
-                          )
-                        })
-                      }
-                      
-                    </div>
                   </TabPanel>
                   <TabPanel value="scopes">
                   <div className='max-w-2xl'>
@@ -396,6 +272,187 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   );
 }
 
+interface VulnerabilityListProps {
+  projectId: number
+  findings: Vulnerability[]
+}
+function VulnerabilityList(props: VulnerabilityListProps): JSX.Element {
+  const {projectId} = props
+  const [searchValue, setSearchValue] = useState('')
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [selected, setSelected] = useState([])
+  const debouncedValue = useDebounce<string>(searchValue, 500)
+  const [spinner, setSpinner] = useState(false) //shows spinner for vulnerability search
+  const navigate = useNavigate()
+  const [searchResults, setSearchResults] = useState<{ id:number, vulnerabilityname: string }[]>([])
+  const [showUploadCsv, setShowUploadCsv] = useState(false)
+  const [findings, setFindings] = useState<Vulnerability[]>(props.findings)
+  const theme = useContext(ThemeContext);
+  async function deleteFinding(event:any, id:any): Promise<void> {
+    event.stopPropagation()
+    if (!confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      await deleteProjectVulnerabilities([id])
+      loadFindings()
+      toast.success('Vulnerability deleted')
+    } catch(error){
+      console.log(error)
+      toast.error(String(error))
+    }
+  }
+  const loadFindings = async () => {
+    const _findings = await fetchProjectFindings(projectId) as VulnWithActions[]
+    let temp = formatRows(_findings)
+    setFindings(temp)
+  }
+  useEffect(() => {
+    loadFindings()
+  }, [projectId])
+  function formatRows(rows: VulnWithActions[]):VulnWithActions[] {
+    let temp: any = []
+    rows.forEach((row: VulnWithActions) => {
+      row.actions = (<>
+                    <PencilSquareIcon onClick={() => navigate(`/projects/${projectId}/vulnerability/edit/${row.id}`)} className="inline w-6 cursor-pointer"/>
+                    <TrashIcon onClick={(event) => deleteFinding(event,[row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
+                    </>)
+      const [meaning, color] = useVulnerabilityColor(row.vulnerabilityseverity as string)
+      row.severity = (<span className={`text-[${color}]`}>{meaning}</span>)
+      temp.push(row)
+    });
+    return temp;
+  
+  }
+  const columns: Column[] = [
+    {
+      name: 'Action',
+      selector: (row: VulnWithActions) => row.actions,
+      maxWidth: '1rem'
+    },
+    {
+      name: 'Name',
+      selector: (row: VulnWithActions) => row.vulnerabilityname,
+    },
+    {
+      name: 'Severity',
+      selector: (row: VulnWithActions) => row.severity,
+      maxWidth: '5em'
+    },
+    {
+      name: 'Score',
+      selector: (row: VulnWithActions) => row.cvssscore,
+      maxWidth: '5em'
+    },
+    
+    
+  ]
+  const handleSelectedItem = (vid:string | number, name: string = '') => {
+    setSearchValue(name.trim());
+    setSpinner(true)
+    setShowSearchResults(false)
+    setSearchResults([])
+    if(vid==='new'){
+      return navigate(`/projects/${projectId}/vulnerability/add`)
+    } else if (vid) {
+        navigate(`/projects/${projectId}/vulnerability/add/${vid}`)
+    }
+  }
+  const editSelectedItem = (vid:string | number | undefined | null) => {
+    if(vid){
+      navigate(`/projects/${projectId}/vulnerability/edit/${vid}`)
+    }
+
+  }
+  const handleSelectedChange = (event: any) => {
+    const ids = event.selectedRows.map((item:any) => item.id);
+    setSelected(ids)
+  }
+  
+  const toggleShowUploadCsv = (event:any) => {
+    event.stopPropagation()
+    event.preventDefault()
+    setShowUploadCsv(!showUploadCsv)
+  }
+  useEffect(() => {
+    
+    if(debouncedValue){
+      setSpinner(true)
+      searchVulnerabilities(debouncedValue).then((data) => {
+        //filter out the ones that are already in the project
+        const filteredData = data.filter((item: { vulnerabilityname: string }) => {
+          return !findings.some((finding) => finding.vulnerabilityname === item.vulnerabilityname);
+        });
+        setSearchResults(filteredData);
+      }).catch((error) => {
+        console.error(error)
+        // toast.error(error.)
+      }).finally(() => {
+        setSpinner(false)
+      })
+    }
+  }, [debouncedValue]);
+  const handleNameSearch = (event:any) => {
+    setSearchValue(event.target.value)
+    if(event.target.value==''){
+      setSearchResults([])
+    }
+  }
+  return (
+    <>
+    <div className="relative max-w-xl">
+                      <input 
+                        list="searchResults" 
+                        placeholder='Search & add' value={searchValue} 
+                        onFocus={()=>setShowSearchResults(true)} 
+                        onBlur={()=>setShowSearchResults(false)} 
+                        className="border border-gray-200 p-2 rounded-md w-3/4 " 
+                        type="text" 
+                        onChange={handleNameSearch} 
+                      />
+                      {spinner && <Spinner className="h-6 w-6 -ml-8 inline" />}
+                      {!spinner && searchValue && <BackspaceIcon onClick={()=>setSearchValue('')}className="text-secondary w-6 h-6 inline -ml-8" />}
+                      
+                    
+                      <List className='max-w-xs'>
+                          {searchResults.map((item)=>{
+                              return <><ListItem key={`search-${item.id}`} onClick={()=>handleSelectedItem(item?.id, item?.vulnerabilityname)} ><DocumentPlusIcon className="h-6 w-6 mr-1"/>{item?.vulnerabilityname}</ListItem></>
+                            })
+                          }
+                      
+                      </List>
+                      {!showUploadCsv &&
+                            <>
+                              <button key='addNewVulnerability' className="bg-primary text-white p-2 rounded-md" onClick={()=>handleSelectedItem('new')}>Add New</button>                            
+                              <button className={`ml-1 cursor-pointer bg-secondary text-white p-2 rounded-md`} onClick={toggleShowUploadCsv}>
+                                  Upload CSV
+                              </button>
+                            </>
+                      }
+                      
+                      <div className='mt-4'>
+                      <CSVInput projectId={projectId} visible={showUploadCsv} hide={toggleShowUploadCsv} afterUpload={()=>loadFindings()} afterUploadError={(error)=>toast.error(String(error))}/>
+                      
+                      </div>
+                    </div>
+                    
+                    <div className='w-full'>
+                       <DataTable
+                        columns={columns}
+                        data={findings}
+                        selectableRows
+                        pagination
+                        paginationServer
+                        paginationPerPage={10}
+                        striped
+                        onSelectedRowsChange={handleSelectedChange}
+                        theme={theme}
+                    />
+                      
+                    </div>
+    </>
+  )
+}
 interface ReportFormProps {
   projectId: number
   scopes: any[]
@@ -615,7 +672,7 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
 interface CSVInputProps {
   projectId: number
   visible: boolean
-  hide: () => void
+  hide: (event: any) => void
   afterUpload: (data: any) => void
   afterUploadError: (error: any) => void
 }
@@ -646,7 +703,7 @@ const CSVInput = ({projectId, visible = false, hide, afterUpload, afterUploadErr
   const deleteCsvFile = () => {
     resetUploader()
   }
-  const handleCSVUpload = async (event:any) : Promise<void> => {
+  const handleCSVUpload = async () : Promise<void> => {
     if(csvFile){
       try {
         const result = await uploadProjectVulnerabilities(projectId, csvFile)
