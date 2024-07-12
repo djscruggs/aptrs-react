@@ -15,9 +15,10 @@ import { getProject,
         insertProjectScopes,
         updateProjectScope,
         getProjectReport,
-        deleteProjectScope} from '../lib/data/api';
+        deleteProjectScope,
+        insertProjectInstance} from '../lib/data/api';
 import DataTable from 'react-data-table-component';
-import { Project, Vulnerability, VulnWithActions, Column } from '../lib/data/definitions'
+import { Project, Vulnerability, VulnWithActions, Column, Scope } from '../lib/data/definitions'
 import "react-datepicker/dist/react-datepicker.css";
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
 import PageTitle from '../components/page-title';
@@ -36,17 +37,12 @@ import { useVulnerabilityColor } from '../lib/customHooks';
 import {  DocumentPlusIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { uploadProjectVulnerabilities } from '../lib/data/api';
-import vulnerabilities from './vulnerabilities';
 import { ThemeContext } from '../layouts/layout';
+import { Dialog, DialogBody, Button } from '@material-tailwind/react';
 
 interface ProjectViewProps {
   id?: string; // Make the ID parameter optional
   tab?: string;
-}
-interface Scope {
-  id: number
-  scope: string
-  description?: string
 }
 function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const params = useParams()
@@ -57,17 +53,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [project, setProject] = useState<Project>()
   const [scopes, setScopes] = useState<Scope[]>([])
-  const [findings, setFindings] = useState<Vulnerability[]>([])
   const [loadingError, setLoadingError] = useState(false);
   const [refresh, setRefresh] = useState(false) //setting to true refreshes the data
   
-  const [editingScope, setEditingScope] = useState<number | null>(null)
-  const [newScope, setNewScope] = useState(false)
-  
-  const loadScopes = async () => {
-    const _scopes = await getProjectScopes(id) as Scope[]
-    setScopes(_scopes)
-  }
   useEffect(() => {
     const loadData = async () => {
       if (id || refresh) {
@@ -75,9 +63,8 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         try {
           const projectData = await getProject(id) as Project;
           setProject(projectData as Project);
-          //TODO pagination on findings
-          // api/project/vulnerability/instances/filter/ <vulnerability-id>/?URL=&Parameter=&status=&limit=1&offset=0 
-          loadScopes()
+          const scopes = await getProjectScopes(id) as Scope[]
+          setScopes(scopes)
         } catch (error) {
           console.error("Error fetching project data:", error);
           setLoadingError(true);
@@ -92,31 +79,13 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   
   
   
-  
-  async function deleteScope(event:any, id:any): Promise<void> {
-    event.stopPropagation()
-    if (!confirm('Are you sure?')) {
-      return;
-    }
-    try {
-      await deleteProjectScope(id)
-      loadScopes()
-      toast.success('Scope deleted')
-    } catch(error){
-      console.log(error)
-      toast.error(String(error))
-    }
-  }
-  
-  
-  
   if(loading) return <FormSkeleton numInputs={6} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
 
   return (
         <>
           {typeof(project) == 'object' && (
-            <Tabs value='vulnerabilities'>
+            <Tabs value='scopes'>
               <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader>
@@ -208,52 +177,11 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                     </div>
                   </TabPanel>
                   <TabPanel value="vulnerabilities">
-                      <VulnerabilityList projectId={Number(id)} findings={findings} />
+                      <VulnerabilityTable projectId={Number(id)}  />
                     
                   </TabPanel>
                   <TabPanel value="scopes">
-                  <div className='max-w-2xl'>
-                      <div className='flex border-bottom border-black' key='scope-header'>
-                        <div className='p-2 w-1/2'>Scope</div>
-                        <div className='p-2 w-1/4'>Description</div>
-                        <div className='p-2 w-1/4'></div>
-                      </div>
-                      { scopes.map((s, index)=>{
-                          return(
-                            <>
-                            {editingScope === s.id ? 
-                              <ScopeForm 
-                                projectId={Number(id)} 
-                                scope={s.scope} 
-                                description={s.description} 
-                                id={s.id} 
-                                onClose={()=>setEditingScope(null)} 
-                                afterSave={()=>loadScopes()}/>
-                              :
-                            (
-                              <div className='flex' key={`scope-${index}`}>
-                                <div className='p-2 w-1/2'>
-                                  <PencilSquareIcon className="w-4 h-4 inline mr-2" onClick={()=>setEditingScope(s.id)}/>
-                                  <TrashIcon className="w-4 h-4 inline mr-2" onClick={(event)=>deleteScope(event, s.id)}/>
-                                  {s?.scope}
-                                </div>
-                                <div className='p-2 w-1/2'>{s.description}</div>
-                                
-                            </div>
-                            )
-                            }
-                            </>
-                          )
-                        })
-                      }
-                      {newScope ? 
-                        <ScopeForm projectId={Number(id)} onClose={()=>setNewScope(false)} afterSave={()=>loadScopes()}/>
-                      :
-                        <button className='bg-primary text-white p-2 rounded-md block mt-4' onClick={()=>setNewScope(true)}>Add New</button>
-                      }
-                      
-                    </div>
-                    
+                    <ScopeTable projectId={Number(id)} />
                   </TabPanel>
                   <TabPanel value="report">
                     <div className="mt-4 max-w-lg">
@@ -272,11 +200,11 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   );
 }
 
-interface VulnerabilityListProps {
+interface VulnerabilityTableProps {
   projectId: number
-  findings: Vulnerability[]
+
 }
-function VulnerabilityList(props: VulnerabilityListProps): JSX.Element {
+function VulnerabilityTable(props: VulnerabilityTableProps): JSX.Element {
   const {projectId} = props
   const [searchValue, setSearchValue] = useState('')
   const [showSearchResults, setShowSearchResults] = useState(false)
@@ -303,13 +231,14 @@ function VulnerabilityList(props: VulnerabilityListProps): JSX.Element {
     }
   }
   const loadFindings = async () => {
-    const _findings = await fetchProjectFindings(projectId) as VulnWithActions[]
+    const _findings = await fetchProjectFindings(String(projectId)) as VulnWithActions[]
     let temp = formatRows(_findings)
     setFindings(temp)
   }
   useEffect(() => {
     loadFindings()
   }, [projectId])
+
   function formatRows(rows: VulnWithActions[]):VulnWithActions[] {
     let temp: any = []
     rows.forEach((row: VulnWithActions) => {
@@ -344,8 +273,6 @@ function VulnerabilityList(props: VulnerabilityListProps): JSX.Element {
       selector: (row: VulnWithActions) => row.cvssscore,
       maxWidth: '5em'
     },
-    
-    
   ]
   const handleSelectedItem = (vid:string | number, name: string = '') => {
     setSearchValue(name.trim());
@@ -451,6 +378,108 @@ function VulnerabilityList(props: VulnerabilityListProps): JSX.Element {
                       
                     </div>
     </>
+  )
+}
+
+interface ScopeTableProps {
+  projectId: number
+}
+function ScopeTable(props: ScopeTableProps): JSX.Element {
+  const {projectId} = props
+  const [editingScope, setEditingScope] = useState<number | false>(false)
+  const [newScope, setNewScope] = useState(false)
+  const [scopes, setScopes] = useState<Scope[]>([])
+  const [selected, setSelected] = useState([])
+  const navigate = useNavigate()
+  const theme = useContext(ThemeContext);
+  useEffect(() => {
+    loadScopes()
+  }, [projectId])
+  async function deleteScope(event:any, id:any): Promise<void> {
+    event.stopPropagation()
+    if (!confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      await deleteProjectScope(id)
+      loadScopes()
+      toast.success('Scope deleted')
+    } catch(error){
+      console.log(error)
+      toast.error(String(error))
+    }
+  }
+  const loadScopes = async () => {
+    const _scopes = await getProjectScopes(String(projectId)) as ScopeWithActions[]
+    const formatted: ScopeWithActions[] = formatRows(_scopes)
+    setScopes(formatted)
+  }
+  const handleSelectedChange = (event: any) => {
+    const ids = event.selectedRows.map((item:any) => item.id);
+    setSelected(ids)
+  }
+  interface ScopeWithActions extends Scope {
+    actions: React.ReactNode
+  }
+  function formatRows(rows: ScopeWithActions[]):ScopeWithActions[] {
+    let temp: ScopeWithActions[] = []
+    rows.forEach((row: ScopeWithActions) => {
+      row.actions = (<>
+                    <PencilSquareIcon onClick={() => setEditingScope(row.id)} className="inline w-6 cursor-pointer"/>
+                    <TrashIcon onClick={(event) => deleteScope(event,[row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
+                    </>)
+      temp.push(row)
+    });
+    return temp;
+  
+  }
+  const columns: Column[] = [
+    {
+      name: 'Action',
+      selector: (row: VulnWithActions) => row.actions,
+      maxWidth: '1rem'
+    },
+    {
+      name: 'Scope',
+      selector: (row: ScopeWithActions) => row.scope,
+    },
+    {
+      name: 'Description',
+      selector: (row: ScopeWithActions) => row.description,
+      maxWidth: '10em'
+    }
+  ]
+  return (
+      <div className='max-w-2xl'>
+                      
+                      {newScope ? 
+                        <ScopeForm projectId={Number(projectId)} onClose={()=>setNewScope(false)} afterSave={()=>loadScopes()}/>
+                      :
+                        <button className='bg-primary text-white p-2 rounded-md block mt-4' onClick={()=>setNewScope(true)}>Add New</button>
+                      }
+                      <DataTable
+                        columns={columns}
+                        data={scopes}
+                        selectableRows
+                        pagination
+                        paginationServer
+                        paginationPerPage={10}
+                        striped
+                        onSelectedRowsChange={handleSelectedChange}
+                        theme={theme}
+                      />
+                      {editingScope &&
+                      <ModalScopeForm
+                        projectId={projectId}
+                        scope={scopes.find((scope) => scope.id === editingScope)?.scope}
+                        description={scopes.find((scope) => scope.id === editingScope)?.description}
+                        id={editingScope}
+                        onClose={() => setEditingScope(false)}
+                        afterSave={() => loadScopes()}
+                      />
+                    }
+                    </div>
+                    
   )
 }
 interface ReportFormProps {
@@ -584,8 +613,7 @@ function ReportForm(props: ReportFormProps){
     
   )
 }
-
-interface ScopeFormProps {
+interface ModalScopeFormProps {
   projectId: number
   scope?: string
   description?: string
@@ -593,10 +621,39 @@ interface ScopeFormProps {
   onClose: () => void
   afterSave: () => void
 }
+function ModalScopeForm(props: ModalScopeFormProps):JSX.Element{
+  const [showModal, setShowModal] = useState(true)
+  const clearModal = () => {
+    props.onClose()
+    setShowModal(false)
+  }
+  return(
+    <Dialog handler={clearModal} open={showModal}  size="md" className="modal-box w-full bg-white p-4 rounded-md" >
+          <DialogBody className='max-w-[600px] '>
+          <ScopeForm 
+            projectId={props.projectId}
+            onClose={clearModal}
+            description={props.description}
+            scope={props.scope}
+            id={props.id}
+            afterSave={props.afterSave}
+          />
+          </DialogBody>
+        </Dialog>
+  )
+}
+interface ScopeFormProps {
+  projectId: number
+  scope?: string
+  description?: string
+  id?:number
+  onClose: () => void
+  afterSave: (scope: Scope) => void
+}
 function ScopeForm(props: ScopeFormProps):JSX.Element{
   const [scope, setScope] = useState(props.scope || '')
   const [description, setDescription] = useState(props.description || '')
-  const [id, setId] = useState(props.id || null)
+  const {id} = props
   const [saving, setSaving] = useState(false)
   const [scopeError, setScopeError] = useState('')
   
@@ -607,27 +664,23 @@ function ScopeForm(props: ScopeFormProps):JSX.Element{
     // }
     setSaving(true)
     const data = [{scope, description}]
+    let result
     try {
       if(id){
-        const result = await updateProjectScope(id, data)
+        result = await updateProjectScope(id, data[0])
       } else {
-        const result = await insertProjectScopes(props.projectId, data)
+        result = await insertProjectScopes(props.projectId, data)
       }
     } catch(error){
-      console.log(error)
+      setScopeError('Error saving scope')
     } finally {
       setSaving(false)
     }
-    props.afterSave()
+    props.afterSave(result)
     props.onClose()
   }
   const handleScopeChange = (event: any) => {
     setScope(event.target.value)
-    // if(!validator.isURL(event.target.value)){
-    //   setScopeError('Invalid URL')
-    // } else {
-    //   setScopeError('')
-    // }
   }
   const handleDescriptionChange = (event: any) => {
     setDescription(event.target.value)
@@ -688,7 +741,6 @@ const CSVInput = ({projectId, visible = false, hide, afterUpload, afterUploadErr
     }
   }, [visible])
   const handleFile = (event:any) => {
-    console.log(event.target.files[0])
     setCsvFileName(event.target.files[0].name)
     setCsvFile(event.target.files[0])
     

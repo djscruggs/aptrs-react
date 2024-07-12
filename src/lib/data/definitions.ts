@@ -62,9 +62,9 @@ export interface Customer  {
   password_check?: string
 };
 
-export type ProjectScope = {
+export type Scope = {
   id: number;
-  scopt: string; //url?
+  scope: string; //url?
   description: string;
 };
 
