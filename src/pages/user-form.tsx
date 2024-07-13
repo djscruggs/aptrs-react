@@ -228,7 +228,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
   
   return (
-    <div className="max-w-lg flex-1 rounded-lg">
+    <div className="max-w-lg flex-1 rounded-lg bg-white dark:bg-gray-darkest dark:text-white">
       <PageTitle title={id ? "Edit User" : "Create User"} />
       {saveError && <FormErrorMessage message={saveError} />}
       

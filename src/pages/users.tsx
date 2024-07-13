@@ -280,7 +280,7 @@ export function Users() {
         
       {/* modal content */}
         {showModal &&
-        <Dialog handler={clearModal} open={showModal} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
+        <Dialog handler={clearModal} open={showModal} size="sm" className="modal-box w-[500px] bg-white dark:bg-gray-darkest dark:text-white p-4 rounded-md" >
           <form method="dialog" onSubmit={hideModal}>
             <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
               <span className="text-gray-400 hover:text-white-900">x</span>

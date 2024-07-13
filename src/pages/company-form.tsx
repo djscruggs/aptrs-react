@@ -217,7 +217,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   return (
     <div className="max-w-xl min-w-lg flex-1 rounded-lg">
       
-      <h1 className="mb-3 text-2xl">
+      <h1 className="mb-3 text-2xl dark:text-white">
         {id ? "Edit" : "Create"} Company
       </h1>
       {saveError && <FormErrorMessage message={saveError} />}

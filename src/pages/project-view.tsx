@@ -86,7 +86,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         <>
           {typeof(project) == 'object' && (
             <Tabs value='scopes'>
-              <div className="max-w-screen flex-1 rounded-lg bg-white px-6 pb-4 ">
+              <div className="max-w-screen flex-1 rounded-lg bg-white dark:bg-gray-darkest dark:text-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader>
                   <Tab key="summary" value="summary">Summary</Tab>

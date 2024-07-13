@@ -181,7 +181,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   if(loading) return <FormSkeleton numInputs={5}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading customer"} />
   return (
-    <div className="w-full flex-1 rounded-lg">
+    <div className="w-full flex-1 rounded-lg bg-white dark:bg-gray-darkest">
       <h1 className="mb-3 text-2xl px-4">
         {id ? "Edit" : "Create"} Customer
       </h1>
@@ -243,7 +243,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                     onChange={handlePhoneInputChange}
                     name="number"
                     defaultCountry={defaultCountry}
-                    className={StyleTextfield}
+                    className='rounded-md p-4'
                     id="number"
                   />
                   {errors.number && <FormErrorMessage message={errors.number} />} 
