@@ -75,6 +75,7 @@ export default function FilterInput(props: FilterInputProps) {
         <div className="absolute top-50 z-[1000] left-1 bg-white border-gray-lighter border rounded-b-md max-h-[200px] overflow-y-scroll">
           {filteredArray?.map((item, index) => (
             <FilterItem 
+              key={index}
               item={item} 
               index={index} 
               kbIndex={kbIndex} 
@@ -92,6 +93,6 @@ function FilterItem(props: {item: {label: string, value: string}, index: number,
   const {item, index, kbIndex, name, onClick} = props;
   const display = item.value !== item.label ? `${item.value} - ${item.label}` : item.value;
   return (
-    <div onClick={() => onClick(item.value)} id={`item-${name}-${index}`} className={`p-2 hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{display}</div>
+    <div onClick={() => onClick(item.value)} id={`item-${name}-${index}`} className={`p-2 cursor-pointer hover:bg-gray-lighter ${kbIndex === index ? 'bg-gray-lighter' : ''}`} key={index}>{display}</div>
   )
 }

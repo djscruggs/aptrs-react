@@ -1,8 +1,6 @@
 import { fetchCompanies } from '../lib/data/api';
 import { Company } from  '../lib/data/definitions'
 import {  useState, useEffect } from 'react';
-import { StyleTextfield } from '../lib/formstyles';
-import { StyleTextfieldError } from '../lib/formstyles';
 import {SingleInputSkeleton} from './skeletons'
 import {sortByPropertyName} from '../lib/utilities'
 import FilterInput from '../components/filterInput';

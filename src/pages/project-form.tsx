@@ -12,15 +12,14 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import PageTitle from '../components/page-title';
-import FilterInput from '../components/filterInput';
 import CKWrapper from '../components/ckwrapper';
 import CompanySelect from '../components/company-select';
 import UserSelect from '../components/user-select';
 import { WithAuth } from "../lib/authutils";
 import Button from '../components/button';
-import { FormSkeleton, SingleInputSkeleton } from '../components/skeletons'
+import { FormSkeleton } from '../components/skeletons'
 import { getProject } from '../lib/data/api';
-import { upsertProject} from '../lib/data/api';
+import { upsertProject, fetchProjectTypes} from '../lib/data/api';
 import { Project } from '../lib/data/definitions'
 
 import DatePicker from "react-datepicker";
@@ -43,6 +42,10 @@ interface FormErrors {
 interface ProjectFormProps {
   id?: string; // Make the ID parameter optional
 }
+interface ProjectType {
+  id: number
+  name: string
+}
 
 function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const params = useParams()
@@ -54,6 +57,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   const currentUser = useCurrentUser()
   const [editing, setEditing] = useState(false)
   const [saveError, setSaveError] = useState('');
+  const [projectTypes, setProjectTypes] = useState<ProjectType[]>([]);
   const [formData, setFormData] = useState<Project>({
     name: '',
     description: '',
@@ -82,8 +86,10 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           setLoading(false);
         }
       }
-      
-    };
+      const data = await fetchProjectTypes()
+      const sortedData = data.sort((a: ProjectType, b: ProjectType) => a.name.localeCompare(b.name));
+      setProjectTypes(sortedData)      
+    }
     loadData();
   }, [id]);
   const handleCKchange = (name:string, value:string):void => {
@@ -203,8 +209,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         required
                       >
                       <option value=''>Select...</option>
-                      {['Web', 'Android','Mobile','Thick Client'].map((type =>
-                          <option key={`type-${type}`} value={`${type} Application Penetration Testing`}>{`${type} Application Penetration Testing`}</option>
+                      {projectTypes.map((type =>
+                          <option key={`type-${type.name}`} value={type.name}>{type.name}</option>
                     ))}
                     </select>
                     {errors.projecttype && <p>{errors.projecttype}</p>} 

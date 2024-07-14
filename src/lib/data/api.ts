@@ -167,22 +167,30 @@ export async function searchProjects(name:string) {
   const response = await axios.get(url,authHeaders());
   return response.data;
 }
-interface ReportParams {
+interface ProjectReportParams {
   projectId: number
   Format: string
   Type: string
   Standard: string[]
 }
-export async function getProjectReport(props: ReportParams) {
+interface APIParams {
+  Standard: string;
+  Format: string
+  Type: string
+}
+export async function getProjectReport(props: ProjectReportParams) {
   //convet standard from array to string
-  const {projectId, Standard, ...params} = props
-  params['Standard'] = Standard.join(',')
-  const url = apiUrl(`project/report/${projectId}/`)
+  const { projectId, Standard, ...params } = props;
+  const toSubmit: APIParams = {
+    ...params,
+    Standard: Standard.join(','),
+  };
+  const url = apiUrl(`project/report/${projectId}/`);
   const config = {
     responseType: 'blob' as const,
     ...authHeaders(),
-    params: params
-  }
+    params: toSubmit,
+  };
   const response = await axios.get(url, config)
   return response
 }
@@ -228,6 +236,11 @@ export async function deleteProjects(ids: any[]): Promise<any> {
   };
   const response = await axios.delete(url, config);
   return response.data;
+}
+export async function fetchProjectTypes() {
+  const url = apiUrl('config/project-type/')
+  const response = await axios.get(url, authHeaders())
+  return response.data
 }
 export async function fetchProjectFindings(id: string | undefined) {
   if(!id) return null;
