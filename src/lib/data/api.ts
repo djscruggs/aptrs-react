@@ -174,7 +174,9 @@ interface ReportParams {
   Standard: string[]
 }
 export async function getProjectReport(props: ReportParams) {
-  const {projectId, ...params} = props
+  //convet standard from array to string
+  const {projectId, Standard, ...params} = props
+  params['Standard'] = Standard.join(',')
   const url = apiUrl(`project/report/${projectId}/`)
   const config = {
     responseType: 'blob' as const,
@@ -183,6 +185,11 @@ export async function getProjectReport(props: ReportParams) {
   }
   const response = await axios.get(url, config)
   return response
+}
+export async function fetchStandards() {
+  const url = apiUrl('config/standards/')
+  const response = await axios.get(url, authHeaders())
+  return response.data
 }
 export async function getProject(id: string | undefined) {
   if(!id) return null;

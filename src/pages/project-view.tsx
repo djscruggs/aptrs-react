@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectScopes, getProjectReport } from '../lib/data/api'
+import { getProject, getProjectScopes, getProjectReport, fetchStandards } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles'
@@ -184,6 +184,7 @@ interface ReportFormProps {
 function ReportForm(props: ReportFormProps){
   const {projectId, scopes} = props
   const [error, setError] = useState('')
+  const [standards, setStandards] = useState([])
   const [formData, setFormData] = useState({
     projectId: projectId,
     Format: '',
@@ -205,6 +206,13 @@ function ReportForm(props: ReportFormProps){
   const isValid = () => {
     return formData.Format && formData.Type && formData.Standard && formData.Standard.length > 0
   }
+  const loadStandards = async ():Promise<void> => {
+    const data = await fetchStandards()
+    setStandards(data)
+  }
+  useEffect(() => {
+    loadStandards()
+  }, [])
   const fetchReport = async () => {
     setLoading(true)
     try {
@@ -265,42 +273,23 @@ function ReportForm(props: ReportFormProps){
       <option value="Re-Audit">Re-Audit</option>
     </select>
     <div className='mt-4'>
-      <input 
-        type="checkbox" 
-        id="Standard_0"
-        name="Standard[]" 
-        value="OWASP Top 10 web" 
-        className={StyleCheckbox}
-        onChange={handleCheckboxChange}
-      /> 
-      <label className='ml-2' htmlFor='Standard_0'>
-          OWASP Top 10 web
-      </label>
+    {standards.map((standard:any) => (
+      <div key={standard.id}>
+        <input 
+          type="checkbox" 
+          id={`Standard_${standard.id}`}
+          name="Standard[]" 
+          value={standard.name} 
+          className={StyleCheckbox}
+          onChange={handleCheckboxChange}
+        /> 
+        <label className='ml-2' htmlFor={`Standard_${standard.id}`}>
+            {standard.name} 
+        </label>
+      </div>
+    ))}
     </div>
-    <div>
-      <input 
-        type="checkbox" 
-        id="Standard_1"
-        name="Standard[]" 
-        value="OWASP Top 10 API" 
-        className={StyleCheckbox}
-        onChange={handleCheckboxChange}
-      /> 
-      <label className='ml-2' htmlFor='Standard_1'>
-        OWASP Top 10 API
-      </label>
-    </div>
-    <div>
-      <input 
-        type="checkbox" 
-        id="Standard_2"
-        name="Standard[]" 
-        value="NIST" 
-        className={StyleCheckbox}
-        onChange={handleCheckboxChange}
-      /> 
-      <label className='ml-2' htmlFor='Standard_2'>NIST</label>
-    </div>
+    
     <button className='bg-primary text-white p-2 rounded-md block mt-6 disabled:opacity-50' disabled={loading || !isValid()} onClick={()=>fetchReport()}>Fetch Report</button>
     
     </>
