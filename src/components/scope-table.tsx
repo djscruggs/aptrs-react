@@ -16,7 +16,6 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
   const [newScope, setNewScope] = useState(false)
   const [scopes, setScopes] = useState<Scope[]>([])
   const [selected, setSelected] = useState([])
-  const navigate = useNavigate()
   const theme = useContext(ThemeContext);
   useEffect(() => {
     loadScopes()
