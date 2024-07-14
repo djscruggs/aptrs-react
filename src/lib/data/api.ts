@@ -250,7 +250,7 @@ export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
   return response.data;
 }
 
-export async function deleteProjectVulnerabilities(ids: any[]): Promise<any> {
+export async function deleteProjectVulnerabilities(ids: number[]): Promise<any> {
   const url = apiUrl('project/vulnerability/delete/vulnerability/');
   const config = {
     headers: authHeaders().headers,

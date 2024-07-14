@@ -18,6 +18,7 @@ interface ModalScopeFormProps {
 }
 
 export default function ScopeForm(props: ScopeFormProps):JSX.Element{
+  console.log('ScopeForm', props)
   const [scope, setScope] = useState(props.scope || '')
   const [description, setDescription] = useState(props.description || '')
   const {id} = props
