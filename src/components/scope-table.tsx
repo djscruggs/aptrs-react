@@ -111,7 +111,6 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
                         data={scopes}
                         selectableRows
                         pagination
-                        paginationServer
                         paginationPerPage={10}
                         striped
                         onSelectedRowsChange={handleSelectedChange}
