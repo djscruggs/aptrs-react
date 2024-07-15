@@ -48,8 +48,8 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
             )}
             key={link.name} // Add a unique key
           >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
+            <LinkIcon className="w-6 md:w-8" />
+            <p className="hidden md:block md:text-md">{link.name}</p>
           </Link>
         );
       })}

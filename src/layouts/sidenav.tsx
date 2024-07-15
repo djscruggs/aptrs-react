@@ -31,8 +31,8 @@ const SideNav: React.FC<SideNavProps> = ({ theme, toggleTheme }) => {
                 className="bg-secondary"
                 onClick={handleSignOut}
               >
-                <PowerIcon className="w-6" />
-                <div className="hidden md:block">Sign Out</div>
+                <PowerIcon className="w-6 md:w-8 mr-2" />
+                <div className="hidden md:block md:text-md">Sign Out</div>
               </Button>
             )}
           </div>

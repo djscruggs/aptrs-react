@@ -44,7 +44,7 @@ const Layout: React.FC = () => {
             <div className="flex h-screen flex-col md:flex-row md:overflow-hidden dark:bg-gray-darkest dark:text-white">
               
                 {location.pathname !== '/' &&
-                  <div className="w-full flex-none md:w-64">
+                  <div className="w-full flex-none md:w-64 md:mt-20">
                     <SideNav theme={theme} toggleTheme={toggleTheme} />
                   </div>
                 }   
