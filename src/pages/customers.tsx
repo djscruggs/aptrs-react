@@ -11,6 +11,7 @@ import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from 
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
+import { currentUserCan } from "../lib/utilities";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Button from '../components/button';
 import CustomerForm from './customer-form';
@@ -148,11 +149,11 @@ export function Customers() {
     dispatch({ type: 'set-filter', payload: filterValues})
   }
   const columns: Column[] = [
-    {
+    ...(currentUserCan('Manage Customers') ? [{
       name: 'Action',
       selector: (row: any) => row.actions,
       maxWidth: '1rem'
-    },
+    }] : []),
     {
       name: <HeaderFilter 
               label='Name' 
@@ -211,6 +212,9 @@ export function Customers() {
   ];
   
   const handleDelete = (id: any[]) => {
+    if(!currentUserCan('Manage Customers')){
+      return
+    }
     console.log("deleting id ",id)
     alert('not implemented yet')
   }
@@ -263,17 +267,21 @@ export function Customers() {
       }
       {/* END modal content */}
       <div className="flow-root">
-        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
-            New Customer
-        </Button>
-        {selected.length > 0 && 
-          <Button 
-            className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-            onClick = {deleteMultiple}
-            >
-            Delete
-          </Button>
-        }
+        {currentUserCan('Manage Customers') && (
+            <>
+              <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
+                  New Customer
+              </Button>
+              {selected.length > 0 && (
+                <Button 
+                  className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+                  onClick={deleteMultiple}
+                >
+                  Delete
+                </Button>
+              )}
+            </>
+          )}
         {state.queryParams.full_name &&
           <p className="mt-8">
             Results for &quot;{state.queryParams.full_name}&quot;
@@ -287,7 +295,6 @@ export function Customers() {
               columns={columns}
               data={state.data}
               progressPending={state.mode != 'idle'}
-              selectableRows
               pagination
               paginationServer
               paginationPerPage={state.queryParams.limit}
@@ -298,6 +305,7 @@ export function Customers() {
               progressComponent={<RowsSkeleton numRows={state.queryParams.limit}/>}
               onSelectedRowsChange={handleSelectedChange}
               theme={theme}
+              {...(currentUserCan('Manage Customers') ? { selectableRows: true } : {})}
           />
         </div>
       </div>

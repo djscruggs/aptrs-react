@@ -1,3 +1,5 @@
+import { getAuthUser } from './data/api'
+
 type ObjectWithProperty = {
   [key: string]: string | number | boolean; // Define the types of properties you expect
 };
@@ -43,6 +45,24 @@ export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const usernameRegex = /^[a-zA-Z0-9]{1,12}$/
 export const passwordRegex = /^(?=.*[A-Z])(?=.*[@#$%!^&*]).{10,}$/;
 
+
+// Manage Users 
+// Manage Projects
+// Assign Projects
+// Manage Vulnerability Data
+// Manage Customer
+// Manage Company
+// Manage Configurations
+export const currentUserCan = (group: string): boolean => {
+  const user = getAuthUser()
+  if(!user){
+    return false
+  }
+  if (user.isAdmin){
+    return true
+  }
+  return user.groups.includes(group)
+}
 
 export const parseErrors = (error: any): any => {
   try {

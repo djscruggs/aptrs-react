@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
+import { currentUserCan } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
 import { getProject, getProjectScopes, getProjectReport, fetchStandards } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
@@ -72,7 +73,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                 </TabsHeader>
                 <TabsBody>
                   <TabPanel value="summary">
+                  {currentUserCan('Manage Projects') && (
                     <Link className='text-primary underline' to={`/projects/${project.id}/edit`}>edit</Link>
+                  )}
                     <div className='w-2/3'>
                         <div className="w-full mb-4">
                           <label className={StyleLabel}>
@@ -90,6 +93,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           
                           <div className="relative cursor-text">
                             {project.owner}
+                            {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) && (
+                              <Link className='text-primary underline ml-4' to={`/projects/${project.id}/edit`}>change</Link>
+                            )}
                           </div>
                         </div>
                         <div className="mt-4">

@@ -5,6 +5,7 @@ import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
+import { currentUserCan } from "../lib/utilities";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import Button from '../components/button';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
@@ -163,11 +164,11 @@ const Vulnerabilities = () => {
     }
   }
   const columns: Column[] = [
-    {
+    ...(currentUserCan('Manage Vulnerability Data') ? [{
       name: 'Action',
       selector: (row: VulnWithActions) => row.actions,
       maxWidth: '1rem'
-    },
+    }] : []),
     {
       name: <HeaderFilter 
               label='Name' 
@@ -219,7 +220,7 @@ const Vulnerabilities = () => {
           >
           New Vulnerability
         </Button>
-        {selected.length > 0 &&
+        {selected.length > 0 && currentUserCan('Manage Vulnerability Data') &&
           <Button  
             className="bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
             disabled={selected.length == 0}
@@ -235,7 +236,6 @@ const Vulnerabilities = () => {
               columns={columns}
               data={state.data}
               progressPending={state.mode != 'idle'}
-              selectableRows
               pagination
               paginationServer
               paginationPerPage={state.queryParams.limit}
@@ -244,7 +244,9 @@ const Vulnerabilities = () => {
               onChangePage={handlePageChange}
               striped
               onSelectedRowsChange={handleSelectedChange}
+              pointerOnHover
               theme={theme}
+              {...(currentUserCan('Manage Vulnerability Data') ? { selectableRows: true } : {})}
           />
         </div>
       </div>

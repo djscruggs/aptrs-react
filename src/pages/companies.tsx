@@ -5,6 +5,7 @@ import { fetchFilteredCompanies, deleteCompanies } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
+import { currentUserCan } from "../lib/utilities";
 import { ThemeContext } from '../layouts/layout';
 import Button from '../components/button';
 import CompanyForm from './company-form';
@@ -81,11 +82,11 @@ export function Companies() {
     return handleDelete(selected)
   }
   const columns: Column[] = [
-    {
+    ...(currentUserCan('Manage Company') ? [{
       name: 'Action',
       selector: (row: any) => row.actions,
       maxWidth: '1rem'
-    },
+    }] : []),
     {
       name: 'Name',
       selector: (row: Company) => row.name,
@@ -100,6 +101,9 @@ export function Companies() {
     actions: JSX.Element;
   }
   const handleDelete = async (ids: any[]) => {
+    if(!currentUserCan('Manage Company')){
+      return false;
+    }
     if(!confirm('Are you sure?')){
       return false;
     }
@@ -187,18 +191,21 @@ export function Companies() {
         }
         {/* END modal content */}
       <div className="flow-root">
-        
-        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
-            New Company
-        </Button>
-        {selected.length> 0 &&
-          <Button 
-            className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-            disabled={selected.length == 0}
-            onClick = {deleteMultiple}
-            >
-              Delete
-          </Button>
+        {currentUserCan('Manage Company') &&
+          <>
+            <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
+                New Company
+            </Button>
+            {selected.length> 0 &&
+              <Button 
+                className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+                disabled={selected.length == 0}
+                onClick = {deleteMultiple}
+                >
+                  Delete
+              </Button>
+            }
+          </>
         }
         {state.queryParams.name &&
           <p className="mt-8">
@@ -211,7 +218,6 @@ export function Companies() {
           <DataTable
             columns={columns}
             data={state.data}
-            selectableRows
             pagination
             striped
             onSelectedRowsChange={handleSelectedChange}
@@ -222,6 +228,7 @@ export function Companies() {
             onChangePage={handlePageChange}
             paginationTotalRows={state.totalRows}
             theme={theme}
+            {...(currentUserCan('Manage Company') ? { selectableRows: true } : {})}
           />
         </div>
       </div>

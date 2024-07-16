@@ -5,7 +5,7 @@ import { fetchFilteredUsers, deleteUsers } from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
-import { parseErrors } from "../lib/utilities";
+import { parseErrors, currentUserCan } from "../lib/utilities";
 import Button from '../components/button';
 import UserForm from './user-form';
 import { Dialog, DialogBody } from '@material-tailwind/react'
@@ -59,7 +59,7 @@ export function Users() {
   //super user check to prevent url tampering
   const navigate = useNavigate()
   const currentUser = useCurrentUser()
-  if(!currentUser.isAdmin){
+  if(!currentUser?.isAdmin){
     navigate('/access-denied')
   }
   const [selected, setSelected] = useState([])
@@ -135,11 +135,11 @@ export function Users() {
     // email
     // position
     // is_active
-    {
+    ...(currentUserCan('Manage Users') ? [{
       name: 'Action',
       selector: (row: any) => row.actions,
       maxWidth: '1rem'
-    },
+    }] : []),
     {
       name: <HeaderFilter 
               label='Name' 
@@ -205,7 +205,7 @@ export function Users() {
     },
   ];
   const handleDelete = async (ids: any[]) => {
-    if(ids.includes(currentUser.id)){
+    if(ids.includes(currentUser?.id)){
       toast.error("You cannot delete your own account")
       return false
     }
@@ -299,7 +299,7 @@ export function Users() {
         <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
             New User
         </Button>
-        {selected.length > 0 && 
+        {selected.length > 0 && currentUserCan('Manage Users') &&
           <Button 
             className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
             disabled={selected.length == 0}
@@ -322,7 +322,6 @@ export function Users() {
             <DataTable
                 columns={columns}
                 data={state.data}
-                selectableRows
                 pagination
                 paginationServer
                 paginationPerPage={state.queryParams.limit}
@@ -332,6 +331,8 @@ export function Users() {
                 striped
                 onSelectedRowsChange={handleSelectedChange}
                 theme={theme}
+                {...(currentUserCan('Manage Users') ? { selectableRows: true, pointerOnHover: true } : {})}
+
             />
           </div>
         </div>

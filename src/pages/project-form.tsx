@@ -16,6 +16,7 @@ import CKWrapper from '../components/ckwrapper';
 import CompanySelect from '../components/company-select';
 import UserSelect from '../components/user-select';
 import { WithAuth } from "../lib/authutils";
+import { currentUserCan } from '../lib/utilities'
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { getProject } from '../lib/data/api';
@@ -68,9 +69,13 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     testingtype: '',
     projectexception: '',
     companyname: '',
-    owner: currentUser.username,
+    owner: currentUser?.username as string,
   });
   const [errors, setErrors] = useState<FormErrors>({});
+  const navigate = useNavigate()
+  if(!currentUserCan('Manage Projects')){
+    navigate('/access-denied')
+  }
   useEffect(() => {
     const loadData = async () => {    
       if (id) {
@@ -116,7 +121,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       [input]: value,
     }));
   }
-  const navigate = useNavigate()
+  
   const handleCancel = (event:any) =>  {
     event.preventDefault()
     if(editing){
@@ -359,7 +364,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     Project Owner
                   </label>
                   <div className="relative">
-                    {currentUser?.isAdmin  &&
+                    {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) ? (
                       <UserSelect
                           name='owner'
                           defaultValue={formData.owner}
@@ -368,6 +373,8 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                           required={true}
                           error={errors.owner ? true : false}
                         />
+                    ) :
+                      <div className='mt-5'>{formData.owner}</div>
                     }
                     {errors.owner && <FormErrorMessage message={errors.owner} />} 
                   </div>

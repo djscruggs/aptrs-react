@@ -1,12 +1,12 @@
 import {  Company, 
           Project, 
-          User, 
+          User,
+          CurrentUser,
           LoginUser, 
           IPAddressInfo,
           Vulnerability,
-          FilteredSet} from './definitions'
+          FilteredSet } from './definitions'
 import axios from 'axios'
-import saveAs from 'file-saver'
 interface AuthHeaders {
   headers: Record<string, string>;
 }
@@ -36,7 +36,7 @@ export function setAuthUser(user: LoginUser): void {
   localStorage.setItem('lastRefresh', new Date().toISOString())
 }
 
-export function getAuthUser(): any | undefined {
+export function getAuthUser(): CurrentUser | undefined {
   return _userObject()
 }
 //private function get the user object from local storage

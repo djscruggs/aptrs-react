@@ -72,7 +72,7 @@ const App: React.FC = () => {
                     <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/profile" element={<Profile />} />
-                    
+                    <Route path="/access-denied" element={<AccessDenied />} />
                     <Route path="*" element={<ErrorPage is404={true}/>} />
                   </>
                 : 

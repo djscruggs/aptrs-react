@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { WithAuth} from "../lib/authutils";
+import { currentUserCan } from "../lib/utilities";
 import { useDataReducer } from '../lib/useDataReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Project, Column, FilteredSet} from '../lib/data/definitions'
@@ -152,12 +153,13 @@ export function Projects(props:ProjectsProps): JSX.Element {
     dispatch({ type: 'set-filter', payload: filterValues})
   }
   const columns: Column[] = [
-    {
-      name: 'Actions',
+    
+    ...(currentUserCan('Manage Users') ? [{
+      name: 'Action',
       selector: (row: any) => row.actions,
+      maxWidth: '1rem',
       omit: props.embedded,
-      maxWidth: '1rem'
-    },
+    }] : []),
     {
       name: props.mine ? 'Name' 
             : 
@@ -289,6 +291,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
     navigate('/projects/new')
   }
   const handleDelete = async (ids: any[]) => {
+    if(!currentUserCan('Manage Projects')){
+      return
+    }
     if (!confirm('Are you sure?')) {
       return false;
     }
@@ -392,6 +397,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
             paginationTotalRows={state.totalRows}
             striped 
             highlightOnHover
+            pointerOnHover
             fixedHeader
             onSelectedRowsChange={handleSelectedChange}
             customStyles={customStyles}
