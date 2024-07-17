@@ -12,7 +12,6 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   required?:boolean
 }
 export default function UserSelect(props: React.PropsWithChildren<CompanySelectProps>) {
-  
   const [users, setUsers] = useState<User[]>();
   
   useEffect(() => {

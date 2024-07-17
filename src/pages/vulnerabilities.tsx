@@ -33,6 +33,7 @@ const Vulnerabilities = () => {
   if(search){
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, vulnerabilityname: search};
   }
+  const canEdit = currentUserCan('Manage Vulnerability Data')
   //reducer for search and pagination
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
     switch (action.type) {
@@ -246,7 +247,7 @@ const Vulnerabilities = () => {
               onSelectedRowsChange={handleSelectedChange}
               pointerOnHover
               theme={theme}
-              {...(currentUserCan('Manage Vulnerability Data') ? { selectableRows: true } : {})}
+              {...(canEdit ? { selectableRows: true } : {})}
           />
         </div>
       </div>

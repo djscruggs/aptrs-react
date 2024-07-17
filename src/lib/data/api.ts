@@ -279,7 +279,7 @@ export async function deleteProjectVulnerabilities(ids: number[]): Promise<any> 
   const response = await axios.delete(url, config);
   return response.data;
 }
-export async function upsertProject(formData: Project): Promise<any> {
+export async function upsertProject(formData: Project | Partial<Project>): Promise<any> {
   let url = apiUrl(`project/add-project/`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`project/edit-project/${formData['id']}/`);

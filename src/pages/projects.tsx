@@ -42,6 +42,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
   const search = params.get('name') || '';
+  const canEdit = currentUserCan('Manage Users')
   
   if(search){
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
@@ -154,7 +155,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
   }
   const columns: Column[] = [
     
-    ...(currentUserCan('Manage Users') ? [{
+    ...(canEdit ? [{
       name: 'Action',
       selector: (row: any) => row.actions,
       maxWidth: '1rem',

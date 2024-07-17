@@ -28,6 +28,7 @@ export function Companies() {
   // this makes search load immediately in useEffect
   const params = new URLSearchParams(window.location.search);
   const search = params.get('name') || '';
+  const canEdit = currentUserCan('Manage Company')
   if(search){
     initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
   }
@@ -228,7 +229,7 @@ export function Companies() {
             onChangePage={handlePageChange}
             paginationTotalRows={state.totalRows}
             theme={theme}
-            {...(currentUserCan('Manage Company') ? { selectableRows: true } : {})}
+            {...(canEdit ? { selectableRows: true } : {})}
           />
         </div>
       </div>

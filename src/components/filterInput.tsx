@@ -14,6 +14,7 @@ export default function FilterInput(props: FilterInputProps) {
   const [search, setSearch] = useState(defaultValue || '');
   const [selectedValue, setSelectedValue] = useState(defaultValue || '');
   const [kbIndex, setKbIndex] = useState(0);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if(e.target?.value==''){
       setKbIndex(0);

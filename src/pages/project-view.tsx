@@ -3,11 +3,13 @@ import { useParams, Link } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
 import { currentUserCan } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectScopes, getProjectReport, fetchStandards } from '../lib/data/api'
+import { getProject, getProjectScopes, getProjectReport, fetchStandards, upsertProject } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles'
 import PageTitle from '../components/page-title'
+import UserSelect from '../components/user-select'
+import { PencilSquareIcon } from '@heroicons/react/24/outline'
 import VulnerabilityTable from '../components/vulnerability-table'
 import { toast } from 'react-hot-toast';
 import {
@@ -32,6 +34,33 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [project, setProject] = useState<Project>()
   const [scopes, setScopes] = useState<Scope[]>([])
   const [loadingError, setLoadingError] = useState(false);
+  const [editingOwner, setEditingOwner] = useState(false)
+  const [owner, setOwner] = useState(project?.owner || '')
+  const [ownerError, setOwnerError] = useState('')
+  const [saving, setSaving] = useState(false)
+  
+  const handleOwnerChange = (e:any) => {
+    setOwner(e.target.value)
+  }
+  const cancelEditing = () => {
+    setOwnerError('')
+    setOwner(project?.owner || '')
+    setEditingOwner(false)
+  }
+  const saveOwner = async () => {
+    setSaving(true)
+    const _project: Partial<Project> = {id: Number(id), owner: owner || ''}
+    try {
+      await upsertProject(_project)
+      setEditingOwner(false)
+    } catch(error){
+      setOwnerError("Error saving owner")
+      setEditingOwner(true)
+    } finally {
+      setSaving(false)
+    }
+  }
+  
   
   useEffect(() => {
     const loadData = async () => {
@@ -40,6 +69,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
         try {
           const projectData = await getProject(id) as Project;
           setProject(projectData as Project);
+          setOwner(projectData.owner || '')
           const scopes = await getProjectScopes(id) as Scope[]
           setScopes(scopes)
         } catch (error) {
@@ -90,11 +120,39 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           <label className={StyleLabel}>
                             Project Owner
                           </label>
-                          
                           <div className="relative cursor-text">
-                            {project.owner}
-                            {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) && (
-                              <Link className='text-primary underline ml-4' to={`/projects/${project.id}/edit`}>change</Link>
+                            {editingOwner ? (
+                              
+                            <div className='max-w-[200px]'>
+                              <UserSelect
+                                name='owner'
+                                defaultValue={project.owner}
+                                value=  {owner} 
+                                changeHandler={handleOwnerChange} 
+                                required={true}
+                              />
+                              <div className='flex justify-start my-4'>
+                              <button 
+                                className='bg-primary text-white p-1 rounded-md mr-4 disabled:opacity-50' 
+                                disabled={saving} 
+                                onClick={saveOwner}>
+                                  {saving ? 'Saving...' : 'Save'}
+                                  </button>
+                                {!saving &&
+                                  <span className='text-secondary underline cursor-pointer' onClick={cancelEditing}>cancel</span>
+                                }
+                                
+                              </div>
+                              {ownerError && <FormErrorMessage message={ownerError}/>}
+                            </div>
+                              
+                            ) : (
+                              <>
+                              {project.owner}
+                              {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) && (
+                                <span className='underline ml-4 cursor-pointer' onClick={()=>setEditingOwner(true)}><PencilSquareIcon className="inline w-5" /></span>
+                              )}
+                              </>
                             )}
                           </div>
                         </div>
@@ -201,6 +259,7 @@ function ReportForm(props: ReportFormProps){
   const handleChange = (event:any) => {
     setFormData({...formData, [event.target.name]: event.target.value})
   }
+  
   const handleCheckboxChange = (event:any) => {
     const { Standard } = formData;
     if(Standard?.includes(event.target.value)){
@@ -220,7 +279,6 @@ function ReportForm(props: ReportFormProps){
     loadStandards()
   }, [])
   const fetchReport = async () => {
-    setLoading(true)
     try {
       const response = await getProjectReport(formData)
       const contentDisposition = response.headers['content-disposition'];
