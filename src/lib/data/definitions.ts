@@ -2,7 +2,7 @@
 import{ ReactNode } from 'react'
 
 export type Vulnerability = {
-  id?: number | null
+  id: number
   vulnerabilityname: string
   vulnerabilityseverity?: string
   vulnerabilitydescription?: string
