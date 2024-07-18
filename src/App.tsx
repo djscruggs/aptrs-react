@@ -9,6 +9,7 @@ import VulnerabilityForm from './pages/vulnerability-form';
 import Customers from './pages/customers';
 import Projects from './pages/projects'
 import ProjectView from './pages/project-view';
+import VulnerabilityView from './pages/vulnerability-view';
 import ProjectForm from './pages/project-form';
 import CompanyForm from './pages/company-form';
 import Companies from './pages/companies';
@@ -69,6 +70,7 @@ const App: React.FC = () => {
                     <Route path="/companies/new" element={<CompanyForm />} />
                     <Route path="/vulnerabilities" element={<Vulnerabilities />} />
                     <Route path="/vulnerabilities/:id/edit" element={<VulnerabilityForm />} />
+                    <Route path="/vulnerabilities/:id" element={<VulnerabilityView />} />
                     <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/profile" element={<Profile />} />

@@ -297,6 +297,12 @@ export async function upsertProject(formData: Project | Partial<Project>): Promi
   const response = await axios.post(url, formData, authHeaders());
   return response.data;
 }
+export async function updateProjectOwner(formData: Partial<Project>): Promise<any> {
+  const url = apiUrl('project/edit-owner/')
+  const response = await axios.post(url, formData, authHeaders());
+  return response.data;
+}
+
 export async function insertProjectVulnerability(formData: any): Promise<any> {
   const url = apiUrl(`project/vulnerability/add/vulnerability/`)
   const data = formData

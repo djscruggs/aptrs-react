@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
 import { currentUserCan } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectScopes, getProjectReport, fetchStandards, upsertProject } from '../lib/data/api'
+import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles'
@@ -51,8 +51,9 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     setSaving(true)
     const _project: Partial<Project> = {id: Number(id), owner: owner || ''}
     try {
-      await upsertProject(_project)
+      await updateProjectOwner(_project)  
       setEditingOwner(false)
+      project.owner = owner
     } catch(error){
       setOwnerError("Error saving owner")
       setEditingOwner(true)
