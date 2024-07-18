@@ -69,7 +69,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const [errors, setErrors] = useState<FormErrors>({});
   //listen for the escape key and input to form elements
   useEffect(() => {
-    let _editing: Boolean; //local variable to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
         e.preventDefault()
@@ -81,18 +80,12 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        _editing = true;
-        if(!editing){
-          setEditing(true)
-        }
+        setEditing(true)
       }
     }
     //set editing flag to true if an input eleent
     function handleInputChange(){
-      _editing = true;
-      if(!editing){
-        setEditing(true)
-      }
+      setEditing(true)
     }
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("change", handleInputChange);
@@ -120,6 +113,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = event.target;
+    setEditing(true)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
@@ -127,6 +121,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   };
   //needed a customer handler for phone number
   const handlePhoneInputChange = (value:string) => {
+    setEditing(true)
     setFormData({
       ...formData,
       number: value
@@ -171,6 +166,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         if(setRefresh){
           setRefresh(true)
         }
+        setEditing(false)
         closeModal()
       } catch (error) {
         setErrors(parseErrors(error))

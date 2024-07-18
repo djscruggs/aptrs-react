@@ -97,7 +97,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   }
 
   useEffect(() => {
-    let _editing: Boolean; //flag to track whether the form has been edited
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
         e.preventDefault()
@@ -109,7 +108,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        _editing = true;
         if(!editing){
           setEditing(true)
         }
@@ -158,7 +156,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   };
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
-    
+    setEditing(true)
     // Check the type of input - checkboxes don't have a value attribute
     const inputValue = type === 'checkbox' ? checked : value;
     setFormData((prevFormData) => ({
@@ -214,6 +212,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       try {
         await upsertUser(formData as User);
         toast.success('User saved.')
+        setEditing(false)
         if(setRefresh){
           setRefresh(true)
         }

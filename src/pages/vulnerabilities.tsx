@@ -1,4 +1,4 @@
-import {Vulnerability, Column, FilteredSet, VulnWithActions} from '../lib/data/definitions';
+import { Column, FilteredSet, VulnWithActions} from '../lib/data/definitions';
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { fetchFilteredVulnerabilities, deleteVulnerabilities } from "../lib/data/api";
@@ -67,21 +67,7 @@ const Vulnerabilities = () => {
     const ids = event.selectedRows.map((item:any) => item.id);
     setSelected(ids)
   }
-  const handleSearch = (term = '') => {
-    if (term) {
-      dispatch({ type: 'set-search', payload: term });
-      const params = new URLSearchParams(window.location.search);
-      params.set('vulnerabilityname', term);
-      navigate(`?${params.toString()}`, { replace: true });
-    } else {
-      dispatch({ type: 'clear-search'})
-      navigate(location.pathname, { replace: true });
-    }
-  }
-  
-  const clearSearch = ():void => {
-    return handleSearch('')
-  }
+  const onRowClicked = (row:any) => navigate(`/vulnerabilities/${row.id}`);
   
   useEffect(() => {
     loadData()
@@ -239,6 +225,7 @@ const Vulnerabilities = () => {
               progressPending={state.mode != 'idle'}
               pagination
               paginationServer
+              onRowClicked={onRowClicked}
               paginationPerPage={state.queryParams.limit}
               paginationTotalRows={state.totalRows}
               onChangeRowsPerPage={handlePerRowsChange}

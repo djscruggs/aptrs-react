@@ -56,7 +56,6 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const [errors, setErrors] = useState<FormErrors>({});
   
   useEffect(() => {
-    let _editing: Boolean; //flag to track whether the form has been edited
     // trap keydown events to see if the user has edited anything
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
@@ -69,18 +68,12 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
         closeModal()
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
-        _editing = true;
-        if(!editing){
-          setEditing(true)
-        }
+        setEditing(true)
       }
     }
     //set flag to true if an input eleent
     function handleInputChange(){
-      _editing = true;
-      if(!editing){
-        setEditing(true)
-      }
+      setEditing(true)
     }
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("change", handleInputChange);
@@ -117,6 +110,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     loadData();
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setEditing(true)
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -124,6 +118,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     }));
   };
   const handleImage = (e: ChangeEvent<HTMLInputElement>): void => {
+    setEditing(true)
     const { files } = e.target
     if (!files) return
     const image = files[0]
@@ -146,6 +141,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
     fileReader.readAsDataURL(image)
   }
   const removeImage = (): void => {
+    setEditing(true)
     setFile(null)
     setFileDataURL(null)
   }
@@ -189,6 +185,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
         if(setRefresh){
           setRefresh(true)
         }
+        setEditing(false)
         closeModal(true)
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
