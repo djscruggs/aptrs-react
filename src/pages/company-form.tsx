@@ -5,6 +5,7 @@ import React, {
   FormEvent,
   RefObject
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
@@ -12,6 +13,7 @@ import {
   ModalErrorMessage
 } from '../lib/formstyles'
 import { WithAuth } from "../lib/authutils";
+import { currentUserCan } from '../lib/utilities'
 import Button from '../components/button';
 import { FormSkeleton } from '../components/skeletons'
 import { getCompany } from '../lib/data/api';
@@ -37,6 +39,10 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
   const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
+  const navigate = useNavigate()
+  if(!currentUserCan('Manage Company')){
+    navigate('/access-denied')
+  }
   
   const [formData, setFormData] = useState<Company>({
     name: '',

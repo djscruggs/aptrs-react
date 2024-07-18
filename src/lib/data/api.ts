@@ -145,6 +145,15 @@ export async function upsertCustomer(formData: Company): Promise<any> {
   const response = await axios.post(url, formData, authHeaders())
   return response.data;    
 }
+export async function deleteCustomers(ids: any[]): Promise<any> {
+  const url = apiUrl('customer/customer/delete');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  return response.data;
+}
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
   const response = await axios.get(url,authHeaders());

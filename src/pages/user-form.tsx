@@ -28,6 +28,8 @@ import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { phoneRegex, emailRegex, usernameRegex, parseErrors } from '../lib/utilities';
 import PermissionGroupSelect from '../components/permission-group-select';
+import { currentUserCan } from '../lib/utilities'
+import { useNavigate } from 'react-router-dom';
 
 
 interface FormErrors {
@@ -56,6 +58,11 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
   const currentUser = useCurrentUser()
+  
+  const navigate = useNavigate()
+  if(!currentUserCan('Manage User')){
+    navigate('/access-denied')
+  }
   //extend User type to support password fields
   type UserForm = User & {
     password?: string;
@@ -70,7 +77,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     is_active: false,
     is_superuser: false,
     number: '',
-    company: currentUser.company,
+    company: currentUser?.company,
     position: '',
     password: '',
     password_check: '',
@@ -79,7 +86,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
 
   
   //used in phone number input
-  const defaultCountry = currentUser.location.country 
+  const defaultCountry = currentUser?.location?.country 
   const [errors, setErrors] = useState<FormErrors>({});
   
   function canSubmit():boolean {

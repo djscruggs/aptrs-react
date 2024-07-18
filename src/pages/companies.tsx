@@ -79,9 +79,6 @@ export function Companies() {
     setSelected(ids)
     
   }
-  const deleteMultiple = () => {
-    return handleDelete(selected)
-  }
   const columns: Column[] = [
     ...(currentUserCan('Manage Company') ? [{
       name: 'Action',
@@ -101,21 +98,26 @@ export function Companies() {
   interface CompanyWithActions extends Company {
     actions: JSX.Element;
   }
-  const handleDelete = async (ids: any[]) => {
+  const deleteMultiple = () => {
+    return handleDelete(selected)
+  }
+    
+  const handleDelete = async (ids: number | number[]) => {
     if(!currentUserCan('Manage Company')){
       return false;
     }
     if(!confirm('Are you sure?')){
       return false;
     }
+    let toDelete = Array.isArray(ids) ? ids : [ids]
     try {
-      await deleteCompanies(ids)
+      await deleteCompanies(toDelete)
       setRefresh(true)
       let msg:string;
-      if(ids.length == 1) {
+      if(toDelete.length == 1) {
         msg = 'Company deleted';
       } else {
-        msg = `${ids.length} companies deleted`;
+        msg = `${toDelete.length} companies deleted`;
       }
       toast.success(msg)
     } catch(error){

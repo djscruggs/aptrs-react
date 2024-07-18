@@ -6,7 +6,7 @@ import {
         useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../layouts/layout';
-import { fetchFilteredCustomers } from "../lib/data/api";
+import { fetchFilteredCustomers, deleteCustomers } from "../lib/data/api";
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
@@ -19,6 +19,8 @@ import { Dialog, DialogBody } from '@material-tailwind/react'
 import {Customer, Column, FilteredSet} from '../lib/data/definitions'
 import DataTable from 'react-data-table-component';
 import { HeaderFilter, ClearFilter } from "../components/headerFilter";
+import { toast } from 'react-hot-toast'
+
 
 export function Customers() {
   const theme = useContext(ThemeContext);
@@ -211,12 +213,30 @@ export function Customers() {
     },
   ];
   
-  const handleDelete = (id: any[]) => {
+  const handleDelete = async (id: number | number[]) => {
     if(!currentUserCan('Manage Customers')){
       return
     }
-    console.log("deleting id ",id)
-    alert('not implemented yet')
+    let toDelete = Array.isArray(id) ? id : [id]
+    
+    try {
+      await deleteCustomers(toDelete)
+      setRefresh(true)
+      let msg:string;
+      if(toDelete.length == 1) {
+        msg = 'Customer deleted';
+      } else {
+        msg = `${toDelete.length} customers deleted`;
+      }
+      toast.success(msg)
+      
+      setSelected([])
+    } catch(error){
+      dispatch({ type: 'set-error', payload: error });
+    } finally {
+      dispatch({ type: 'set-mode', payload: 'idle' });
+    }
+    
   }
   const deleteMultiple = () => {
     return handleDelete(selected)
@@ -230,7 +250,7 @@ export function Customers() {
       dispatch({ type: 'set-search', payload: term });
       const params = new URLSearchParams(window.location.search);
       params.set('full_name', term);
-      navigate(`?${params.toString()}`, { replace: true });
+      navigate(`?${params.toString( )}`, { replace: true });
     } else {
       dispatch({ type: 'clear-search'})
       navigate(location.pathname, { replace: true });

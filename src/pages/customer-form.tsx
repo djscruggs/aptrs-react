@@ -5,6 +5,7 @@ import React, {
   FormEvent,
   RefObject
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleTextfieldError,
@@ -24,6 +25,7 @@ import { upsertCustomer} from '../lib/data/api';
 import { Customer } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
+import { currentUserCan } from '../lib/utilities';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 interface FormErrors {
@@ -42,12 +44,16 @@ interface CustomerFormProps {
   onClose: () => void;
 }
 function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: CustomerFormProps): JSX.Element {
+  const navigate = useNavigate()
+  if(!currentUserCan('Manage Customer')){
+    navigate('/access-denied')
+  }
   const [id, setId] = useState(customerId)
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const currentUser = useCurrentUser()
-  const defaultCountry = currentUser.location.country //used by phone input
+  const defaultCountry = currentUser?.location?.country //used by phone input
   const [saveError, setSaveError] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [editing, setEditing] = useState(false)
