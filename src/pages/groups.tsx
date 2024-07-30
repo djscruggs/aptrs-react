@@ -17,67 +17,35 @@ import { useDataReducer, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from 
 
 export function Groups() {
   const theme = useContext(ThemeContext);
-  const initialState: DatasetState = {
-    mode: 'idle',
-    data: [],
-    queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
-    totalRows: 0,
-  };
+  const [loading, setLoading] = useState(true)
   
   // initial load - if there's a search term in the url, set it in state,
   // this makes search load immediately in useEffect
-  const params = new URLSearchParams(window.location.search);
-  const search = params.get('name') || '';
   const canEdit = currentUserCan('Manage Group')
-  if(search){
-    initialState.queryParams = {offset:0, limit:DEFAULT_DATA_LIMIT, name: search};
-  }
   //partial reducer for search and pagination; the rest is handled by useDataReducer
-  const reducer = (state: DatasetState, action: DatasetAction): DatasetState | void => {
-    switch (action.type) {
-      case 'set-search': {
-        if(state.queryParams.name === action.payload) {
-          return state
-        }
-        let newQueryParams = {name: action.payload, offset: 0, limit: state.queryParams?.limit || DEFAULT_DATA_LIMIT}
-        return {...state, queryParams: newQueryParams};
-      }
-    }
-  };
-  const [state, dispatch] = useDataReducer(reducer, initialState);
   const [selected, setSelected] = useState([])
   const navigate = useNavigate()
+  const [groups, setGroups] = useState<Group[]>([])
   //modal state variables
-  const [groupId, setGroupId] = useState('')
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [group, setGroup] = useState<GroupFormProps>({name: '', description: ''})
   
-  const ref = useRef<HTMLDialogElement>(null);
-  
-  const openModal = useCallback((id: string ='') => {
-    setGroupId(id)
+  interface GroupFormProps {
+    id?: number,
+    name: string,
+    description: string
+  }
+  const openModal = (group: GroupFormProps) => {
+    setGroup(group)
     setShowModal(true)
-    ref.current?.showModal();
-    
-  }, [ref]);
-  useEffect(() => {
-    if(showModal){
-      ref.current?.showModal()
-    } else {
-      ref.current?.close()
-    }
-  },[showModal])
+  }
+  
   const clearModal = () => {
-    setGroupId('')
     setShowModal(false);
   }
   const handleNew = () => {
-    openModal('')
-  }
-  const handleSelectedChange = (event: any) => {
-    const ids = event.selectedRows.map((item:any) => item.id);
-    setSelected(ids)
-    
+    openModal({name: '', description: ''})
   }
   const columns: Column[] = [
     ...(currentUserCan('Manage Group') ? [{
@@ -122,60 +90,39 @@ export function Groups() {
       }
       toast.success(msg)
     } catch(error){
-      dispatch({ type: 'set-error', payload: error });
+      console.error(error)
     } finally {
-      dispatch({ type: 'set-mode', payload: 'idle' });
+      setLoading(false)
     }
   }
   const loadData = async() => {
     try {
-      dispatch({ type: 'set-mode', payload: 'loading' });
       const data = await fetchGroups()
+      console.log('data after fetch', data)
       let temp: any = []
-      console.log(data)
       data.forEach((row: GroupWithActions) => {
         row.actions = (<>
-                      <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
+                      <PencilSquareIcon onClick={() => openModal({id: row.id, name:row.name, description: row.description})} className="inline w-6 cursor-pointer"/>
                       <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                       </>)
         temp.push(row)
       });
-      data.results = temp
-      dispatch({ type: 'set-data', payload: {data} });
+      setGroups(temp)
     } catch(error){
-      dispatch({ type: 'set-error', payload: error });
+      console.error(error)
     } finally {
-      dispatch({ type: 'set-mode', payload: 'idle' });
+      setLoading(false)
     }
+  }
+  const handleSelectedChange = (event: any) => {
+    const ids = event.selectedRows.map((item:any) => item.id);
+    setSelected(ids)
+    
   }
   useEffect(() => {
     loadData()
     setRefresh(false)
-  }, [refresh, state.queryParams]);
-  const handlePerRowsChange = (newPerPage: number) => {
-    dispatch({ type: 'set-rows-per-page', payload: newPerPage });
-  }
-  function handlePageChange(page: number){
-    dispatch({ type: 'set-page', payload: page });
-  }
-  const handleSearch = (term = '') => {
-    if (term) {
-      dispatch({ type: 'set-search', payload: term });
-      const params = new URLSearchParams(window.location.search);
-      params.set('name', term);
-      navigate(`?${params.toString()}`, { replace: true });
-    } else {
-      dispatch({ type: 'clear-search'})
-      navigate(location.pathname, { replace: true });
-    }
-  }
-  const clearSearch = () => {
-    return handleSearch('')
-  }
-  if(state.error){
-    console.error(state.error)
-    // navigate('/error')
-  }
+  }, [refresh]);
   
   return(
     <>
@@ -189,8 +136,8 @@ export function Groups() {
             </Button>
           </form>
           <DialogBody>
-          {groupId   && <GroupForm id={groupId} forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
-          {!groupId && <GroupForm forwardedRef={ref} setRefresh={setRefresh} onClose={clearModal}/>}
+          {group  && <GroupForm group={group} onSave={() => setRefresh(true)} onClose={clearModal}/>}
+          
           </DialogBody>
         </Dialog>
         }
@@ -212,26 +159,16 @@ export function Groups() {
             }
           </>
         }
-        {state.queryParams.name &&
-          <p className="mt-8">
-            Results for &quot;{state.queryParams.name}&quot;
-            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
-          </p>
-        }
-        {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
-        <div className={state.mode != 'idle' ? 'hidden' : ''}>
+       
+        {loading && <div className="mt-16"><RowsSkeleton numRows={10}/></div>} 
+        <div className={loading ? 'hidden' : ''}>
           <DataTable
             columns={columns}
-            data={state.data}
+            data={groups}
+            onSelectedRowsChange={handleSelectedChange}
             pagination
             striped
-            onSelectedRowsChange={handleSelectedChange}
-            progressPending={state.mode != 'idle'}
-            paginationServer
-            paginationPerPage={state.queryParams.limit}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
-            paginationTotalRows={state.totalRows}
+            progressPending={loading}
             theme={theme}
             {...(canEdit ? { selectableRows: true } : {})}
           />

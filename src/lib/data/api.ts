@@ -453,7 +453,7 @@ export async function getGroup(id: string | undefined) {
 export async function upsertGroup(formData: Group): Promise<any> {
   let url = apiUrl(`auth/groups/create`);
   if (Object.keys(formData).includes('id')) {
-    url = apiUrl(`auth/groups/update/${formData['id']}`);
+    url = apiUrl(`auth/groups/update/${formData['id']}/`);
   }
   const response = await axios.post(url, formData, authHeaders());
   return response.data;

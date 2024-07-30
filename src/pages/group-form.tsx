@@ -1,42 +1,34 @@
-import React, { 
+import { 
   useState, 
   useEffect,
   ChangeEvent, 
   FormEvent,
-  RefObject
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
   FormErrorMessage,
-  ModalErrorMessage
+
 } from '../lib/formstyles'
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan } from '../lib/utilities'
 import Button from '../components/button';
-import { FormSkeleton } from '../components/skeletons'
-import { getGroup } from '../lib/data/api';
 import { upsertGroup} from '../lib/data/api';
 import { Group } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
   name?: string
-  address?: string
-  img?: string
+  description?: string
 }
 
 interface GroupFormProps {
-  id?: string; // Make the ID parameter optional
-  forwardedRef?: RefObject<HTMLDialogElement> //handle to the modal this is loaded in
-  setRefresh?: React.Dispatch<React.SetStateAction<boolean>> //state function to tell parent to reload data
+  group: Group
+  onSave: (group: Group) => void
   onClose: () => void;
 }
-function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupFormProps): JSX.Element {
-  const [id, setId] = useState(groupId)
+function GroupForm(props: GroupFormProps): JSX.Element {
   const [btnDisabled, setBtnDisabled] = useState(false)
-  const [loading, setLoading] = useState(false);
-  const [loadingError, setLoadingError] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [editing, setEditing] = useState(false)
   const navigate = useNavigate()
@@ -44,12 +36,8 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
     navigate('/access-denied')
   }
   
-  const [formData, setFormData] = useState<Group>({
-    name: '',
-  });
+  const [formData, setFormData] = useState<Partial<Group>>(props.group);
   //logo input
-  const [file, setFile] = useState<File | null>(null)
-  const [fileDataURL, setFileDataURL] = useState<string | null>(formData.img ? String(formData.img) : null)
   
   const [errors, setErrors] = useState<FormErrors>({});
   
@@ -82,31 +70,7 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
     };
   }, []);
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (id) {
-        setLoading(true);
-        try {
-          const groupData = await getGroup(id) as Group;
-          setFormData(groupData);
-          if(groupData.img){
-            //prepend with image host
-            const base = new URL(import.meta.env.VITE_APP_API_URL);
-            const origin = base.origin;
-            setFileDataURL(String(origin + groupData.img))
-          }
-        } catch (error) {
-          console.error("Error fetching group data:", error);
-          setLoadingError(true);
-          // Handle error fetching data
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadData();
-  }, [id]);
+  
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setEditing(true)
     const { name, value } = event.target;
@@ -115,34 +79,7 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
       [name]: value,
     }));
   };
-  const handleImage = (e: ChangeEvent<HTMLInputElement>): void => {
-    setEditing(true)
-    const { files } = e.target
-    if (!files) return
-    const image = files[0]
-    if (image.size > 1_000_000) {
-      toast.error('Image must be less than 1MB')
-      return
-    }
-    setFile(image)
-    const fileReader = new FileReader()
-    fileReader.onload = (e) => {
-      const result = e.target?.result
-      if (result) {
-        if (typeof result === 'string') {
-          setFileDataURL(result)
-        } else {
-          setFileDataURL(null)
-        }
-      }
-    }
-    fileReader.readAsDataURL(image)
-  }
-  const removeImage = (): void => {
-    setEditing(true)
-    setFile(null)
-    setFileDataURL(null)
-  }
+  
   //override skips the check for whether the user wants to save before closing
   const closeModal = (override = false) =>  {
     if(!override) {
@@ -152,11 +89,7 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
         }
       }
     }
-    setId('')
-    if(forwardedRef?.current ) {
-      forwardedRef.current.close()
-    }
-    onClose()
+    props.onClose()
   }
   const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
     setBtnDisabled(true);
@@ -167,22 +100,16 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
     if (formData.name && formData.name.length < 3) {
       newErrors.name = 'Name should be at least three characters';
     }
-    if(file){
-      formData.img = file
-    } else {
-      delete formData.img
-    }
+    
     
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        await upsertGroup(formData as Group);
+        const newGroup = await upsertGroup(formData as Group);
+        props.onSave(newGroup)
         toast.success('Group saved.')
-        if(setRefresh){
-          setRefresh(true)
-        }
         setEditing(false)
         closeModal(true)
         // Handle success (e.g., show success message, redirect, etc.)
@@ -196,14 +123,12 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
   }
   
   
-  if(loading) return <FormSkeleton numInputs={3}/>
-  if (loadingError) return <ModalErrorMessage message={"Error loading group"} />
-
+  
   return (
     <div className="max-w-xl min-w-lg flex-1 rounded-lg">
       
       <h1 className="mb-3 text-2xl dark:text-white">
-        {id ? "Edit" : "Create"} Group
+        {formData.id ? "Edit" : "Create"} Group
       </h1>
       {saveError && <FormErrorMessage message={saveError} />}
       <form onSubmit={handleSubmit} id="projectForm" encType='multipart/form-data' method="POST">
@@ -227,6 +152,25 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
             {errors.name && <FormErrorMessage message={errors.name} />}
           </div>
         </div>
+        <div className="w-full mb-4">
+          <label 
+            htmlFor="name"
+            className={StyleLabel}>
+            Description
+          </label>
+          <div className="relative">
+            <input
+              name="description"
+              id="description"
+              className={StyleTextfield}
+              value={formData.description}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            {errors.description && <FormErrorMessage message={errors.description} />}
+          </div>
+        </div>
         
         
         {/* Submit button */}
@@ -241,7 +185,7 @@ function GroupForm({ id: groupId, forwardedRef, setRefresh, onClose }: GroupForm
               </Button>
               <Button 
                 className="bg-red-500 ml-1"
-                onClick = {closeModal}
+                onClick = {() => closeModal()}
                 disabled={btnDisabled}>
                   Cancel
               </Button>
