@@ -199,7 +199,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         newErrors.number = 'Enter a valid phone number';
       }
     }
-    console.log(usernameRegex)
     if (!usernameRegex.test(String(formData?.username))) {
       newErrors.username = 'Username must be alphanumeric'
     }
