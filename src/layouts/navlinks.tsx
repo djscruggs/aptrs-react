@@ -6,6 +6,7 @@ import {
   BuildingOfficeIcon,
   RocketLaunchIcon,
   CircleStackIcon,
+  UserIcon,
   UsersIcon
 } from '@heroicons/react/24/outline';
 import { useCurrentUser } from '../lib/customHooks';
@@ -28,7 +29,10 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
     { name: 'Customers', href: '/customers', icon: UserGroupIcon },
     { name: 'Projects', href: '/projects', icon: RocketLaunchIcon },
     { name: 'Vulnerability DB', href: '/vulnerabilities', icon: CircleStackIcon },
-    ...(currentUser?.isAdmin ? [{ name: 'Users', href: '/users', icon: UsersIcon}] : [])
+    ...(currentUser?.isAdmin ? [
+      { name: 'Users', href: '/users', icon: UserIcon},
+      { name: 'Groups', href: '/groups', icon: UsersIcon}
+    ] : [])
   ];
   
   

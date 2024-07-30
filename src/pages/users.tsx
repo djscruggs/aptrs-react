@@ -68,7 +68,8 @@ export function Users() {
     full_name: '',
     company: '',
     is_active: 1,
-    email: ''
+    email: '',
+    groups: ''
   });
   
   //modal state variables
@@ -126,15 +127,12 @@ export function Users() {
       full_name: '',
       is_active: 1,
       email: '',
-      company: ''
+      company: '',
+      groups: ''
     });
     dispatch({ type: 'reset'})
   }
   const columns: Column[] = [
-    // full_name
-    // email
-    // position
-    // is_active
     ...(currentUserCan('Manage Users') ? [{
       name: 'Action',
       selector: (row: any) => row.actions,
@@ -197,6 +195,19 @@ export function Users() {
           handleSort={handleSort} 
         />,
       selector: (row: User) => row.is_active ? "Yes" : "No",
+    },
+    {
+      name: 
+        <HeaderFilter 
+          label='Groups' 
+          name='groups' 
+          defaultValue={String(filterValues.groups)}          
+          onCommit={filterCommit} 
+          onChange={handleFilter} 
+          currentFilter={state.queryParams}
+          handleSort={handleSort} 
+        />,
+      selector: (row: User) => row.groups?.join(', '),
     },
     {
       name: 'Admin?',

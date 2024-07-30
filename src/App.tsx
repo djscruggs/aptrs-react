@@ -15,6 +15,7 @@ import CompanyForm from './pages/company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component
 import Users from './pages/users'
+import Groups from './pages/groups'
 import ErrorPage from './pages/error-page';
 import AccessDenied from './pages/access-denied';
 import Profile from './pages/profile';
@@ -74,6 +75,7 @@ const App: React.FC = () => {
                     <Route path="/vulnerabilities/:id" element={<VulnerabilityView />} />
                     <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
                     <Route path="/users" element={<Users />} />
+                    <Route path="/groups" element={<Groups />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/access-denied" element={<AccessDenied />} />
                     <Route path="*" element={<ErrorPage is404={true}/>} />

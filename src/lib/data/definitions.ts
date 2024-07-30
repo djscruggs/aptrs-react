@@ -50,6 +50,12 @@ export interface Company  {
   address?: string 
 }
 
+export interface Group  {
+  id: number
+  name: string
+  description: string
+}
+
 export interface Customer  {
   id?: number
   full_name?: string

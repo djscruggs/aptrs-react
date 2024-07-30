@@ -429,6 +429,35 @@ export async function deleteVulnerabilities(ids: any[]): Promise<any> {
   const response = await axios.delete(url, config);
   return response.data;
 }
+export async function fetchGroups() {
+  const url = apiUrl('auth/groups/list/');
+  const response = await axios.get(url, authHeaders());
+  return response.data;
+}
+export async function deleteGroups(ids: any[]): Promise<any> {
+  const url = apiUrl('auth/groups/delete');
+  const config = {
+    headers: authHeaders().headers,
+    data: ids,
+  };
+  const response = await axios.delete(url, config);
+  return response.data;
+}
+
+export async function getGroup(id: string | undefined) {
+  if (!id) return null;
+  const url = apiUrl(`auth/groups/${id}`);
+  const response = await axios.get(url, authHeaders());
+  return response.data;
+}
+export async function upsertGroup(formData: Group): Promise<any> {
+  let url = apiUrl(`auth/groups/create`);
+  if (Object.keys(formData).includes('id')) {
+    url = apiUrl(`auth/groups/update/${formData['id']}`);
+  }
+  const response = await axios.post(url, formData, authHeaders());
+  return response.data;
+}
 export async function fetchUsers() {
   const url = apiUrl('auth/users');
   const response = await axios.get(url, authHeaders());
