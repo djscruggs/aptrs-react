@@ -115,7 +115,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     }
     //set flag to true if an input eleent
     function handleInputChange(){
-      _editing = true;
       if(!editing){
         setEditing(true)
       }
@@ -154,19 +153,26 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       number:value
     })    
   };
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value, type, checked } = event.target;
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
+    const { name, value, checked, options } = event.target as HTMLInputElement & HTMLSelectElement;
     setEditing(true)
-    // Check the type of input - checkboxes don't have a value attribute
-    const inputValue = type === 'checkbox' ? checked : value;
+    // Check the type of input - checkboxes and selects don't have a value attribute
+    let inputValue: any;
+    if ((event.target as HTMLInputElement).type  === 'checkbox') {
+      inputValue = checked;
+    } else if ((event.target as HTMLInputElement).type === 'select-multiple') {
+      inputValue = Array.from(options).filter(option => option.selected).map(option => option.value);
+    } else {
+      inputValue = value;
+    }
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: inputValue,
     }));
   };
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const closeModal = () =>  {
-    if(editing){
+  const closeModal = (force:boolean = false) =>  {
+    if(editing && !force){
       if(!confirm('Quit without saving?')){
         return null;
       }
@@ -193,6 +199,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         newErrors.number = 'Enter a valid phone number';
       }
     }
+    console.log(usernameRegex)
     if (!usernameRegex.test(String(formData?.username))) {
       newErrors.username = 'Username must be alphanumeric'
     }
@@ -216,7 +223,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         if(setRefresh){
           setRefresh(true)
         }
-        closeModal()
+        closeModal(true)
         // Handle success (e.g., show success message, redirect, etc.)
       } catch (error) {
         console.error('Error submitting form:', error);
