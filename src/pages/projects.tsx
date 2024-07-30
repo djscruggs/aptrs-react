@@ -338,7 +338,6 @@ export function Projects(props:ProjectsProps): JSX.Element {
   }
   if(state.error){
     console.error(state.error)
-    console.log('state.error is', state.error)
     return <ErrorPage message={state.error}/>
   }
   const customStyles = {

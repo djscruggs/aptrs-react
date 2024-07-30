@@ -30,7 +30,7 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
       loadScopes()
       toast.success('Scope deleted')
     } catch(error){
-      console.log(error)
+      console.error(error)
       toast.error(String(error))
     }
   }

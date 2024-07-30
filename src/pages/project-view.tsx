@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
 import { currentUserCan } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
@@ -27,9 +27,11 @@ interface ProjectViewProps {
   tab?: string;
 }
 function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
+  const navigate = useNavigate()
   const params = useParams()
-  const { id: routeId } = params;
+  const { id: routeId, tab: routeTab } = params;
   const id = externalId || routeId; // Use externalId if provided, otherwise use routeId
+  const [selectedTab, setSelectedTab] = useState(routeTab || 'summary')
   const [loading, setLoading] = useState(false);
   const [project, setProject] = useState<Project>()
   const [scopes, setScopes] = useState<Scope[]>([])
@@ -84,23 +86,25 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     };
     loadData();
   }, [id]);
+  useEffect(() => {
+    navigate(`/projects/${id}/${selectedTab}`)
+  }, [selectedTab])
   
   
   
   if(loading) return <FormSkeleton numInputs={6} className='max-w-lg'/>
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />
-
   return (
         <>
           {typeof(project) == 'object' && (
-            <Tabs value='summary'>
+            <Tabs value={selectedTab} >
               <div className="max-w-screen flex-1 rounded-lg bg-white dark:bg-gray-darkest dark:text-white px-6 pb-4 ">
                 <PageTitle title='Project Details' />
                 <TabsHeader className='mt-4'>
-                  <Tab key="summary" value="summary">Summary</Tab>
-                  <Tab key="vulnerabilities" value="vulnerabilities">Vulnerabilities</Tab>
-                  <Tab key="scopes" value="scopes">Scopes</Tab>
-                  <Tab key="report" value="report">Reports</Tab>
+                  <Tab key="summary" value="summary" onClick={()=>setSelectedTab('summary')}>Summary</Tab>
+                  <Tab key="vulnerabilities" value="vulnerabilities" onClick={()=>setSelectedTab('vulnerabilities')}>Vulnerabilities</Tab>
+                  <Tab key="scopes" value="scopes" onClick={()=>setSelectedTab('scopes')}>Scopes</Tab>
+                  <Tab key="reports" value="reports" onClick={()=>setSelectedTab('reports')}>Reports</Tab>
                 </TabsHeader>
                 <TabsBody>
                   <TabPanel value="summary">
@@ -224,7 +228,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                   <TabPanel value="scopes">
                     <ScopeTable projectId={Number(id)} />
                   </TabPanel>
-                  <TabPanel value="report">
+                  <TabPanel value="reports">
                     <div className="mt-4 max-w-lg">
                       <ReportForm projectId={Number(id)} scopes={scopes} />
                     </div>
