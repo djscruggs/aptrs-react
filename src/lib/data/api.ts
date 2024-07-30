@@ -451,7 +451,7 @@ export async function getGroup(id: string | undefined) {
   return response.data;
 }
 export async function upsertGroup(formData: Group): Promise<any> {
-  let url = apiUrl(`auth/groups/create`);
+  let url = apiUrl(`auth/groups/create/`);
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`auth/groups/update/${formData['id']}/`);
   }
