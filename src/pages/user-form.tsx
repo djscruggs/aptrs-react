@@ -30,6 +30,8 @@ import { phoneRegex, emailRegex, usernameRegex, parseErrors } from '../lib/utili
 import PermissionGroupSelect from '../components/permission-group-select';
 import { currentUserCan } from '../lib/utilities'
 import { useNavigate } from 'react-router-dom';
+import { CountryCode } from 'libphonenumber-js/core';
+
 
 
 interface FormErrors {
@@ -84,16 +86,18 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     groups: [],
   });
 
-  
   //used in phone number input
-  const defaultCountry = currentUser?.location?.country 
+  const defaultCountry = currentUser?.location?.country as CountryCode | undefined
   const [errors, setErrors] = useState<FormErrors>({});
-  
-  function canSubmit():boolean {
-    if(formData.id){
-      return true;
+
+  function passwordMismatch():boolean {
+    if(!formData.password && !formData.password_check){
+      return false
     }
-    return !btnDisabled && validPassword(formData.password) && formData.password == formData.password_check
+    if(formData.password != formData.password_check){
+      return true
+    }
+    return false
   }
 
   useEffect(() => {
@@ -169,6 +173,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       ...prevFormData,
       [name]: inputValue,
     }));
+    
   };
   const [passwordVisible, setPasswordVisible] = useState(false)
   const closeModal = (force:boolean = false) =>  {
@@ -202,7 +207,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     if (!usernameRegex.test(String(formData?.username))) {
       newErrors.username = 'Username must be alphanumeric'
     }
-    if(formData.password != formData.password_check){
+    if(passwordMismatch()){
       newErrors.password_check = 'Passwords do not match'
     }
     if(!id && !formData.password){
@@ -227,7 +232,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
       } catch (error) {
         console.error('Error submitting form:', error);
         setErrors(parseErrors(error))
-        
         setSaveError(String(error))
         // Handle error (e.g., show error message)
       }
@@ -238,7 +242,6 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
   if(loading) return <FormSkeleton numInputs={6}/>
   if (loadingError) return <ModalErrorMessage message={"Error loading user"} />
 
-  
   return (
     <div className="max-w-lg flex-1 rounded-lg bg-white dark:bg-gray-darkest dark:text-white">
       <PageTitle title={id ? "Edit User" : "Create User"} />
@@ -364,14 +367,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                     className='rounded-xl toggle toggle-accent mr-2'
                     onChange={handleChange}
                     checked={formData.is_active ? true : false} 
-                    disabled = {currentUser.username == formData.username }
+                    disabled = {currentUser?.username == formData.username }
                   />
-                  {currentUser.username === formData.username &&
+                  {currentUser?.username === formData.username &&
                     <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
                       <span className="label-text">Active</span> 
                     </div>
                   }
-                  {currentUser.username != formData.username &&
+                  {currentUser?.username != formData.username &&
                     <span className="label-text">Active</span> 
                   }
                 </label>  
@@ -403,14 +406,14 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   className='rounded-xl toggle toggle-accent mr-2'
                   onChange={handleChange}
                   checked={formData.is_superuser ? true : false} 
-                  disabled = {currentUser.username == formData.username || currentUser.isAdmin == false  }
+                  disabled = {currentUser?.username == formData.username || currentUser?.isAdmin == false  }
                 />
-                {currentUser.username === formData.username &&
+                {currentUser?.username === formData.username &&
                   <div className="tooltip tooltip-right" data-tip="You cannot disable for your own account"> 
                     <span className="label-text">Administrator</span> 
                   </div>
                 }
-                {currentUser.username != formData.username &&
+                {currentUser?.username != formData.username &&
                   <span className="label-text">Administrator</span> 
                 }
                 </label>
@@ -435,9 +438,8 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
           </fieldset>
           <div className="flex flex-col w-1/2">
             <fieldset className="form-control rounded-md  space-y-2 p-2 border border-slate-200" >
-              <legend className='text-sm'>Password</legend>
-              {formData.id && <span className='text-xs'>(disabled for existing users)</span>}
-              {!formData.id && <PasswordDescription password={formData.password} />}
+              <legend className='text-sm'>Password {formData.id ? '(optional)' : ''}</legend>
+              <PasswordDescription password={formData.password} />
               <div className="w-full mt-0">
                 <label 
                   htmlFor="password"
@@ -449,8 +451,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   <input
                     name="password"
                     id="password"
-                    disabled={Boolean(formData.id)}
-                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    className={passwordMismatch() ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
                     type={passwordVisible ? "text" : "password"}
                     required={id ? false : true}
@@ -473,16 +474,15 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   <input
                     name="password_check"
                     id="password_check"
-                    className={formData.password != formData.password_check ? `${StyleTextfieldError}` :`${StyleTextfield}`}
+                    className={passwordMismatch() ? `${StyleTextfieldError}` :`${StyleTextfield}`}
                     onChange={handleChange}
-                    disabled={Boolean(formData.id)}
                     type={passwordVisible ? "text" : "password"}
                     required={id ? false : true}
                   />
                   <ShowPasswordButton passwordVisible={passwordVisible} clickHandler={()=> setPasswordVisible(!passwordVisible)} />
                     
                 </div>
-                {formData.password != formData.password_check && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
+                {(formData.password || formData.password_check) && (formData.password != formData.password_check) && <p className='text-xs mt-2 ml-1 text-red-500'>Passwords should match</p>}
               </div>
             </fieldset>
           </div>
@@ -490,12 +490,11 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
         
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">
-                <Button 
-                className="bg-primary disabled:bg-gray-light disabled:border-gray-light disabled:shadow-none"
-                disabled={btnDisabled}
+              <button 
+                className="bg-primary disabled:bg-gray-light text-white p-2 py-1 rounded-md disabled:border-gray-light disabled:shadow-none"
                 type="submit">
                   Save
-              </Button>
+              </button>
               <Button 
                 className="bg-red-500 ml-1"
                 onClick = {closeModal}>
