@@ -113,9 +113,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   };
   
   const handleDatePicker = (input: string, value:string): void => {
-    console.log(input, value)
     const formattedDate = new Date(value).toLocaleDateString('en-CA'); // 'en-CA' is the locale for Canada, which uses the 'yyyy-MM-dd' format
-    console.log('formattedDate',formattedDate)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [input]: value,
@@ -152,12 +150,10 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
-      console.log('Form failed validation:', newErrors);
+      console.error('Form failed validation:', newErrors);
     } else {
       try {
-        console.log('submitting', formData)
         const result = await upsertProject(formData as Project);
-        console.log('result',result)
         navigate('/projects')
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -249,21 +245,22 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     className={StyleLabel}
                     htmlFor="status"
                   >
-                    Status
+                    Status 
                   </label>
                   <div className="relative">
-                    <select name="status"
-                        value={formData.status || ''} 
-                        onChange={handleChange}
-                        className={StyleTextfield}
-                        required
-                      >
-                      <option value=''>Select...</option>
-                      {['Upcoming', 'In Progress','Delay','Completed'].map((status =>
-                          <option key={status} value={status}>{status}</option>
-                    ))}
-                    </select>
-                    {errors.status && <p>{errors.status}</p>} 
+                    <input
+                      name="status"
+                      id="status"
+                      value = {formData.status || ''}
+                      placeholder='Auto-calculated from date'
+                      onChange={handleChange}
+                      className={StyleTextfield}
+                      type="text"
+                      disabled                      
+                    />
+                    {formData.status && <span className='text-xs italic ml-2'>Auto-calculated from date</span>}
+                    
+                    
                   </div>
                 </div>
               </div>
@@ -388,14 +385,17 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 >
                   Project Exception
                 </label>
-                <div className="relative">
-                  <CKWrapper
-                    id="projectexception"
-                    data = {formData.projectexception}
-                    onChange={handleCKchange}
-                  />
-                  
-                  {errors.projectexception && <FormErrorMessage message={errors.projectexception} />} 
+                {/* opacity is a hack to allow date picker above it to display correctly. for some reason it goes behind the ck object when opacity is set to 100 */}
+                <div className='opacity-95'>
+                  <div className="relative">
+                    <CKWrapper
+                      id="projectexception"
+                      data = {formData.projectexception}
+                      onChange={handleCKchange}
+                    />
+                    
+                    {errors.projectexception && <FormErrorMessage message={errors.projectexception} />} 
+                  </div>
                 </div>
               </div>
               
