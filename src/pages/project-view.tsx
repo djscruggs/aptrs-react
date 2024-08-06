@@ -121,6 +121,14 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                             {project.name}
                           </div>
                         </div>
+                        <div className="mt-4">
+                          <label className={StyleLabel} >
+                            Status
+                          </label>
+                          <div className="relative cursor-text">
+                            {project.status}
+                          </div>
+                        </div>
                         <div className="w-full mb-4">
                           <label className={StyleLabel}>
                             Project Owner
@@ -177,6 +185,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                             {project.companyname} 
                           </div>
                         </div>
+                        
                         <div className='grid grid-cols-2'>
                           <div className="mt-4">
                             <label className={StyleLabel}>
@@ -195,6 +204,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                             </div>
                           </div>
                         </div>
+                        
                         <div className="mt-4">
                           <label className={StyleLabel}>
                             Testing Type
