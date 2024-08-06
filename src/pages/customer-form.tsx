@@ -28,6 +28,7 @@ import { useCurrentUser } from '../lib/customHooks';
 import { currentUserCan } from '../lib/utilities';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
+import { CountryCode } from 'libphonenumber-js/core';
 interface FormErrors {
   full_name?: string
   email?: string
@@ -53,7 +54,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const [loading, setLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const currentUser = useCurrentUser()
-  const defaultCountry = currentUser?.location?.country //used by phone input
+  const defaultCountry = currentUser?.location?.country  as CountryCode | undefined
   const [saveError, setSaveError] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -64,20 +65,17 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     position: '',
     company: '',
     password: '',
-    password_check: ''
+    password_check: '',
+    is_active: true
   });
   const [errors, setErrors] = useState<FormErrors>({});
   //listen for the escape key and input to form elements
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if(e.key == 'Escape') {
+      if(e.key === 'Escape') {
         e.preventDefault()
-        if(editing){
-          if(!confirm('Quit without saving?')){
-            return null;
-          }
-        } 
         closeModal()
+        
       //if it's an input element, set editing to true
       } else if(e.target?.toString().includes('HTMLInput')) {
         setEditing(true)
@@ -112,12 +110,22 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     loadCustomer();
   }, [id]);
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-    const { name, value } = event.target;
+    const { name, value, checked, options } = event.target as HTMLInputElement & HTMLSelectElement;
     setEditing(true)
+    // Check the type of input - checkboxes and selects don't have a value attribute
+    let inputValue: any;
+    if ((event.target as HTMLInputElement).type  === 'checkbox') {
+      inputValue = checked;
+    } else if ((event.target as HTMLInputElement).type === 'select-multiple') {
+      inputValue = Array.from(options).filter(option => option.selected).map(option => option.value);
+    } else {
+      inputValue = value;
+    }
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value,
+      [name]: inputValue,
     }));
+    
   };
   //needed a customer handler for phone number
   const handlePhoneInputChange = (value:string) => {
@@ -128,8 +136,8 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
     })    
   };
   //clean up the data to make sure the next instance is clean
-  const closeModal = () =>  {
-    if(editing){
+  const closeModal = (force:boolean = false) =>  {
+    if(editing && !force){
       if(!confirm('Quit without saving?')){
         return null;
       }
@@ -166,8 +174,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
         if(setRefresh){
           setRefresh(true)
         }
-        setEditing(false)
-        closeModal()
+        closeModal(true)
       } catch (error) {
         setErrors(parseErrors(error))
       }
@@ -245,7 +252,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                     onChange={handlePhoneInputChange}
                     name="number"
                     defaultCountry={defaultCountry}
-                    className='rounded-md p-4'
+                    className={StyleTextfield + ' pr-2'}
                     id="number"
                   />
                   {errors.number && <FormErrorMessage message={errors.number} />} 
@@ -291,6 +298,22 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
                 {errors.position && <FormErrorMessage message={errors.position} />} 
               </div>
               
+            </div>
+            <div className="mt-14">
+            <label 
+                  htmlFor="is_active"
+                  className='label cursor-pointer text-left'
+                >
+                  <input type="checkbox" 
+                    name='is_active' 
+                    id="is_active"
+                    
+                    className='rounded-xl toggle toggle-accent mr-2'
+                    onChange={handleChange}
+                    checked={formData.is_active ? true : false} 
+                  />
+                  Active
+              </label>
             </div>
           </div>
         </div>
@@ -358,7 +381,7 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
           <Button 
             type="button"
             className="bg-red-500 ml-1"
-            onClick = {closeModal}
+            onClick = {() => closeModal()}
             >
               Cancel
           </Button>

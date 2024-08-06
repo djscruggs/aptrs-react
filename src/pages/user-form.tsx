@@ -75,7 +75,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
     username: '',
     full_name: '',
     email: '',
-    is_staff: false,
+    is_staff: true,
     is_active: false,
     is_superuser: false,
     number: '',
@@ -324,7 +324,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               onChange={handlePhoneInputChange}
               name="number"
               defaultCountry={defaultCountry}
-              className={StyleTextfield}
+              className={StyleTextfield  + ' pr-2'}
               id="number"
               required={true}
             />
@@ -379,22 +379,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
                   }
                 </label>  
             </div>
-            <div className="flex items-center">
-              <label 
-                htmlFor="is_staff"
-                className='label cursor-pointer'
-              >
-                <input type="checkbox" 
-                name='is_staff' 
-                id="is_staff"
-                className='rounded-xl toggle toggle-accent mr-2'
-                onChange={handleChange}
-                checked={formData.is_staff ? true : false} 
-                />
-                <span className="label-text">Staff Member</span> 
-              </label>
             
-            </div>
             <div className="flex items-center mb-0 pb-0">
                 <label 
                   htmlFor="is_superuser"
