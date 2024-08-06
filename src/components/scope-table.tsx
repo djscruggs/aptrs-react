@@ -1,12 +1,13 @@
 import { useState, useEffect, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { deleteProjectScope, getProjectScopes } from '../lib/data/api'
+import {StyleLabel, StyleTextfield} from '../lib/formstyles'
+import { deleteProjectScope, getProjectScopes, insertProjectScopes } from '../lib/data/api'
 import DataTable from 'react-data-table-component'
 import { ThemeContext } from '../layouts/layout'
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-hot-toast'
 import { Column, Scope } from '../lib/data/definitions'
 import ScopeForm, { ModalScopeForm } from '../components/scope-form'
+import { Dialog } from "@material-tailwind/react";
 interface ScopeTableProps {
   projectId: number
 }
@@ -16,6 +17,11 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
   const [newScope, setNewScope] = useState(false)
   const [scopes, setScopes] = useState<Scope[]>([])
   const [selected, setSelected] = useState([])
+  const [showDialog, setShowDialog] = useState(false)
+  const [bulkScopes, setBulkScopes] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [scopeError, setScopeError] = useState('')
   const theme = useContext(ThemeContext);
   useEffect(() => {
     loadScopes()
@@ -55,6 +61,47 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
   interface ScopeWithActions extends Scope {
     actions: React.ReactNode
   }
+  const addBulkScopes = () => {
+    setShowDialog(true)
+  }
+  const cancelBulkScopes = () => {
+    if(editing){
+      if(!confirm('Cancel without saving?')){
+        return
+      }
+    }
+    setShowDialog(false)
+  }
+  const saveBulkScopes = async () => {
+    setSaving(true)
+    setEditing(true)
+    
+    const lines = bulkScopes.split('\n').map(scopeWithDescription => {
+        const [scope, ...description] = scopeWithDescription.trim().split(','); // Split the line into scope and description
+        return {
+          scope: scope, 
+          description:description.join(' ')
+        };
+      });
+    
+      try {
+        await insertProjectScopes(props.projectId, lines)
+        setShowDialog(false)  
+        loadScopes()
+        toast.success('Scopes added')
+        setBulkScopes('')
+      } catch(error){
+        setScopeError('Error saving scope')
+        toast.error(String(error))
+      } finally {
+        setSaving(false)
+      }
+    
+  }
+  const bulkScopesChange = (event: any) => {
+    setBulkScopes(event.target.value)
+  }
+  
   function formatRows(rows: ScopeWithActions[]):ScopeWithActions[] {
     let temp: ScopeWithActions[] = []
     rows.forEach((row: ScopeWithActions) => {
@@ -102,7 +149,38 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
                             Delete
                           </button>
                           }
-                          <button className='bg-primary text-white p-2 rounded-md block ' onClick={()=>setNewScope(true)}>Add New</button>
+                          <button className='bg-primary text-white p-2 rounded-md inline mr-2 ' onClick={()=>setNewScope(true)}>Add New</button>
+                          <button className='bg-secondary text-white p-2 rounded-md inline ' onClick={addBulkScopes}>
+                            Add Multiple
+                          </button>
+                          <Dialog handler={cancelBulkScopes} open={showDialog} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
+                            <label 
+                              htmlFor="bulkScopes"
+                              className={StyleLabel}>
+                              Enter URLs with (optional) description seperated by comma, one pair per line
+                            </label>
+                            <textarea
+                              name="bulkScopes"
+                              id="bulkScopes"
+                              placeholder='example.com, description'
+                              rows={8}
+                              className={StyleTextfield}
+                              value={bulkScopes}
+                              onChange={bulkScopesChange}
+                            />
+                            {scopeError && <p className="text-red-500">{scopeError}</p>}
+                            <button 
+                              onClick={saveBulkScopes}
+                              className="bg-primary text-white cursor-pointer disabled:bg-gray-300 mt-2 p-2 rounded-md"
+                              disabled = {bulkScopes.trim() === '' || saving}
+                              >
+                              {saving ? 'Saving...' : 'Add'}
+                            </button>
+                            <button onClick={cancelBulkScopes}
+                              className="bg-red-600 text-white cursor-pointer disabled:bg-gray-300 mt-2 ml-2 p-2 rounded-md">
+                              Cancel
+                            </button>
+                          </Dialog>
                         </>
                       }
                       </div>
