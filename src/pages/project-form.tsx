@@ -22,7 +22,7 @@ import { FormSkeleton } from '../components/skeletons'
 import { getProject } from '../lib/data/api';
 import { upsertProject, fetchProjectTypes} from '../lib/data/api';
 import { Project } from '../lib/data/definitions'
-
+import { isAfter } from 'date-fns'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useCurrentUser } from '../lib/customHooks';
@@ -145,6 +145,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     }
     if(formData.enddate){
       formData.enddate = formatDate(formData.enddate)
+    }
+    if(formData.startdate && formData.enddate && isAfter(new Date(formData.startdate), new Date(formData.enddate))){
+      newErrors.enddate = 'End date must be after start date'
     }
     
     
@@ -311,16 +314,18 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     End Date
                   </label>
                   <div className="relative mt-4 border p-1 rounded-md bg-white">
-                    <DatePicker
+                    <DatePicker   
                       id="enddate"
                       name="enddate"
+                      minDate={formData.startdate ? new Date(formData.startdate) : null}
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
                       onChange={(date:string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
                     />
-                    {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
+                    
                   </div>
+                  {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
                 </div>
               </div>
               <div className='flex'>
