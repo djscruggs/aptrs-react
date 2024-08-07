@@ -20,10 +20,11 @@ export function ScoreRadioButton({ name, label, value, scoreData, onChange }: Sc
             <ListItemPrefix className="mr-3">
               <Radio
                 name={`${name}-${value}`}
+                color="blue"
                 id={`${name}-${value}`}
                 value={value}
                 ripple={false}
-                className="hover:before:opacity-0"
+                className="hover:before:opacity-0 dark:text-white"
                 crossOrigin=''
                 checked={isChecked}
                 onChange={()=> onChange(name, value)}
@@ -33,7 +34,7 @@ export function ScoreRadioButton({ name, label, value, scoreData, onChange }: Sc
               />
             </ListItemPrefix>
             
-              {label}
+              <span className="dark:text-white">{label}</span>
             
           </label>
         </ListItem>
