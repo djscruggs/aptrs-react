@@ -269,6 +269,13 @@ export async function fetchVulnerabilityInstances(id: string | number | undefine
   const response = await axios.get(url, authHeaders())
   return response.data;
 }
+export async function updateVulnerabilityStatus(instanceIds: number[], status: string) {
+  instanceIds
+  const url = apiUrl(`project/vulnerability/status/instances/?status=${status}`);
+  const response = await axios.post(url, instanceIds, authHeaders())
+  return response.data;
+}
+
 export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
   const url = apiUrl('project/vulnerability/delete/instances/');
   const config = {

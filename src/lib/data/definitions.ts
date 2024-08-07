@@ -123,6 +123,7 @@ export interface CurrentUser extends User {
 export interface VulnWithActions extends Vulnerability {
   actions?: JSX.Element
   severity?:JSX.Element
+  status?:string
 }
 
 export type IPAddressInfo = {
