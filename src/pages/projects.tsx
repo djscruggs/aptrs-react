@@ -363,18 +363,19 @@ export function Projects(props:ProjectsProps): JSX.Element {
     <>
       {props.pageTitle && <PageTitle title={props.pageTitle} /> }
       <div className="flow-root" >
-        
-        <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
-          New Project
-        </Button>
         {currentUserCan('Manage Projects') && !props.embedded &&
-        <Button 
-          className="btn bg-secondary float-right m-2 mr-0 disabled:opacity-50" 
-          disabled={selected.length == 0}
-          onClick = {deleteMultiple}>
-            Delete
-        </Button>
-        }
+          <>
+            <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
+              New Project
+            </Button>
+            <Button 
+              className="btn bg-secondary float-right m-2 mr-0 disabled:opacity-50" 
+              disabled={selected.length == 0}
+              onClick = {deleteMultiple}>
+                Delete
+            </Button>
+          </>
+         }
          {state.queryParams.name &&
           <p className="mt-8">
             Results for &quot;{state.queryParams.name}&quot;
