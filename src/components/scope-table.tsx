@@ -140,15 +140,13 @@ export default function ScopeTable(props: ScopeTableProps): JSX.Element {
                       :
                         <>
                           
-                          {selected.length > 0 &&
                           <button  
-                            className="bg-secondary float-right p-2 text-white rounded-md disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+                            className="bg-secondary float-right p-2 text-white rounded-md disabled:opacity-50"
                             disabled={selected.length == 0}
                             onClick = {deleteMultiple}
                           >
                             Delete
                           </button>
-                          }
                           <button className='bg-primary text-white p-2 rounded-md inline mr-2 ' onClick={()=>setNewScope(true)}>Add New</button>
                           <button className='bg-secondary text-white p-2 rounded-md inline ' onClick={addBulkScopes}>
                             Add Multiple

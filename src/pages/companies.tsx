@@ -199,15 +199,13 @@ export function Companies() {
             <Button className='btn bg-primary float-right m-2' onClick={handleNew}>
                 New Company
             </Button>
-            {selected.length> 0 &&
-              <Button 
-                className="btn bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
-                disabled={selected.length == 0}
-                onClick = {deleteMultiple}
-                >
-                  Delete
-              </Button>
-            }
+            <Button 
+              className="btn bg-secondary float-right m-2 mr-0 disabled:opacity-50" 
+              disabled={selected.length == 0}
+              onClick = {deleteMultiple}
+              >
+                Delete
+            </Button>
           </>
         }
         {state.queryParams.name &&

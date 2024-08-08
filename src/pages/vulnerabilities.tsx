@@ -207,9 +207,9 @@ const Vulnerabilities = () => {
           >
           New Vulnerability
         </Button>
-        {selected.length > 0 && currentUserCan('Manage Vulnerability Data') &&
+        {currentUserCan('Manage Vulnerability Data') &&
           <Button  
-            className="bg-secondary float-right m-2 mr-0 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" 
+            className="btn bg-secondary float-right m-2 mr-0 disabled:opacity-50" 
             disabled={selected.length == 0}
             onClick = {deleteMultiple}
           >
