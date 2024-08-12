@@ -124,7 +124,9 @@ export function Projects(props:ProjectsProps): JSX.Element {
         dispatch({ type: 'set-data', payload: {data} });
       }
     } catch(error){
-      dispatch({ type: 'set-error', payload: error });
+      console.error(error)
+      
+      // dispatch({ type: 'set-error', payload: error });
     } finally {
       dispatch({ type: 'set-mode', payload: 'idle' });
     }

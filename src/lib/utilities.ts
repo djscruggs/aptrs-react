@@ -63,6 +63,15 @@ export const currentUserCan = (group: string): boolean => {
   }
   return user.groups.includes(group)
 }
+export const getProjectStatusColor = (status: string): string => {
+  const colorMap: { [key: string]: string } = {
+    'Upcoming': 'bg-primary',
+    'In Progress': 'bg-secondary',
+    'Delay': 'bg-warning',
+    'Completed': 'bg-success'
+  }
+  return colorMap[status] || 'bg-primary'
+}
 
 export const parseErrors = (error: any): any => {
   try {

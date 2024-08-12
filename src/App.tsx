@@ -87,7 +87,7 @@ const App: React.FC = () => {
                     <Route path="/error" element={<ErrorPage />} />
                     <Route path="*" element={<Navigate to="/" replace />}/>
                   </>
-                }
+                }                
               </Route>
             </Routes>
           </Router>

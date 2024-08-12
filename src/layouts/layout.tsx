@@ -7,7 +7,7 @@ import { getInitials, avatarUrl } from '../lib/utilities'
 import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
 import { useEffect, useState, useContext, createContext } from 'react';
-import {LoginUser} from '../lib/data/definitions'
+import { CurrentUser } from '../lib/data/definitions'
 import { ThemeIcon } from '../components/themeIcon';
 
 export const ThemeContext = createContext('light')
@@ -29,7 +29,7 @@ const Layout: React.FC = () => {
       setTheme('dark')
     }
   }, [])
-  const [currentUser, setCurrentUser] = useState<LoginUser | null>(useCurrentUser())
+  const [currentUser, setCurrentUser] = useState<CurrentUser | undefined>(useCurrentUser())
   // can't use useLocation here because the layout is outside of the  Router in App.tsx
   const location = useLocation();
   useEffect(() => {
@@ -43,7 +43,7 @@ const Layout: React.FC = () => {
             <Toaster />
             <div className="flex h-screen flex-col md:flex-row md:overflow-hidden dark:bg-gray-darkest dark:text-white">
               
-                {location.pathname !== '/' &&
+                {!['/','/401'].includes(location.pathname) &&
                   <div className="w-full flex-none md:w-64 md:mt-20">
                     <SideNav theme={theme} toggleTheme={toggleTheme} />
                   </div>

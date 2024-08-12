@@ -37,7 +37,7 @@ interface FormErrors {
 interface UserForm extends BaseUser {
   newpassword?: string;
   newpassword_check?: string;
-  profilepic?: File
+  profilepic?: string | File
 };
 export const Profile = () => {
   const [currentUser, setCurrentUser] = useState(useCurrentUser())
@@ -46,24 +46,25 @@ export const Profile = () => {
   const [editing, setEditing] = useState(false)
   
   const defaults = {
-    id: currentUser.id,
-    full_name: currentUser.full_name,
-    email: currentUser.email,
-    number: currentUser.number,
-    position: currentUser.position,
-    groups: currentUser.groups,
-    // profilepic: currentUser.profilepic, leaving this out because later I may have to set it as a file
+    id: currentUser!.id,
+    full_name: currentUser!.full_name,
+    email: currentUser!.email,
+    number: currentUser!.number,
+    position: currentUser!.position,
+    groups: currentUser!.groups,
+    profilepic: currentUser!.profilepic, //leaving this out because later I may have to set it as a file
     oldpassword: '',
     newpassword: '',
     newpassword_check: '',
   }
+  console.log(currentUser)
   const [formData, setFormData] = useState<UserForm>(defaults);
   //profile image input
   const [file, setFile] = useState<File | null>(null);
-  const [fileDataURL, setFileDataURL] = useState<string | null>(currentUser.profilepic ? avatarUrl(currentUser.profilepic) : null)
+  const [fileDataURL, setFileDataURL] = useState<string | null>(currentUser?.profilepic ? avatarUrl(currentUser!.profilepic) : null)
   
   
-  const defaultCountry = currentUser.location.country 
+  const defaultCountry = currentUser!.location?.country 
   const [errors, setErrors] = useState<FormErrors>({});
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
@@ -203,6 +204,13 @@ export const Profile = () => {
     setFile(null)
     setFileDataURL(null)
   }
+  const handleCancel = (): void => {
+    setFile(null)
+    setFileDataURL(null)
+    setFormData(defaults)
+    setFileDataURL(currentUser?.profilepic ? avatarUrl(currentUser!.profilepic) : null)
+    setEditing(false)
+  }
   return (
     <>
     <PageTitle title='Profile Page' />
@@ -248,7 +256,7 @@ export const Profile = () => {
               type="text"
               required={true}
             />
-            ) : <>{currentUser.email}</>
+            ) : <>{currentUser!.email}</>
           }
             {errors.email && <FormErrorMessage message={errors.email} />}
           </div>
@@ -271,7 +279,7 @@ export const Profile = () => {
               onChange={handleChange}
               type="text"
               
-            />) : <>{currentUser.position}</>
+            />) : <>{currentUser!.position}</>
           }
           </div>
         </div>
@@ -291,7 +299,7 @@ export const Profile = () => {
               className={StyleTextfield}
               id="number"
               required={true}
-            />) : <>{formatPhoneNumber(currentUser.number)}</>
+            />) : <>{formatPhoneNumber(currentUser!.number)}</>
           }
             {errors.number && <FormErrorMessage message={errors.number} />}
           </div>
@@ -300,10 +308,13 @@ export const Profile = () => {
         {editing && 
           <div className="max-w-sm mb-4">
             {fileDataURL &&
-            <div>
-              <img src={fileDataURL} alt="cover photo" className="max-w-full max-h-60" />
-              <button className='underline text-red-500' onClick={removeImage}>Remove</button>
-            </div>
+            
+              <div className="flex justify-center items-center flex-col w-24">
+                <div className="block"><img src={fileDataURL} alt="cover photo" className="rounded-full h-20 w-20" /></div>
+                <div className="block"><button className='underline text-red-500' onClick={removeImage}>Remove</button></div>
+              </div>
+              
+            
           }
           {!fileDataURL &&
             <div className="flex flex-col items-center justify-end">
@@ -405,7 +416,7 @@ export const Profile = () => {
                   </Button>
                   <Button 
                     className="bg-red-500 ml-1"
-                    onClick={() => toggleEditing()}
+                    onClick={handleCancel}
                     disabled={btnDisabled}>
                       Cancel
                   </Button>

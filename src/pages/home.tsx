@@ -3,14 +3,15 @@ import Login from './login';
 import { useCurrentUser } from '../lib/customHooks';
 import { Navigate, useLocation } from 'react-router-dom';
 
-
-export default function Home() {
-  const location = useLocation()
+interface HomeProps {
+  isRelogin?: boolean
+}
+export default function Home({isRelogin = false}: HomeProps) {
+  console.log('isRelogin', isRelogin)
   //is this a relogin after session expiration? set in WithAuth in authutils
-  const isRelogin = location.state?.relogin
   const currentUser = useCurrentUser()
   //if logged in, redirect to dashboard
-  if(currentUser){
+  if(currentUser && !isRelogin){
     return <Navigate to={"/dashboard"} />
   }
   

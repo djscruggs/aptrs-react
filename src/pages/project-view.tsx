@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
-import { currentUserCan } from "../lib/utilities";
+import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
 import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
@@ -125,7 +125,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           <label className={StyleLabel} >
                             Status
                           </label>
-                          <div className="relative cursor-text">
+                          <div className={`relative cursor-text ${getProjectStatusColor(project.status)}`}>
                             {project.status}
                           </div>
                         </div>
