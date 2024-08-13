@@ -83,6 +83,18 @@ export function simpleUploadConfig() {
     ...authHeaders()
   }
 }
+export async function uploadFile(file: File) {
+  console.log('uploading file', file)
+  const url = uploadUrl()
+  const formData = new FormData()
+  formData.append('file', file)
+  const config: AuthHeaders = authHeaders()
+  config.headers['content-type'] = 'multipart/form-data'
+  console.log('formData', formData)
+  console.log(formData.get('file'))
+  const response = await postOrRedirect(url, formData, config)
+  return response.data
+}
 export function authHeaders(): { headers: Record<string, string> } {
   const token = getAuthUser()?.access;
   const header = { headers: {'Authorization': `Bearer ${token}`} }
