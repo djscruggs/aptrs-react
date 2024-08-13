@@ -90,8 +90,6 @@ export async function uploadFile(file: File) {
   formData.append('file', file)
   const config: AuthHeaders = authHeaders()
   config.headers['content-type'] = 'multipart/form-data'
-  console.log('formData', formData)
-  console.log(formData.get('file'))
   const response = await postOrRedirect(url, formData, config)
   return response.data
 }
