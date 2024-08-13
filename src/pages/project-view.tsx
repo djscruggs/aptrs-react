@@ -199,7 +199,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                   </div>
                   <div className="mt-4">
                     <label className={StyleLabel}>Project Exception</label>
-                    <div className="relative cursor-text">{project.projectexception}</div>
+                    <div dangerouslySetInnerHTML={{ __html: project.projectexception }}></div>
                   </div>
                   <div className="mt-4">
                     <label className={StyleLabel}>Description</label>
