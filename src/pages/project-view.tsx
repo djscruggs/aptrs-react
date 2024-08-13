@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { WithAuth } from "../lib/authutils"
 import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons'
-import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner } from '../lib/data/api'
+import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner, markProjectAsCompleted } from '../lib/data/api'
 import { Project, Scope } from '../lib/data/definitions'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles'
@@ -20,7 +20,7 @@ import {
   TabPanel
 } from "@material-tailwind/react";
 import ScopeTable from '../components/scope-table'
-
+import { useCurrentUser } from '../lib/customHooks';
 
 interface ProjectViewProps {
   id?: string; // Make the ID parameter optional
@@ -40,7 +40,7 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
   const [owner, setOwner] = useState(project?.owner || '')
   const [ownerError, setOwnerError] = useState('')
   const [saving, setSaving] = useState(false)
-  
+  const currentUser = useCurrentUser()
   const handleOwnerChange = (e:any) => {
     setOwner(e.target.value)
   }
@@ -55,10 +55,22 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
     try {
       await updateProjectOwner(_project)  
       setEditingOwner(false)
-      project.owner = owner
+      project!.owner = owner
     } catch(error){
       setOwnerError("Error saving owner")
       setEditingOwner(true)
+    } finally {
+      setSaving(false)
+    }
+  }
+  const markAsCompleted = async () => {
+    setSaving(true)
+    try {
+      const response = await markProjectAsCompleted(Number(id))  
+      console.log(response)
+      project!.status = 'Completed'
+    } catch(error){
+      setOwnerError("Error updating project")
     } finally {
       setSaving(false)
     }
@@ -127,6 +139,12 @@ function ProjectView({ id: externalId}: ProjectViewProps): JSX.Element {
                           </label>
                           <div className={`relative cursor-text ${getProjectStatusColor(project.status)}`}>
                             {project.status}
+                           <>
+                            {(currentUserCan('Manage Projects') && project.status !== 'Completed') && (
+                              <div className='text-secondary underline cursor-pointer text-sm' onClick={markAsCompleted}>Mark Complete</div>
+                            )}
+                            </>
+                            
                           </div>
                         </div>
                         <div className="w-full mb-4">

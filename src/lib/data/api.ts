@@ -279,6 +279,11 @@ export async function getProjectScopes(id: string | undefined) {
   const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
+export async function markProjectAsCompleted(id: number): Promise<any> {
+  const url = apiUrl(`project/status/completed/${id}/`);
+  const response = await getOrRedirect(url, authHeaders())
+  return response;
+}
 export async function insertProjectScopes(projectId: number , scope: any): Promise<any> {
   const url = apiUrl(`project/scope/add/${projectId}/`);
   const response = await postOrRedirect(url, scope, authHeaders())
