@@ -4,11 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
-    include: ['@workspace/ckeditor5'],
+    //include: ['@workspace/ckeditor5'],
   },
   build: {
     commonjsOptions: {
-      include: [/@workspace\/ckeditor5-custom-build/, /node_modules/],
+      include: [/node_modules/],
       exclude: ['ckeditor5-custom-build']
     }
   },
