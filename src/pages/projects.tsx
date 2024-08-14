@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import PageTitle from '../components/page-title';
 import { Link } from 'react-router-dom';
 import { WithAuth} from "../lib/authutils";
-import { currentUserCan } from "../lib/utilities";
+import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
 import { useDataReducer } from '../lib/useDataReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Project, Column, FilteredSet} from '../lib/data/definitions'
@@ -124,6 +124,8 @@ export function Projects(props:ProjectsProps): JSX.Element {
         dispatch({ type: 'set-data', payload: {data} });
       }
     } catch(error){
+      console.error(error)
+      toast.error(error as string)
       dispatch({ type: 'set-error', payload: error });
     } finally {
       dispatch({ type: 'set-mode', payload: 'idle' });
@@ -218,7 +220,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
               currentFilter={state.queryParams}
               handleSort={handleSort}
               />,
-      selector: (row: Project) => row.status,
+      selector: (row: Project) => <span className={getProjectStatusColor(row.status)}>{row.status}</span>,
       maxWidth: '7rem',
     },
     {

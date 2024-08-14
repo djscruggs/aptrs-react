@@ -6,11 +6,70 @@ import {  Company,
           IPAddressInfo,
           Vulnerability,
           FilteredSet } from './definitions'
-import axios from 'axios'
+import axios, { AxiosResponse, AxiosError } from 'axios'
 interface AuthHeaders {
   headers: Record<string, string>;
 }
-
+function redirectIfUnauthorized(response: AxiosResponse){
+  if(response?.status === 401){
+    logout()
+    window.location.href = '/'
+  }
+}
+async function getOrRedirect(url: string, params?: any): Promise<AxiosResponse> {
+  let response: AxiosResponse | AxiosError;
+  try {
+    response = await axios.get(url, params);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        redirectIfUnauthorized(error.response);
+        response = error;
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+  return response as AxiosResponse;
+}
+async function postOrRedirect(url: string, params?: any, headers?: any): Promise<AxiosResponse> {
+  let response: AxiosResponse | AxiosError;
+  try {
+    response = await axios.post(url, params, headers);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        redirectIfUnauthorized(error.response);
+        response = error;
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+  return response as AxiosResponse;
+}
+async function deleteOrRedirect(url: string, params?: any): Promise<AxiosResponse> {
+  let response: AxiosResponse | AxiosError;
+  try {
+    response = await axios.delete(url, params );
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        redirectIfUnauthorized(error.response);
+        response = error;
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+  return response as AxiosResponse;
+}
 export function apiUrl(endpoint:string = ''): string {
   return import.meta.env.VITE_APP_API_URL + endpoint;
 }
@@ -23,6 +82,16 @@ export function simpleUploadConfig() {
     withCredentials: true,
     ...authHeaders()
   }
+}
+export async function uploadFile(file: File) {
+  console.log('uploading file', file)
+  const url = uploadUrl()
+  const formData = new FormData()
+  formData.append('file', file)
+  const config: AuthHeaders = authHeaders()
+  config.headers['content-type'] = 'multipart/form-data'
+  const response = await postOrRedirect(url, formData, config)
+  return response.data
 }
 export function authHeaders(): { headers: Record<string, string> } {
   const token = getAuthUser()?.access;
@@ -63,7 +132,7 @@ export async function login(email: string, password:string) {
   // catch it here and return boolean; otherwise throw error
   let result
   try {
-    const response = await axios.post(url, { email, password })
+    const response = await postOrRedirect(url, { email, password })
     result = response.data;
   } catch (error: any | unknown){
     if (axios.isAxiosError(error)) {
@@ -100,7 +169,7 @@ export async function refreshAuth() {
     try {
     const body = {refresh: user.refresh}
     const url = apiUrl('auth/token/refresh/');
-    const response = await axios.post(url, body, authHeaders());
+    const response = await postOrRedirect(url, body, authHeaders());
     user.refresh = response.data.refresh
     user.access = response.data.access
     setAuthUser(user)
@@ -117,23 +186,23 @@ export function logout() {
 
 export async function fetchCustomers() {
   const url = apiUrl('customer/all-customer');
-  const response = await axios.get(url,authHeaders());
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function fetchFilteredCustomers(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl(`customer/all-customer/filter`);
-  const response = await axios.get(url,  { params: params, ...authHeaders() });
+  const response = await getOrRedirect(url,  { params: params, ...authHeaders() });
   return response.data;
 }
 
 export async function getUserLocation(){ 
-    const response = await axios.get("https://ipapi.co/json/")
+    const response = await getOrRedirect("https://ipapi.co/json/")
     return response.data
 }
 export async function getCustomer(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`customer/customer/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function upsertCustomer(formData: Company): Promise<any> {
@@ -142,7 +211,7 @@ export async function upsertCustomer(formData: Company): Promise<any> {
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`customer/customer/edit/${formData['id']}/`);
   }
-  const response = await axios.post(url, formData, authHeaders())
+  const response = await postOrRedirect(url, formData, authHeaders())
   return response.data;    
 }
 export async function deleteCustomers(ids: any[]): Promise<any> {
@@ -151,29 +220,29 @@ export async function deleteCustomers(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 export async function fetchProjects() {
   const url = apiUrl('project/get-projects/');
-  const response = await axios.get(url,authHeaders());
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function fetchMyProjects() {
   const url = apiUrl('project/my-projects/');
-  const response = await axios.get(url,authHeaders());
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function fetchFilteredProjects(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
-  const response = await axios.get(url, { params: params, ...authHeaders() });
+  const response = await getOrRedirect(url, { params: params, ...authHeaders() });
   return response.data;
 }
 
 
 export async function searchProjects(name:string) { 
   const url = apiUrl(`project/projects/filter?name=${name}`);
-  const response = await axios.get(url,authHeaders());
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 interface ProjectReportParams {
@@ -200,40 +269,45 @@ export async function getProjectReport(props: ProjectReportParams) {
     ...authHeaders(),
     params: toSubmit,
   };
-  const response = await axios.get(url, config)
+  const response = await getOrRedirect(url, config)
   return response
 }
 export async function fetchStandards() {
   const url = apiUrl('config/standards/')
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data
 }
 export async function getProject(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/get-project/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function getProjectScopes(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/scope/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
+}
+export async function markProjectAsCompleted(id: number): Promise<any> {
+  const url = apiUrl(`project/status/completed/${id}/`);
+  const response = await getOrRedirect(url, authHeaders())
+  return response;
 }
 export async function insertProjectScopes(projectId: number , scope: any): Promise<any> {
   const url = apiUrl(`project/scope/add/${projectId}/`);
-  const response = await axios.post(url, scope, authHeaders())
+  const response = await postOrRedirect(url, scope, authHeaders())
   return response.data;
 }
 export async function updateProjectScope(id: number , scope: any): Promise<any> {
   const url = apiUrl(`project/scope/edit/${id}/`);
-  const response = await axios.post(url, scope, authHeaders())
+  const response = await postOrRedirect(url, scope, authHeaders())
   return response.data;
 }
 export async function deleteProjectScope(id: number | number[] ): Promise<any> {
   const url = apiUrl('project/scope/delete/');
   let toDelete = Array.isArray(id) ? id : [id]
-  const response = await axios.delete(url, {data: toDelete, ...authHeaders()})
+  const response = await deleteOrRedirect(url, {data: toDelete, ...authHeaders()})
   return response.data;
 }
 
@@ -243,36 +317,36 @@ export async function deleteProjects(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 export async function fetchProjectTypes() {
   const url = apiUrl('config/project-type/')
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data
 }
 export async function fetchProjectFindings(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/findings/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function getProjectVulnerability(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/vulnerability/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function fetchVulnerabilityInstances(id: string | number | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/vulnerability/instances/${id}/`);
-  const response = await axios.get(url, authHeaders())
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function updateVulnerabilityStatus(instanceIds: number[], status: string) {
   instanceIds
   const url = apiUrl(`project/vulnerability/status/instances/?status=${status}`);
-  const response = await axios.post(url, instanceIds, authHeaders())
+  const response = await postOrRedirect(url, instanceIds, authHeaders())
   return response.data;
 }
 
@@ -282,7 +356,7 @@ export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 
@@ -292,7 +366,7 @@ export async function deleteProjectVulnerabilities(ids: number[]): Promise<any> 
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 export async function upsertProject(formData: Project | Partial<Project>): Promise<any> {
@@ -301,12 +375,12 @@ export async function upsertProject(formData: Project | Partial<Project>): Promi
     url = apiUrl(`project/edit-project/${formData['id']}/`);
   }
 
-  const response = await axios.post(url, formData, authHeaders());
+  const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
 export async function updateProjectOwner(formData: Partial<Project>): Promise<any> {
   const url = apiUrl('project/edit-owner/')
-  const response = await axios.post(url, formData, authHeaders());
+  const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
 
@@ -317,7 +391,7 @@ export async function insertProjectVulnerability(formData: any): Promise<any> {
     data.instance = formData.instances
     delete data.instances
   }
-  const response = await axios.post(url, data, authHeaders());
+  const response = await postOrRedirect(url, data, authHeaders());
   return response.data;
 }
 export async function updateProjectVulnerability(formData: any): Promise<any> {
@@ -327,7 +401,7 @@ export async function updateProjectVulnerability(formData: any): Promise<any> {
     data.instance = formData.instances
     delete data.instances
   }
-  const response = await axios.post(url, data, authHeaders());
+  const response = await postOrRedirect(url, data, authHeaders());
   return response.data;
 }
 export async function uploadProjectVulnerabilities(projectId: number, file: File): Promise<any> {
@@ -335,37 +409,37 @@ export async function uploadProjectVulnerabilities(projectId: number, file: File
   const config: AuthHeaders = authHeaders()
   config.headers['content-type'] = 'multipart/form-data'
   const data = {file: file} 
-  const response = await axios.post(url, data, config)
+  const response = await postOrRedirect(url, data, config)
   return response.data
 }
 export async function updateProjectInstance(data: any): Promise<any> {
   const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
-  const response = await axios.post(url, data, authHeaders());
+  const response = await postOrRedirect(url, data, authHeaders());
   return response.data;
 }
 //pvid is the id of a ProjectVulnerability
 export async function insertProjectInstance(pvid: any, data: any[]): Promise<any> {
   const url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
-  const response = await axios.post(url, data, authHeaders());
+  const response = await postOrRedirect(url, data, authHeaders());
   return response.data;
 }
 
 
 export async function fetchCompanies() {
   const url = apiUrl('customer/all-company');
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function fetchFilteredCompanies(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl(`customer/all-company/filter`);
-  const response = await axios.get(url,  { params: params, ...authHeaders() });
+  const response = await getOrRedirect(url,  { params: params, ...authHeaders() });
   return response.data;
 }
 
 export async function getCompany(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`customer/company/${id}/`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 
@@ -376,7 +450,7 @@ export async function upsertCompany(formData: Company): Promise<any> {
   }
   const headers = authHeaders()
   headers.headers['content-type'] = 'multipart/form-data'
-  const response = await axios.post(url, formData, headers);
+  const response = await postOrRedirect(url, formData, headers);
   return response.data;
 }
 
@@ -386,37 +460,37 @@ export async function deleteCompanies(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 
 export async function fetchVulnerabilities() {
   const url = apiUrl('vulndb/all-vulndb');
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function fetchFilteredVulnerabilities(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl(`vulndb/all-vulndb/filter`);
-  const response = await axios.get(url,  { params: params, ...authHeaders() });
+  const response = await getOrRedirect(url,  { params: params, ...authHeaders() });
   return response.data;
 }
 export async function searchVulnerabilities(term:string) {
   const url = apiUrl(`vulndb/filter/?search=${term}`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 
 export async function getVulnerability(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`vulndb/${id}/`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 
 export async function getVulnerabilityByName(name: string | undefined) {
   if (!name) return null;
   const url = apiUrl(`vulndb/database/?title=${name}`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function upsertVulnerability(formData: Vulnerability): Promise<any> {
@@ -424,7 +498,7 @@ export async function upsertVulnerability(formData: Vulnerability): Promise<any>
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`vulndb/edit-vulndb/${formData['id']}/`);
   }
-  const response = await axios.post(url, formData, authHeaders());
+  const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
 export async function deleteVulnerabilities(ids: any[]): Promise<any> {
@@ -433,12 +507,12 @@ export async function deleteVulnerabilities(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 export async function fetchGroups() {
   const url = apiUrl('auth/groups/list/');
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function deleteGroups(ids: any[]): Promise<any> {
@@ -447,14 +521,14 @@ export async function deleteGroups(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 
 export async function getGroup(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`auth/groups/${id}`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function upsertGroup(formData: Group): Promise<any> {
@@ -462,12 +536,12 @@ export async function upsertGroup(formData: Group): Promise<any> {
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`auth/groups/update/${formData['id']}/`);
   }
-  const response = await axios.post(url, formData, authHeaders());
+  const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
 export async function fetchUsers() {
   const url = apiUrl('auth/users');
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 export async function fetchFilteredUsers(params: Record<string, any>): Promise<FilteredSet> {
@@ -476,7 +550,7 @@ export async function fetchFilteredUsers(params: Record<string, any>): Promise<F
     delete params.order_by
     delete params.sort
   }
-  const response = await axios.get(url, { params: params, ...authHeaders() });
+  const response = await getOrRedirect(url, { params: params, ...authHeaders() });
   return response.data;
 }
 export async function deleteUsers(ids: any[]): Promise<any> {
@@ -485,20 +559,20 @@ export async function deleteUsers(ids: any[]): Promise<any> {
     headers: authHeaders().headers,
     data: ids,
   };
-  const response = await axios.delete(url, config);
+  const response = await deleteOrRedirect(url, config);
   return response.data;
 }
 
 export async function getUser(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`auth/user/${id}`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 
 export async function getMyProfile() {
   const url = apiUrl(`auth/myprofile`);
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
 
@@ -513,7 +587,7 @@ export async function upsertUser(formData: User): Promise<any> {
   if (Object.keys(formData).includes('id')) {
     url = apiUrl(`auth/edituser/${formData['id']}`);
   }
-  const response = await axios.post(url, temp, authHeaders());
+  const response = await postOrRedirect(url, temp, authHeaders());
   return response.data;
 }
 export async function updateProfile(formData: User, profilepic:File|null = null): Promise<any> {
@@ -526,7 +600,7 @@ if(profilepic) {
     temp.profilepic = profilepic
   }
   const url = apiUrl(`auth/editprofile`);
-  const response = await axios.post(url, temp, config);
+  const response = await postOrRedirect(url, temp, config);
   if(response.status == 200){
     //update the underyling auth user
     const current = getAuthUser()
@@ -541,12 +615,12 @@ if(profilepic) {
 }
 export async function changePassword(formData: User): Promise<any> {
   const url = apiUrl(`auth/changepassword`);
-  const response = await axios.post(url, formData, authHeaders());
+  const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
   
 }
 export async function fetchPermissionGroups() {
   const url = apiUrl('auth/groups/list/');
-  const response = await axios.get(url, authHeaders());
+  const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
