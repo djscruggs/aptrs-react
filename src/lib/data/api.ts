@@ -352,7 +352,7 @@ export async function fetchVulnerabilityInstances(id: string | number | undefine
   return response.data;
 }
 export async function updateVulnerabilityStatus(id: number, status: string) {
-  const url = apiUrl(`project/vulnerability/status/vulnerability/${id}?status=${status}`);
+  const url = apiUrl(`project/vulnerability/status/vulnerability/${id}/?status=${status}`);
   const response = await getOrRedirect(url, authHeaders())
   return response.data;
 }
