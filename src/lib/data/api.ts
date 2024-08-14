@@ -16,6 +16,9 @@ function redirectIfUnauthorized(response: AxiosResponse){
     window.location.href = '/'
   }
 }
+
+axios.defaults.withCredentials = true;
+
 async function getOrRedirect(url: string, params?: any): Promise<AxiosResponse> {
   let response: AxiosResponse | AxiosError;
   try {
