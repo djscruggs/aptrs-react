@@ -149,6 +149,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     if(formData.startdate && formData.enddate && isAfter(new Date(formData.startdate), new Date(formData.enddate))){
       newErrors.enddate = 'End date must be after start date'
     }
+    if (!formData.description || formData.description === '') {
+      newErrors.description = 'Please enter a description';
+    }
     
     
     if (Object.keys(newErrors).length >  0) {

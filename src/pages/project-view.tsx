@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons';
-import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner, markProjectAsCompleted } from '../lib/data/api';
+import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner, markProjectAsCompleted, markProjectAsOpen } from '../lib/data/api';
 import { Project, Scope } from '../lib/data/definitions';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
@@ -81,6 +81,20 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     }
   };
 
+
+  const markAsOpen = async () => {
+    setSaving(true);
+    try {
+      const response = await markProjectAsOpen(Number(id));
+      console.log(response);
+      setProject(prev => prev ? { ...prev, status: 'Completed' } : prev);
+    } catch (error) {
+      setOwnerError("Error updating project");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       if (id) {
@@ -137,6 +151,9 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                       {project.status}
                       {currentUserCan('Manage Projects') && project.status !== 'Completed' && (
                         <div className='text-secondary underline cursor-pointer text-sm' onClick={markAsCompleted}>Mark Complete</div>
+                      )}
+                      {currentUserCan('Manage Projects') && project.status == 'Completed' && (
+                        <div className='text-secondary underline cursor-pointer text-sm' onClick={markAsOpen}>Reopen</div>
                       )}
                     </div>
                   </div>

@@ -16,6 +16,9 @@ function redirectIfUnauthorized(response: AxiosResponse){
     window.location.href = '/'
   }
 }
+
+axios.defaults.withCredentials = true;
+
 async function getOrRedirect(url: string, params?: any): Promise<AxiosResponse> {
   let response: AxiosResponse | AxiosError;
   try {
@@ -87,7 +90,7 @@ export async function uploadFile(file: File) {
   console.log('uploading file', file)
   const url = uploadUrl()
   const formData = new FormData()
-  formData.append('file', file)
+  formData.append('upload', file)
   const config: AuthHeaders = authHeaders()
   config.headers['content-type'] = 'multipart/form-data'
   const response = await postOrRedirect(url, formData, config)
@@ -291,6 +294,11 @@ export async function getProjectScopes(id: string | undefined) {
 }
 export async function markProjectAsCompleted(id: number): Promise<any> {
   const url = apiUrl(`project/status/completed/${id}/`);
+  const response = await getOrRedirect(url, authHeaders())
+  return response;
+}
+export async function markProjectAsOpen(id: number): Promise<any> {
+  const url = apiUrl(`project/status/reopen/${id}/`);
   const response = await getOrRedirect(url, authHeaders())
   return response;
 }
