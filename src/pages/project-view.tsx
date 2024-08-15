@@ -300,7 +300,17 @@ function ReportForm({ projectId, scopes }: ReportFormProps) {
       const blob = new Blob([response.data], { type: contentType });
       if (formData.Format === 'pdf') {
         const pdfURL = URL.createObjectURL(blob);
-        window.open(pdfURL);
+        const newWindow = window.open(pdfURL);
+        if (newWindow) {
+          newWindow.onload = () => {
+            const a = newWindow.document.createElement('a');
+            a.href = pdfURL;
+            a.download = filename;
+            newWindow.document.body.appendChild(a);
+            a.click();
+            newWindow.document.body.removeChild(a);
+          };
+        }
       } else {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
