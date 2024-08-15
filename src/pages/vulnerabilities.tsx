@@ -199,7 +199,7 @@ const Vulnerabilities = () => {
   }
   return(
     <>
-      <PageTitle title='Vulnerabilities' />
+      <PageTitle title='Vulnerability Templates' />
       <div className="flow-root" >
         <Button 
           className='btn bg-primary float-right m-2 mr-0' 
