@@ -87,7 +87,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     try {
       const response = await markProjectAsOpen(Number(id));
       console.log(response);
-      setProject(prev => prev ? { ...prev, status: 'Completed' } : prev);
+      setProject(prev => prev ? { ...prev, status: 'In Progress' } : prev);
     } catch (error) {
       setOwnerError("Error updating project");
     } finally {
