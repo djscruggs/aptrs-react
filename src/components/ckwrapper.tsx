@@ -105,21 +105,23 @@ class MyUploadAdapter {
 export const CKWrapper = (props: CKEditorProps) => {
     const { id, data, onChange, onReady } = props;
     return (
-        <CKEditor
-            id={id}
-            data={data}
-            editor={Editor}
-            onChange={(event, editor) => {
-                onChange(id, editor.getData());
-            }}
-            onReady={editor => {
-                if (data) editor.setData(data);
-                editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-                    return new MyUploadAdapter(loader);
-                };
-                if (onReady) onReady(editor);
-            }}
-        />
+        <div className="dark:text-black">
+            <CKEditor
+                id={id}
+                data={data}
+                editor={Editor}
+                onChange={(event, editor) => {
+                    onChange(id, editor.getData());
+                }}
+                onReady={editor => {
+                    if (data) editor.setData(data);
+                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                        return new MyUploadAdapter(loader);
+                    };
+                    if (onReady) onReady(editor);
+                }}
+            />
+        </div>
     );
 }
 

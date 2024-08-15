@@ -65,10 +65,10 @@ export const currentUserCan = (group: string): boolean => {
 }
 export const getProjectStatusColor = (status: string): string => {
   const colorMap: { [key: string]: string } = {
-    'Upcoming': 'text-gray-dark',
-    'In Progress': 'text-info',
-    'Delay': 'text-warning',
-    'Completed': 'text-success-dark'
+    'Upcoming': 'text-blue-600',
+    'In Progress': 'text-yellow-600',
+    'Delay': 'text-red-600',
+    'Completed': 'text-green-600'
   }
   return colorMap[status] || 'text-primary'
 }

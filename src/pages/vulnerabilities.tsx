@@ -167,7 +167,7 @@ const Vulnerabilities = () => {
               handleSort={handleSort}
               />,
       selector: (row: VulnWithActions) => row.vulnerabilityname,
-      maxWidth: '25em'
+      maxWidth: '40em'
     },
     {
       name: 'Severity',
@@ -185,7 +185,7 @@ const Vulnerabilities = () => {
               handleSort={handleSort}
               />,
       selector: (row: VulnWithActions) => row.cvssscore,
-      maxWidth: '25em'
+      maxWidth: '15em'
     },
     
   ]
@@ -199,7 +199,7 @@ const Vulnerabilities = () => {
   }
   return(
     <>
-      <PageTitle title='Vulnerabilities' />
+      <PageTitle title='Vulnerability Templates' />
       <div className="flow-root" >
         <Button 
           className='btn bg-primary float-right m-2 mr-0' 
