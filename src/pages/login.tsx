@@ -58,7 +58,7 @@ const Login: React.FC = () => {
                       </label>
                       <div className="relative">
                         <input
-                          className="w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                          className="w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 dark:text-black"
                           id="email"
                           type="email"
                           name="email"
