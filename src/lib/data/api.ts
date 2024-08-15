@@ -152,7 +152,9 @@ export async function login(email: string, password:string) {
     user.email = email;
     //now get the user's location
     const location = await getUserLocation()
-    user.location = location as IPAddressInfo
+    if(location){
+      user.location = location as IPAddressInfo
+    }
     setAuthUser(user)
     //now get the profile info
     const profile = await getMyProfile()
@@ -199,8 +201,13 @@ export async function fetchFilteredCustomers(params: Record<string, any>): Promi
 }
 
 export async function getUserLocation(){ 
+  try {
     const response = await getOrRedirect("https://ipapi.co/json/")
     return response.data
+  } catch (error) {
+    console.error('error getting user location', error)
+    return null
+  }  
 }
 export async function getCustomer(id: string | undefined) {
   if(!id) return null;
