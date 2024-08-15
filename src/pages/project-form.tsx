@@ -301,6 +301,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                       <DatePicker
                         id="startdate"
                         name="startdate"
+                        autoComplete="off"
                         placeholderText='Select date'
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
@@ -320,6 +321,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                     <DatePicker   
                       id="enddate"
                       name="enddate"
+                      autoComplete="off"
                       minDate={formData.startdate ? new Date(formData.startdate) : null}
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
