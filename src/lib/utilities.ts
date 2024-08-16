@@ -73,6 +73,17 @@ export const getProjectStatusColor = (status: string): string => {
   return colorMap[status] || 'text-primary'
 }
 
+export const getVulnerabilityStatusColor = (status: string): string => {
+  const colorMap: { [key: string]: string } = {
+    'Vulnerable': 'text-red-600',
+    'Confirm Fixed': 'text-green-600',
+    'Accepted Risk': 'text-yellow-600'
+  }
+  return colorMap[status] || 'text-primary'
+}
+
+
+
 export const parseErrors = (error: any): any => {
   try {
     if(typeof error === 'string') {

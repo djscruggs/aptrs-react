@@ -17,9 +17,17 @@ const Layout: React.FC = () => {
   const toggleTheme = () => {
     if(theme === 'light'){
       document.documentElement.classList.add('dark')
+      const editors = document.querySelectorAll('.ck');
+      editors.forEach(editor => {
+        editor.classList.add('custom-ckeditor-dark');
+    });
       setTheme('dark')
     } else {
       document.documentElement.classList.remove('dark')
+      const editors = document.querySelectorAll('.ck');
+      editors.forEach(editor => {
+        editor.classList.remove('custom-ckeditor-dark');
+    });
       setTheme('light')
     }
   }
@@ -27,6 +35,11 @@ const Layout: React.FC = () => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       document.documentElement.classList.add('dark')
       setTheme('dark')
+      const editors = document.querySelectorAll('.ck');
+      editors.forEach(editor => {
+        editor.classList.add('custom-ckeditor-dark');
+    });
+      
     }
   }, [])
   const [currentUser, setCurrentUser] = useState<CurrentUser | undefined>(useCurrentUser())
