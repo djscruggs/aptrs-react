@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { uploadFile } from '../lib/data/api';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { apiUrl } from '../lib/data/api';
+
+
 import {
     ClassicEditor,
     Essentials,
@@ -25,7 +27,7 @@ import {
     ImageUpload
 } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
-
+import './custom.css';
 class Editor extends ClassicEditor {
     static builtinPlugins = [
         Essentials,
@@ -105,7 +107,7 @@ class MyUploadAdapter {
 export const CKWrapper = (props: CKEditorProps) => {
     const { id, data, onChange, onReady } = props;
     return (
-        <div className="dark:text-black">
+        <div className="dark:custom-ckeditor-dark">
             <CKEditor
                 id={id}
                 data={data}
