@@ -54,6 +54,7 @@ export interface Group  {
   id: number
   name: string
   description: string
+  list_of_permissions: string[]
 }
 
 export interface Customer  {

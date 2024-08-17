@@ -553,6 +553,12 @@ export async function upsertGroup(formData: Group): Promise<any> {
   const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
+export async function fetchPermisisons() {
+  const url = apiUrl('auth/list/permission/');
+  const response = await getOrRedirect(url, authHeaders());;
+  return response.data;
+}
+
 export async function fetchUsers() {
   const url = apiUrl('auth/users');
   const response = await getOrRedirect(url, authHeaders());;

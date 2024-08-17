@@ -29,12 +29,13 @@ export function Groups() {
   //modal state variables
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [group, setGroup] = useState<GroupFormProps>({name: '', description: ''})
+  const [group, setGroup] = useState<GroupFormProps>({name: '', description: '', list_of_permissions: []})
   
   interface GroupFormProps {
     id?: number,
     name: string,
-    description: string
+    description: string,
+    list_of_permissions: string[];
   }
   const openModal = (group: GroupFormProps) => {
     setGroup(group)
@@ -45,7 +46,7 @@ export function Groups() {
     setShowModal(false);
   }
   const handleNew = () => {
-    openModal({name: '', description: ''})
+    openModal({name: '', description: '',list_of_permissions: []})
   }
   const columns: Column[] = [
     ...(currentUserCan('Manage Group') ? [{
@@ -57,11 +58,21 @@ export function Groups() {
       name: 'Name',
       selector: (row: Group) => row.name,
       sortable: true,
+      maxWidth: '10rem'
     },
     {
       name: 'Description',
       selector: (row: Group) => row.description,
       sortable: true,
+      maxWidth: '20rem'
+    },
+    {
+      name: 'Permissions',
+      selector: (row: Group) => row.list_of_permissions.join('\n'),
+      sortable: true,
+      maxWidth: '55rem'
+      
+      
     },
   ];
   interface GroupWithActions extends Group {
@@ -102,7 +113,7 @@ export function Groups() {
       let temp: any = []
       data.forEach((row: GroupWithActions) => {
         row.actions = (<>
-                      <PencilSquareIcon onClick={() => openModal({id: row.id, name:row.name, description: row.description})} className="inline w-6 cursor-pointer"/>
+                      <PencilSquareIcon onClick={() => openModal({id: row.id, name:row.name, description: row.description,list_of_permissions: row.list_of_permissions})} className="inline w-6 cursor-pointer"/>
                       <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                       </>)
         temp.push(row)
