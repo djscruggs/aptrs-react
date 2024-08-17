@@ -184,9 +184,17 @@ export async function refreshAuth() {
     return null
   }
 }
-export function logout() {
-  localStorage.removeItem('user');
-  localStorage.removeItem('lastRefresh');
+export async function logout() {
+  try {
+    const response = await getOrRedirect("auth/logout/")
+    localStorage.removeItem('user');
+    localStorage.removeItem('lastRefresh');
+    
+  } catch (error) {
+    console.error('error getting user location', error)
+    return null
+  } 
+  
 }
 
 export async function fetchCustomers() {
