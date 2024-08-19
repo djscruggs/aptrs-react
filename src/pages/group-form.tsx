@@ -3,23 +3,30 @@ import {
   useEffect,
   ChangeEvent, 
   FormEvent,
+  useRef
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
   FormErrorMessage,
+  StyleCheckbox,
 
 } from '../lib/formstyles'
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan } from '../lib/utilities'
 import Button from '../components/button';
-import { upsertGroup} from '../lib/data/api';
+import { upsertGroup, fetchPermisisons} from '../lib/data/api';
 import { Group } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
   name?: string
   description?: string
+  list_of_permissions: string[];
+}
+
+interface Permission {
+  name: string;
 }
 
 interface GroupFormProps {
@@ -30,7 +37,7 @@ interface GroupFormProps {
 function GroupForm(props: GroupFormProps): JSX.Element {
   const [btnDisabled, setBtnDisabled] = useState(false)
   const [saveError, setSaveError] = useState('');
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(false);
   const navigate = useNavigate()
   if(!currentUserCan('Manage Group')){
     navigate('/access-denied')
@@ -40,8 +47,26 @@ function GroupForm(props: GroupFormProps): JSX.Element {
   //logo input
   
   const [errors, setErrors] = useState<FormErrors>({});
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const initialized = useRef(false)
   
   useEffect(() => {
+
+
+    const fetchData = async () => {
+      try {
+        const data = await fetchPermisisons();
+        const permissionNames = data.map((permission: { name: string }) => permission.name);
+        setPermissions(permissionNames);
+      } catch (error) {
+        console.error('Error fetching permissions:', error);
+      }
+    };
+    if (!initialized.current) {
+      initialized.current = true
+      fetchData();
+    }
+
     // trap keydown events to see if the user has edited anything
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
@@ -72,13 +97,13 @@ function GroupForm(props: GroupFormProps): JSX.Element {
 
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setEditing(true)
+    setEditing(true); // Ensure setEditing is defined and used here
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
-  };
+  }
   
   //override skips the check for whether the user wants to save before closing
   const closeModal = (override = false) =>  {
@@ -121,6 +146,15 @@ function GroupForm(props: GroupFormProps): JSX.Element {
     }
     setBtnDisabled(false);
   }
+
+  const handlePermissionChange = (permissionName: string) => {
+    setFormData((prevData) => {
+      const newPermissions = prevData.list_of_permissions?.includes(permissionName)
+        ? prevData.list_of_permissions.filter((p) => p !== permissionName)
+        : [...(prevData.list_of_permissions || []), permissionName];
+      return { ...prevData, list_of_permissions: newPermissions };
+    });
+  };
   
   
   
@@ -171,6 +205,30 @@ function GroupForm(props: GroupFormProps): JSX.Element {
             {errors.description && <FormErrorMessage message={errors.description} />}
           </div>
         </div>
+
+        <div className="w-full mb-4">
+        <label htmlFor="permissions" className={StyleLabel}>
+          Select Permissions
+        </label>
+        <div className="relative">
+          {permissions.map((permission) => (
+            <div key={permission} className="mb-2">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className={StyleCheckbox}
+                  checked={formData.list_of_permissions?.includes(permission) || false}
+                  onChange={() => handlePermissionChange(permission)}
+                />
+                <span className="ml-2">{permission}</span>
+              </label>
+            </div>
+          ))}
+          {errors.list_of_permissions && (
+            <span className="error">{errors.list_of_permissions}</span>
+          )}
+        </div>
+      </div>
         
         
         {/* Submit button */}

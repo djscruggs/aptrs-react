@@ -184,9 +184,17 @@ export async function refreshAuth() {
     return null
   }
 }
-export function logout() {
-  localStorage.removeItem('user');
-  localStorage.removeItem('lastRefresh');
+export async function logout() {
+  try {
+    const response = await getOrRedirect("auth/logout/")
+    localStorage.removeItem('user');
+    localStorage.removeItem('lastRefresh');
+    
+  } catch (error) {
+    console.error('error getting user location', error)
+    return null
+  } 
+  
 }
 
 export async function fetchCustomers() {
@@ -553,6 +561,12 @@ export async function upsertGroup(formData: Group): Promise<any> {
   const response = await postOrRedirect(url, formData, authHeaders());
   return response.data;
 }
+export async function fetchPermisisons() {
+  const url = apiUrl('auth/list/permission/');
+  const response = await getOrRedirect(url, authHeaders());;
+  return response.data;
+}
+
 export async function fetchUsers() {
   const url = apiUrl('auth/users');
   const response = await getOrRedirect(url, authHeaders());;

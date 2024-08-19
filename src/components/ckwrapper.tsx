@@ -1,9 +1,5 @@
-import React, { useEffect, useRef } from 'react';
 import { uploadFile } from '../lib/data/api';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { apiUrl } from '../lib/data/api';
-
-
 import {
     ClassicEditor,
     Essentials,
@@ -106,8 +102,9 @@ class MyUploadAdapter {
 
 export const CKWrapper = (props: CKEditorProps) => {
     const { id, data, onChange, onReady } = props;
+
     return (
-        <div className="dark:custom-ckeditor-dark">
+        <div id="custom-ckeditor">
             <CKEditor
                 id={id}
                 data={data}
@@ -120,6 +117,15 @@ export const CKWrapper = (props: CKEditorProps) => {
                     editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
                         return new MyUploadAdapter(loader);
                     };
+                    const editorElements = document.querySelectorAll(`.ck`);
+                    const theme = document.documentElement.classList.contains('dark');
+                    editorElements.forEach(element => {
+                        if (theme) {
+                            element.classList.add('custom-ckeditor-dark');
+                        } else {
+                            element.classList.remove('custom-ckeditor-dark');
+                        }
+                    });
                     if (onReady) onReady(editor);
                 }}
             />

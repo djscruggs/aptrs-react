@@ -81,6 +81,9 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     }
   };
 
+  const handleClick = () => {
+    navigate(`/projects/${project.id}/edit`);
+  };
 
   const markAsOpen = async () => {
     setSaving(true);
@@ -139,7 +142,10 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
             <TabsBody>
               <TabPanel value="summary">
                 {currentUserCan('Manage Projects') && (
-                  <Link className='text-primary underline' to={`/projects/${project.id}/edit`}>edit</Link>
+                  <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                    onClick={handleClick}>Edit
+                    </button>
+
                 )}
                 <div className='w-2/3'>
                   <div className="w-full mb-4">
