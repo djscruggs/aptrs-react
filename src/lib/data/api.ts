@@ -427,6 +427,8 @@ export async function uploadProjectVulnerabilities(projectId: number, file: File
   return response.data
 }
 export async function updateProjectInstance(data: any): Promise<any> {
+  console.log('updating instance')
+  console.log(data)
   const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
   const response = await postOrRedirect(url, data, authHeaders());
   return response.data;
