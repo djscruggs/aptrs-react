@@ -62,10 +62,10 @@ const Layout: React.FC = () => {
                   </div>
                 }   
                 
-              <div className="flex-grow p-6 md:overflow-y-auto  cursor-pointer border">
+              <div className="flex-grow p-6 md:overflow-y-auto  cursor-pointer">
                   {currentUser &&
                     <>
-                      <div className="md:flex md:items-center avatar placeholder md:justify-end  hidden">
+                      <div className="md:flex md:items-center avatar placeholder md:justify-end hidden">
                         <ThemeIcon size='md' theme={theme} toggleTheme={toggleTheme} className='mr-4'/>
                         {currentUser.profilepic && 
                             <Link className='text-white' to="/profile">
