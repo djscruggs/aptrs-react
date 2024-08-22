@@ -202,7 +202,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
         name="img"
         onChange={handleImage}
         accept="image/*"
-        className={`text-sm text-white
+        className={`text-sm text-white dark:text-gray-darkest
                   file:text-white
                     file:mr-5 file:py-2 file:px-6
                     file:rounded-full file:border-0
@@ -277,8 +277,8 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
             </div>
           }
           {!fileDataURL &&
-            <div className="flex flex-col items-center justify-end">
-              <p className="text-2xl text-center">Upload a logo</p>
+            <div className="flex flex-col items-center justify-end  p-2 rounded-md">
+              <p className="text-2xl text-center dark:text-white">Upload a logo</p>
               <div className='mt-10 ml-36'>
                 {fileInput()}
               </div>

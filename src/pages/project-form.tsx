@@ -297,7 +297,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   >
                     Start Date
                   </label>
-                  <div className="relative mt-4 border p-1 rounded-md bg-white">
+                  <div className="relative mt-4 border p-1 rounded-md bg-white dark:text-black">
                       <DatePicker
                         id="startdate"
                         name="startdate"
@@ -317,7 +317,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   >
                     End Date
                   </label>
-                  <div className="relative mt-4 border p-1 rounded-md bg-white">
+                  <div className="relative mt-4 border p-1 rounded-md bg-white dark:text-black">
                     <DatePicker   
                       id="enddate"
                       name="enddate"
