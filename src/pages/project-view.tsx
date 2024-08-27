@@ -185,7 +185,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                         </div>
                       ) : (
                         <>
-                          {project.owner}
+                          {project.owner?.length > 0 ? project.owner : 'none'}
                           {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) && (
                             <span className='underline ml-4 cursor-pointer' onClick={() => setEditingOwner(true)}><PencilSquareIcon className="inline w-5" /></span>
                           )}
