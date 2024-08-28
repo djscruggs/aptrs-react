@@ -12,6 +12,7 @@ export type Vulnerability = {
   cvssvector?: string | null
 }
 export type ProjectVulnerability = Omit<Vulnerability, 'id'> & {
+  id?: number
   project: number | string
   poc?: string
   instance?:VulnerabilityInstance[]
