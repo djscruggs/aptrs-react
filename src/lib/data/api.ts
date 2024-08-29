@@ -426,7 +426,7 @@ export async function uploadProjectVulnerabilities(projectId: number, file: File
   const response = await postOrRedirect(url, data, config)
   return response.data
 }
-export async function updateProjectInstance(data: any): Promise<any> {
+export async function updateProjectVulnerabilityInstance(data: any): Promise<any> {
   console.log('updating instance')
   console.log(data)
   const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
@@ -434,7 +434,7 @@ export async function updateProjectInstance(data: any): Promise<any> {
   return response.data;
 }
 //pvid is the id of a ProjectVulnerability
-export async function insertProjectInstance(pvid: any, data: any[]): Promise<any> {
+export async function insertProjectVulnerabilityInstance(pvid: any, data: any[]): Promise<any> {
   const url = apiUrl(`project/vulnerability/add/instances/${pvid}/`)
   const response = await postOrRedirect(url, data, authHeaders());
   return response.data;

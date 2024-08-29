@@ -76,8 +76,8 @@ export const createAdminUser = async (user?: Omit<User, 'id'>) => {
 // - upsertProject(formData: Project): Promise<any>
 // - insertProjectVulnerability(formData: any): Promise<any>
 // - updateProjectVulnerability(formData: any): Promise<any>
-// - updateProjectInstance(data: any): Promise<any>
-// - insertProjectInstance(pvid: any, data: any[]): Promise<any>
+// - updateProjectVulnerabilityInstance(data: any): Promise<any>
+// - insertProjectVulnerabilityInstance(pvid: any, data: any[]): Promise<any>
 // - fetchCompanies(): Promise<any>
 // - fetchFilteredCompanies(params: Record<string, any>): Promise<FilteredSet>
 // - getCompany(id: string | undefined): Promise<any>

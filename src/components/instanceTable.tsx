@@ -2,8 +2,8 @@ import { useState, useEffect, ChangeEvent, useContext } from 'react';
 import { ProjectVulnerability, VulnerabilityInstance, Column } from '../lib/data/definitions'
 import { 
   deleteVulnerabilityInstances,
-  updateProjectInstance,
-  insertProjectInstance,
+  updateProjectVulnerabilityInstance,
+  insertProjectVulnerabilityInstance,
   updateProjectInstanceStatus,
   fetchVulnerabilityInstances
 } from '../lib/data/api';
@@ -34,128 +34,42 @@ interface InstanceTableProps {
 
 export default function InstanceTable(props: InstanceTableProps) {
   const {id} = props
-  const [errors, setErrors] = useState<FormErrors>({});
   const [editingData, setEditingData] = useState<VulnerabilityInstance | undefined>(undefined)
   const [instances, setInstances] = useState<VulnerabilityInstance[]>(formatRows(props.instances || []))
-  const [bulkUrls, setBulkUrls] = useState('');
+  
   const [showDialog, setShowDialog] = useState(false)
+  const [showBulkDialog, setShowBulkDialog] = useState(false)
   const theme = useContext(ThemeContext);
   
   const loadInstances = async() => {
     const data = await fetchVulnerabilityInstances(id)
     setInstances(formatRows(data))
   }
-  const bulkUrlsChange = (event:any) => {
-    setBulkUrls(event.target.value);
-  }
   
   useEffect(() => {
-    // This effect will run whenever `instances` changes
+    // sometimes the parent data is slow to load so this is here to make sure the table renders once the data is loaded
     setInstances(formatRows(props.instances || []))
   }, [props.instances]);
-  const captureBulkUrls = () => {
-    const updated = newInstance
-    const lines = bulkUrls.split('\n').map(urlWithParams => {
-        const [url, ...parameter] = urlWithParams.trim().split(' '); // Split the line into URL and additional parameters
-        return {URL: url, 
-                Parameter:parameter.join(' '), 
-                status: 'Vulnerable', 
-                error: !url };
-      });
-      const merged = [
-        ...updated,
-        ...lines
-      ] as VulnerabilityInstance[]
-      setNewInstance(merged)
-    
-    setShowDialog(false)  
-    setBulkUrls('')
-  }
-  const addBulkUrls = () => {
-    setShowDialog(true)
-  }
-  const cancelBulkUrls = () => {
-    setBulkUrls('')
-    setShowDialog(false)
-  }
-  const removeNewInstance = (index: number) => {
-    const updated = [...newInstance];
-    updated.splice(index, 1);
-    setNewInstance(updated)
-  }
-  const [newInstance, setNewInstance] = useState<VulnerabilityInstance[]>([])
-  const addInstance = (event:any) => {
-    event.preventDefault()
-    //first validate the previous instance(s)
-    if(!validateInstance()){
-      return null
-    }
-    const temp = [...newInstance];
-    temp.push({URL: '', Parameter: '', error:false, status:'Vulnerable'})
-    setNewInstance(temp)
-  }
-  const validateInstance = () => {
-    //first validate the previous instance(s)
-    let valid = true;
-    if(!newInstance){
-      return true
-    }
-    const validatedNew = newInstance.map((instance) =>{
-      if(!instance.URL){
-        instance.error = true;
-        valid = false
-      } else {
-        instance.error = false;
-      }
-      return instance
-    })
-    setNewInstance(validatedNew)      
-    if(!instances){
-      return valid
-    }
-    const validatedExisting = instances.map((instance) =>{
-      if(!instance.URL){
-        instance.error = true;
-        valid = false
-      } else {
-        instance.error = false;
-      }
-      return instance
-    })
-    setInstances(validatedExisting)      
-    return valid
-  }
+  const [selected, setSelected] = useState<VulnerabilityInstance[]>([])
+  
   const openEditDialog = (row: VulnerabilityInstance) => {
     setEditingData(row)
     setShowDialog(true)
+  }
+  const openNewDialog = () => {
+    setEditingData(undefined)
+    setShowDialog(true)
+  }
+  const openBulkDialog = () => {
+    setShowBulkDialog(true)
   }
   const clearDialog = () => {
     setEditingData(undefined)
     setShowDialog(false)
   }
   // /api/project/vulnerability/instances/filter/<Vulneability-id>/?URL=&Parameter=&status=&limit=20&offset=0&order_by=asc&sort=id
-  const updateInstance = async(index: number) => {
-      try {
-        const updated = await updateProjectInstance(instances[index])
-        const statusUpate = await updateProjectInstanceStatus(updated)
-        console.log('statusUpate',statusUpate)
-        toast.success('Instance updated')
-        return updated
-      } catch (error) {
-        console.error('Error updating instance:', error)
-        toast.error(String(error))
-      }
-  }
-  const insertNewInstance = async(index: number) => {
-    if(!validateInstance()){
-      return
-    }
-    const data = newInstance[index]
-    const result = await insertProjectInstance(props.id, [data])
-    setInstances([...instances, ...newInstance])
-    setNewInstance([])
-    toast.success('Instance added')
-  }
+  
+  
   const deleteInstance = async(id: number) => {
     if (!confirm('Are you sure?')) {
       return;
@@ -163,25 +77,25 @@ export default function InstanceTable(props: InstanceTableProps) {
     try {
       await deleteVulnerabilityInstances([id])
       loadInstances()
-      toast.success('Instance deleted')
+      toast.success('URL deleted')
+      setSelected([])
     } catch (error) {
       console.error('Error deleting instance:', error)
       toast.error(String(error))
     }
-    
+   
   }
-  const handleInstanceChange = (which: 'new'|'existing', key: string, index: number, event:any) => {
-    
-    const { value } = event.target;
-    let updatedInstance
-    if(which === 'new') {
-      updatedInstance = [...newInstance]; // Create a copy of the array
-      updatedInstance[index] = { ...updatedInstance[index], [key]: value };
-      setNewInstance(updatedInstance);
-    } else {
-      updatedInstance = [...instances]; // Create a copy of the array
-      updatedInstance[index] = { ...updatedInstance[index], [key]: value };
-      setInstances(updatedInstance);
+  const deleteMultiple = async() => {
+    if (!confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      await deleteVulnerabilityInstances(selected.map(instance => instance.id))
+      loadInstances()
+      toast.success('URLs deleted')
+    } catch (error) {
+      console.error('Error deleting instances:', error)
+      toast.error(String(error))
     }
   }
   interface  InstanceWithActions extends VulnerabilityInstance {
@@ -222,12 +136,25 @@ export default function InstanceTable(props: InstanceTableProps) {
     }
   ]
   const handleSelectedRowsChange = (state: any) => {
-    console.log('state', state)
+    setSelected(state.selectedRows)
   }
-  console.log('showDialog', showDialog)
   return (
         <>
         <label>Vulnerable URLs</label>
+        <div className='mt-2 float-right'>
+          
+          <button  
+            className="bg-secondary p-2 text-white rounded-md disabled:opacity-50"
+            disabled={selected.length === 0}
+            onClick = {deleteMultiple}
+          >
+            Delete
+          </button>
+          <button key='addNewVulnerability' className='bg-primary text-white p-2 rounded-md ml-2' onClick={openNewDialog}>Add New</button>
+          <button key='addBulkVulnerability' className='bg-primary text-white p-2 rounded-md ml-2' onClick={openBulkDialog}>Add Multiple</button>
+          
+        
+        </div>
         <DataTable
           columns={columns}
           data={instances}
@@ -238,19 +165,20 @@ export default function InstanceTable(props: InstanceTableProps) {
           theme={theme}
           selectableRows
         />
-        {showDialog && <EditInstance visible={showDialog} data={editingData} onCancel={clearDialog}/>}
-        
+        {showDialog && <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialog} onSave={loadInstances}/>}
+        {showBulkDialog && <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialog} onSave={loadInstances}/>}
         </>
   );
 }
 
-interface EditInstanceProps {
+interface InstanceFormProps {
   data: VulnerabilityInstance | undefined
+  projectVulnerabilityId: number
   visible: boolean
-  onSave?: () => void
+  onSave: () => void
   onCancel: () => void
 }
-function EditInstance(props: EditInstanceProps): React.ReactNode {
+function InstanceForm(props: InstanceFormProps): React.ReactNode {
   console.log('props', props)
   const [isOpen, setIsOpen] = useState(props.visible)
   const [error, setError] = useState(false)
@@ -284,24 +212,25 @@ function EditInstance(props: EditInstanceProps): React.ReactNode {
     }
     try {
       if(formData.id === 'new'){
-        await insertProjectInstance(formData.projectId, [formData])
+        await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, [formData])
         toast.success('URL added')
       } else {
-        const updated = await updateProjectInstance(formData)
-        const statusUpate = await updateProjectInstanceStatus(updated)
+        const updated = await updateProjectVulnerabilityInstance(formData)
+        // this is here because status update uses a different api endppoint from normal update
+        await updateProjectInstanceStatus(updated)
         toast.success('URL updated')
       }
       clearDialog()
-      
+      props.onSave()
     } catch (error) {
       console.error('Error updating instance:', error)
       toast.error(String(error))
     }
   }
-  console.log('isOpen', isOpen)
+  
   return (
-          <Dialog key={`instance-${props.data.id}`} handler={clearDialog} open={isOpen} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
-            <DialogHeader>{props?.data.id === 'new' ? 'Add URL' : 'Edit URL'}</DialogHeader>
+          <Dialog key={`instance-${props?.data?.id}`} handler={clearDialog} open={isOpen} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
+            <DialogHeader>{props?.data?.id === 'new' ? 'Add URL' : 'Edit URL'}</DialogHeader>
               <DialogBody>
                 <div className="flex min-w-fit mb-2">
                   <div className="w-1/2">
@@ -350,6 +279,73 @@ function EditInstance(props: EditInstanceProps): React.ReactNode {
             <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={clearDialog}>Cancel</button>
             </DialogFooter>
       </Dialog>
+  )
+}
+
+interface BulkInstanceFormProps {
+  visible: boolean
+  projectVulnerabilityId: number
+  onCancel: () => void
+  onSave: () => void
+}
+function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
+  const [bulkUrls, setBulkUrls] = useState('')
+  const [showDialog, setShowDialog] = useState(props.visible)
+  const clearDialog = () => {
+    setShowDialog(false)
+    props.onCancel()
+  }
+  const bulkUrlsChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setBulkUrls(event.target.value);
+  }
+  const saveBulkUrls = async() => {
+    const lines = bulkUrls.split('\n').map(urlWithParams => {
+        const [url, ...parameter] = urlWithParams.trim().split(' '); // Split the line into URL and additional parameters
+        return {URL: url, 
+                Parameter:parameter.join(' '), 
+                status: 'Vulnerable', 
+                error: !url };
+      });
+      console.log('lines', lines)
+      //new instances can be inserted all at once as an array
+      try {
+        await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines)
+        toast.success('URLs added')
+        clearDialog()
+        props.onSave()
+      } catch (error) {
+        console.error('Error adding URLs:', error)
+        toast.error(String(error))
+      }
+  }
+  return (
+            <Dialog handler={clearDialog} open={showDialog} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
+              <label 
+                htmlFor="bulkUrls"
+                className={StyleLabel}>
+                Enter URLs with (optional) parameters, one per line, URL first on each line
+              </label>
+              <textarea
+                name="bulkUrls"
+                id="bulkUrls"
+                placeholder='http://www.example.com'
+                rows={8}
+                className={StyleTextfield}
+                value={bulkUrls}
+                onChange={bulkUrlsChange}
+              />
+              <Button 
+                onClick={saveBulkUrls}
+                className="bg-primary cursor-pointer disabled:bg-gray-300 mt-2"
+                disabled = {bulkUrls.trim() === ''}
+                >
+                Add
+              </Button>
+              <Button onClick={clearDialog}
+                className="bg-red-600 cursor-pointer disabled:bg-gray-300 mt-2 ml-2">
+                Cancel
+              </Button>
+            </Dialog>
   )
 }
 
