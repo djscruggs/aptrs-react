@@ -98,7 +98,6 @@ export function Groups() {
   const loadData = async() => {
     try {
       const data = await fetchGroups()
-      console.log('data after fetch', data)
       let temp: any = []
       data.forEach((row: GroupWithActions) => {
         row.actions = (<>

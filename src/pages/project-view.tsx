@@ -72,7 +72,6 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     setSaving(true);
     try {
       const response = await markProjectAsCompleted(Number(id));
-      console.log(response);
       setProject(prev => prev ? { ...prev, status: 'Completed' } : prev);
     } catch (error) {
       setOwnerError("Error updating project");
@@ -86,7 +85,6 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     setSaving(true);
     try {
       const response = await markProjectAsOpen(Number(id));
-      console.log(response);
       const { latest_status } = response.data;
       setProject(prev => prev ? { ...prev, status: latest_status  } : prev);
     } catch (error) {

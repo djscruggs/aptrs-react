@@ -87,7 +87,6 @@ export function simpleUploadConfig() {
   }
 }
 export async function uploadFile(file: File) {
-  console.log('uploading file', file)
   const url = uploadUrl()
   const formData = new FormData()
   formData.append('upload', file)
@@ -427,8 +426,6 @@ export async function uploadProjectVulnerabilities(projectId: number, file: File
   return response.data
 }
 export async function updateProjectVulnerabilityInstance(data: any): Promise<any> {
-  console.log('updating instance')
-  console.log(data)
   const url = apiUrl(`project/vulnerability/edit/instances/${data.id}/`)
   const response = await postOrRedirect(url, data, authHeaders());
   return response.data;

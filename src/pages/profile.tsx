@@ -57,7 +57,6 @@ export const Profile = () => {
     newpassword: '',
     newpassword_check: '',
   }
-  console.log(currentUser)
   const [formData, setFormData] = useState<UserForm>(defaults);
   //profile image input
   const [file, setFile] = useState<File | null>(null);

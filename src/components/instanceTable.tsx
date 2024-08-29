@@ -179,7 +179,6 @@ interface InstanceFormProps {
   onCancel: () => void
 }
 function InstanceForm(props: InstanceFormProps): React.ReactNode {
-  console.log('props', props)
   const [isOpen, setIsOpen] = useState(props.visible)
   const [error, setError] = useState(false)
   interface InstanceFormState {
@@ -306,7 +305,6 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
                 status: 'Vulnerable', 
                 error: !url };
       });
-      console.log('lines', lines)
       //new instances can be inserted all at once as an array
       try {
         await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines)
