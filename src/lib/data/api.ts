@@ -437,11 +437,11 @@ export async function insertProjectVulnerabilityInstance(pvid: any, data: any[])
   return response.data;
 }
 export async function updateProjectInstanceStatus(data: any): Promise<any> {
-  const toSubmit = {
-    id: data.id
-  }
+  const toSubmit = [
+    data.id
+  ]
   const url = apiUrl(`project/vulnerability/status/instances/?status=${data.status}`)
-  const response = await postOrRedirect(url, data, authHeaders());
+  const response = await postOrRedirect(url, toSubmit, authHeaders());
   return response.data;
 }
 

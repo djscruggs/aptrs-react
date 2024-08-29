@@ -13,18 +13,11 @@ import {
   StyleLabel,
   FormErrorMessage,
   } from '../lib/formstyles'
-import { XCircleIcon } from '@heroicons/react/24/outline';
 import { Button, Dialog,DialogHeader,DialogBody,DialogFooter } from '@material-tailwind/react';
 
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component'
 import { ThemeContext } from '../layouts/layout'
-interface FormErrors {
-  instance?: string
-  url?: string
-  parameter?: string
-  bulkUrls?: string
-}
 
 
 interface InstanceTableProps {
