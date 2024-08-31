@@ -177,7 +177,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           <form action="" onSubmit={handleSubmit} id="projectForm" method="POST">
           <PageTitle title={id ? "Edit Project" : "Create Project"} />
       
-          <div className='grid grid-cols-2'>
+          <div className='grid grid-cols-2 gap-4'>
             <div className="w-full ">
               <div className='flex'>
                 <div className="w-1/2 pr-2">
@@ -270,23 +270,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   </div>
                 </div>
               </div>
-              <div className="mt-8 min-h-[200px] w-full">
-                <label
-                  className={StyleLabel}
-                  htmlFor="description"
-                >
-                  Description
-                </label>
-              <div className="relative">
-                <CKWrapper
-                  id="description"
-                  data = {formData.description}
-                  onChange={handleCKchange}
-                />
-                  
-                {errors.description && <FormErrorMessage message={errors.description} />} 
-              </div>
-              </div>
+              
             </div>
             <div className="w-full pl-8">
               <div className='flex mb-4'>
@@ -388,7 +372,29 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                 </div>
               </div>
               
-              <div className="mt-9">
+             
+            </div>
+            
+          </div>
+          <div className='grid grid-cols-2'>
+              <div className="min-h-[200px] w-full">
+                <label
+                  className={StyleLabel}
+                  htmlFor="description"
+                >
+                  Description
+                </label>
+                <div className="relative">
+                  <CKWrapper
+                    id="description"
+                    data = {formData.description}
+                    onChange={handleCKchange}
+                  />
+                    
+                  {errors.description && <FormErrorMessage message={errors.description} />} 
+                </div>
+              </div>
+              <div className="min-h-[200px] w-full ml-10 pr-10">
                 <label
                   className={StyleLabel}
                   htmlFor="projectexception"
@@ -410,11 +416,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
               </div>
               
               
-              
             </div>
-            
-          </div>
-
           
           <div className="p-2 flex">
             <div className="w-1/2 flex justify-left mt-2">
