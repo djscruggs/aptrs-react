@@ -1,11 +1,12 @@
 import { useState, useEffect, ChangeEvent, useContext } from 'react';
-import { ProjectVulnerability, VulnerabilityInstance, Column } from '../lib/data/definitions'
+import { VulnerabilityInstance, Column, FilteredSet } from '../lib/data/definitions'
+import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
 import { 
   deleteVulnerabilityInstances,
   updateProjectVulnerabilityInstance,
   insertProjectVulnerabilityInstance,
   updateProjectInstanceStatus,
-  fetchVulnerabilityInstances
+  fetchFilteredVulnerabilityInstances
 } from '../lib/data/api';
 import toast from 'react-hot-toast';
 import {
@@ -18,14 +19,31 @@ import { Button, Dialog,DialogHeader,DialogBody,DialogFooter } from '@material-t
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component'
 import { ThemeContext } from '../layouts/layout'
-
-
+import { RowsSkeleton } from '../components/skeletons'
+import { HeaderFilter, ClearFilter } from '../components/headerFilter';
 interface InstanceTableProps {
   id: number
   instances: VulnerabilityInstance[]
 }
 
 export default function InstanceTable(props: InstanceTableProps) {
+  console.log(props)
+  const initialState: DatasetState = {
+    mode: 'idle',
+    data: props.instances,
+    queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
+    totalRows: props.instances.length,
+  };
+  console.log(initialState)
+  const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
+    switch (action.type) {
+      case 'set-data': {
+        return {...state, data: action.payload.data.results};
+      }
+    }
+  };
+  const [state, dispatch] = useDataReducer(reducer, initialState);
+  console.log('state',state)
   const {id} = props
   const [editingData, setEditingData] = useState<VulnerabilityInstance | undefined>(undefined)
   const [instances, setInstances] = useState<VulnerabilityInstance[]>(formatRows(props.instances || []))
@@ -35,8 +53,19 @@ export default function InstanceTable(props: InstanceTableProps) {
   const theme = useContext(ThemeContext);
   
   const loadInstances = async() => {
-    const data = await fetchVulnerabilityInstances(id)
-    setInstances(formatRows(data))
+    try {
+      dispatch({ type: 'set-mode', payload: 'loading' });
+      const data:FilteredSet = await fetchFilteredVulnerabilityInstances(id, state.queryParams)
+      let temp = formatRows(data.results)
+      data.results = temp
+      dispatch({ type: 'set-data', payload: {data} });
+    } catch(error){
+      dispatch({ type: 'set-error', payload: error });      
+    } finally {
+      dispatch({ type: 'set-mode', payload: 'idle' });
+    }
+    // const data = await fetchVulnerabilityInstances(id)
+    
   }
   
   useEffect(() => {
@@ -60,9 +89,51 @@ export default function InstanceTable(props: InstanceTableProps) {
     setEditingData(undefined)
     setShowDialog(false)
   }
-  // /api/project/vulnerability/instances/filter/<Vulneability-id>/?URL=&Parameter=&status=&limit=20&offset=0&order_by=asc&sort=id
-  
-  
+  const handleSort = (name: string, sortDirection: string) => {
+    console.log('handleSort', name, sortDirection)
+    let order_by = sortDirection ? sortDirection : 'asc'
+    
+    if(name){
+      if (state.totalRows < DEFAULT_DATA_LIMIT) {
+        // Local sorting
+        const sortedData = [...state.data].sort((a, b) => {
+          if (a[name] < b[name]) return order_by === 'asc' ? -1 : 1;
+          if (a[name] > b[name]) return order_by === 'asc' ? 1 : -1;
+          return 0;
+        });
+        dispatch({ type: 'set-sort', payload: { sort: name, order_by: order_by as 'asc' | 'desc' } });
+        dispatch({ type: 'set-data', payload: { data: { results: sortedData, count: state.totalRows } } });
+      } else {
+        // Server-side sorting
+        dispatch({ type: 'set-sort', payload: { sort: name, order_by: order_by as 'asc' | 'desc' } });
+        loadInstances();
+      }
+    }
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      URL: '',
+      Parameter: '',
+      Status: '',
+    })
+    dispatch({ type: 'reset'})
+  }
+  const [filterValues, setFilterValues] = useState({
+    URL: '',
+    Parameter: '',
+    Status: '',
+  });
+  const filterCommit = () => {
+    dispatch({ type: 'set-filter', payload: filterValues})
+    loadInstances()
+  }
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+  }
   const deleteInstance = async(id: number) => {
     if (!confirm('Are you sure?')) {
       return;
@@ -113,24 +184,48 @@ export default function InstanceTable(props: InstanceTableProps) {
       maxWidth: '1rem'
     },
     {
-      name: 'URL',
+      name: <HeaderFilter 
+              label='URL' 
+              name='URL' 
+              defaultValue={filterValues.URL} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: InstanceWithActions) => row.URL,
-      sortable: true
+      
     },
     {
-      name: 'Parameter',
+      name: <HeaderFilter 
+              label='Parameter' 
+              name='Parameter' 
+              defaultValue={filterValues.Parameter} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
       selector: (row: InstanceWithActions) => row.Parameter,
-      sortable: true
-    },
+   },
     {
-      name: 'Status',
+      name: <HeaderFilter 
+            label='Status' 
+            name='Status' 
+            defaultValue={filterValues.Status} 
+            onCommit={filterCommit} 
+            onChange={handleFilter}
+            currentFilter={state.queryParams}
+            handleSort={handleSort}
+            />,
       selector: (row: InstanceWithActions) => row.status,
-      sortable: true
+      
     }
   ]
   const handleSelectedRowsChange = (state: any) => {
     setSelected(state.selectedRows)
   }
+  
   return (
         <>
         <label>Vulnerable URLs</label>
@@ -148,18 +243,23 @@ export default function InstanceTable(props: InstanceTableProps) {
           
         
         </div>
-        <DataTable
-          columns={columns}
-          data={instances}
-          pagination
-          paginationPerPage={10}
-          striped
-          onSelectedRowsChange={handleSelectedRowsChange}
-          theme={theme}
-          selectableRows
-        />
-        {showDialog && <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialog} onSave={loadInstances}/>}
-        {showBulkDialog && <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialog} onSave={loadInstances}/>}
+        <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
+        {state.mode === 'loading' && <div className="mt-6 "><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
+        <div className={state.mode != 'idle' ? 'hidden' : ''}>
+          <DataTable
+            columns={columns}
+            data={state.data}
+            progressPending={state.mode != 'idle'}
+            pagination
+            paginationPerPage={10}
+            striped
+            onSelectedRowsChange={handleSelectedRowsChange}
+            theme={theme}
+            selectableRows
+          />
+          {showDialog && <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialog} onSave={loadInstances}/>}
+          {showBulkDialog && <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialog} onSave={loadInstances}/>}
+        </div>
         </>
   );
 }

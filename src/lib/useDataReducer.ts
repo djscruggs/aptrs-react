@@ -33,11 +33,14 @@ export type DatasetAction =
 | { type: 'reset'}
 
 //used by reducer functions in pages that have search and pagination
-export const useDataReducer = (reducer: (state: DatasetState, action: any) => DatasetState | void, initialState: DatasetState) => {
+export const useDataReducer = (reducer: (state: DatasetState, action: DatasetAction) => DatasetState | void, initialState: DatasetState) => {
   const datasetHelper = (state: DatasetState, action: DatasetAction): DatasetState => {
-    //first try the reducer that was passed in
-    const result = reducer(state, action)
-    if(result) return result
+    //first try the reducer that was passed in'
+    if(reducer) {
+      const result = reducer(state, action)
+      if(result) return result
+    }
+    //if no reducer was passed in, use the default reducer
     switch (action.type) {
       case 'set-filter':{
         let newQueryParams = {...state.queryParams, ...action.payload}

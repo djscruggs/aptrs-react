@@ -352,9 +352,17 @@ export async function getProjectVulnerability(id: string | undefined) {
   return response.data;
 }
 export async function fetchVulnerabilityInstances(id: string | number | undefined) {
-  if(!id) return null;
+  console.log(id)
   const url = apiUrl(`project/vulnerability/instances/${id}/`);
   const response = await getOrRedirect(url, authHeaders());
+  return response.data;
+}
+// /api/project/vulnerability/instances/filter/<Vulneability-id>/?URL=&Parameter=&status=&limit=20&offset=0&order_by=asc&sort=id API 
+export async function fetchFilteredVulnerabilityInstances(id: string | number | undefined, params: Record<string, any>): Promise<FilteredSet> {
+  console.log(params)
+  const url = apiUrl(`project/vulnerability/instances/filter/${id}/`);
+  const response = await getOrRedirect(url, { params: params, ...authHeaders() });
+  console.log(response.data)
   return response.data;
 }
 export async function updateVulnerabilityStatus(id: number, status: string) {

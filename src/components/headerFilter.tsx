@@ -145,7 +145,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
           onBlur={handleBlur}
         />)}
         {value && !isBoolean && (
-          <BackspaceIcon className='-ml-6 w-5 h-5 text-secondary' onClick={()=>clearValue()}/>
+          <BackspaceIcon className='-ml-8 w-5 h-5 text-secondary' onClick={()=>clearValue()}/>
         )}
         {active && focus && !isBoolean &&
           <span className='absolute top-10 left-4 bg-white bg-opacity-75 p-1 w-5/8 border border-gray-300 rounded-md'><PiKeyReturnThin className='inline w-5 h-5' /> to search</span>
@@ -164,7 +164,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
           <FunnelIcon key={name+ 'icon'} className='ml-2 w-3 h-3 inline'/></span>
         </>
     )}
-    {handleSort && (
+    {!active && handleSort && (
       <span onClick={()=>handleSort(name, nextSort)} className={`cursor-pointer ml-1 ${sortDirection === '' ? 'opacity-20 hover:opacity-100' : ''} ${isSorted  ? 'text-primary' : ''}`}>
         {(sortDirection === 'asc' || sortDirection === '') ? <FaArrowUp className='inline w-4 h-4' /> : <FaArrowDown className='inline w-4 h-4' />}
       </span>

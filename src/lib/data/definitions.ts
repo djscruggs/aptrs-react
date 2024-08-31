@@ -193,6 +193,6 @@ export interface VulnQueryParams extends QueryParams {
 export interface FilteredSet {
   count: number
   next?: string
-  previous: string | null
+  previous?: string
   results: any[] 
 }
