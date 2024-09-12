@@ -3,7 +3,18 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
 import { FormSkeleton } from '../components/skeletons';
-import { getProject, getProjectScopes, getProjectReport, fetchStandards, updateProjectOwner, markProjectAsCompleted, markProjectAsOpen } from '../lib/data/api';
+import {  getProject, 
+          getProjectScopes, 
+          getProjectReport, 
+          fetchStandards, 
+          updateProjectOwner, 
+          markProjectAsCompleted, 
+          markProjectAsOpen,
+          fetchProjectRetests,
+          insertProjectRetest,
+          deleteProjectRetest,
+          markProjectRetestComplete
+        } from '../lib/data/api';
 import { Project, Scope } from '../lib/data/definitions';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
@@ -17,10 +28,16 @@ import {
   TabsHeader,
   TabsBody,
   Tab,
-  TabPanel
+  TabPanel,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter
 } from "@material-tailwind/react";
 import ScopeTable from '../components/scope-table';
 import { useCurrentUser } from '../lib/customHooks';
+import DatePicker  from 'react-datepicker';
+
 
 interface ProjectViewProps {
   id?: string;
@@ -132,6 +149,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
               <Tab key="summary" value="summary" onClick={() => setSelectedTab('summary')}>Summary</Tab>
               <Tab key="vulnerabilities" value="vulnerabilities" onClick={() => setSelectedTab('vulnerabilities')}>Vulnerabilities</Tab>
               <Tab key="scopes" value="scopes" onClick={() => setSelectedTab('scopes')}>Scopes</Tab>
+              <Tab key="retest" value="retest" onClick={() => setSelectedTab('retest')}>Retest</Tab>
               <Tab key="reports" value="reports" onClick={() => setSelectedTab('reports')}>Reports</Tab>
             </TabsHeader>
             <TabsBody>
@@ -231,8 +249,11 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
               <TabPanel value="scopes">
                 <ScopeTable projectId={Number(id)} />
               </TabPanel>
+              <TabPanel value="retest">
+                <Retests projectId={Number(id)} />
+              </TabPanel>
               <TabPanel value="reports">
-                <div className="mt-4 max-w-lg">
+                <div className="mt-4 max-w-lg"> 
                   <ReportForm projectId={Number(id)} scopes={scopes} />
                 </div>
               </TabPanel>
@@ -244,11 +265,158 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
   );
 }
 
+function Retests({ projectId }: { projectId: number }) {
+  const [retests, setRetests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showRetestModal, setShowRetestModal] = useState(false);
+  
+  const loadRetests = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchProjectRetests(projectId);
+      setRetests(data);
+    } catch (error) {
+      setError("Error fetching retests");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  useEffect(() => {
+    loadRetests();
+  }, []);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>
+  return (
+    <>
+      <div className="max-w-lg ">
+        <div className="min-w-full bg-white dark:bg-gray-darker">
+          <div className="flex py-2 px-4 border-b">
+            <div className="w-1/4">Start Date</div>
+            <div className="w-1/4">End Date</div>
+            <div className="w-1/4">Status</div>
+            <div className="w-1/4">Owner</div>
+          </div>
+          {retests.length === 0 && <div className="py-2 px-4 border-b">No retests found</div>}
+          {retests.map((retest) => (
+            <div key={retest.id} className="flex py-2 px-4 border-b">
+              <div className="w-1/4">{retest.startdate}</div>
+              <div className="w-1/4">{retest.enddate}</div>
+              <div className="w-1/4">{retest.status}</div>
+              <div className="w-1/4">{retest.owner.join(', ')}</div>
+            </div>
+          ))}
+
+        </div>
+      <button 
+        className="bg-primary text-white p-2 rounded-md mt-4"
+        onClick={() => setShowRetestModal(true)}
+      >
+        Add New Retest
+      </button>
+      {showRetestModal && (
+        <RetestForm 
+          projectId={projectId} 
+          onClose={() => setShowRetestModal(false)} 
+          afterSave={loadRetests} 
+        />
+      )}
+      </div>
+    </>
+  );
+}
+interface RetestFormProps {
+  projectId: number;
+  startdate: string;
+  enddate: string;
+  owner: string[];
+  onClose: () => void;
+  afterSave: () => void;
+}
+function RetestForm(props: RetestFormProps) {
+  const [formData, setFormData] = useState({
+    projectId: props.projectId,
+    startdate: props.startdate || '',
+    enddate: props.enddate || '',
+    owner: props.owner || []
+  });
+  const [error, setError] = useState('');
+  const handleDatePicker = (input: string, value:Date): void => {
+    setFormData((prevFormData: typeof formData) => ({
+      ...prevFormData,
+      [input]: value,
+    }));
+  }
+  
+  
+  const handleOwnerChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData({ ...formData, owner: event.target.value.split(',') });
+  };
+  const saveRetest = async () => {
+    try {
+      await insertProjectRetest(formData);
+      props.afterSave();
+      props.onClose();
+    } catch (error) {
+      setError("Error saving retest");
+    }
+  };
+  return (
+    <Dialog open={true} handler={props.onClose}>
+            <DialogHeader>New Retest</DialogHeader>
+              <DialogBody>
+                <UserSelect
+                  name='owner'
+                  value={formData.owner.join(', ')}
+                  changeHandler={handleOwnerChange}
+                />
+                <div className="flex min-w-lg mb-2">
+                  {error && <FormErrorMessage message={error} />}
+                  <div className="w-1/2">
+                    
+                    <DatePicker
+                      id='startdate'
+                      name='startdate'
+                      placeholderText='Start Date'
+                      dateFormat="yyyy-MM-dd"
+                      onChange={(date:Date)=> handleDatePicker('startdate', date)}
+                      selected={formData.startdate ? new Date(formData.startdate) : ''}
+                      className={StyleTextfield}
+                      />
+                  </div>
+                  <div className='ml-4 w-1/2'>
+                    
+                    <DatePicker
+                      id='enddate'
+                      name='enddate'
+                      placeholderText='End Date'
+                      dateFormat="yyyy-MM-dd"
+                      onChange={(date:Date)=> handleDatePicker('enddate', date)}
+                      selected={formData.enddate ? new Date(formData.enddate) : ''}
+                      className={StyleTextfield}
+                    />
+                </div>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+            <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveRetest}>Save</button>
+            <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={props.onClose}>Cancel</button>
+            </DialogFooter>
+          </Dialog>
+  )
+}
+
+interface RetestModalProps {
+  projectId: number;
+  onClose: () => void;
+  afterSave: () => void;
+}
 interface ReportFormProps {
   projectId: number;
   scopes: Scope[];
 }
-
 function ReportForm({ projectId, scopes }: ReportFormProps) {
   const [error, setError] = useState('');
   const [standards, setStandards] = useState<any[]>([]);

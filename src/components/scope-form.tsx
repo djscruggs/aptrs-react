@@ -1,7 +1,4 @@
-import React, { 
-  useState, 
-  useContext
-} from 'react';
+import { useState } from 'react';
 import { insertProjectScopes, updateProjectScope } from '../lib/data/api'
 import { Scope } from '../lib/data/definitions'
 import { StyleTextfield } from '../lib/formstyles'

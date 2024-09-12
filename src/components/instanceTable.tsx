@@ -370,7 +370,7 @@ function InstanceForm(props: InstanceFormProps): React.ReactNode {
             <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveInstance}>Save</button>
             <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={clearDialog}>Cancel</button>
             </DialogFooter>
-      </Dialog>
+          </Dialog>
   )
 }
 

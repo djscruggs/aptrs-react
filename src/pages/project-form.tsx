@@ -113,7 +113,6 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
   };
   
   const handleDatePicker = (input: string, value:string): void => {
-    const formattedDate = new Date(value).toLocaleDateString('en-CA'); // 'en-CA' is the locale for Canada, which uses the 'yyyy-MM-dd' format
     setFormData((prevFormData) => ({
       ...prevFormData,
       [input]: value,

@@ -318,6 +318,27 @@ export async function updateProjectScope(id: number , scope: any): Promise<any> 
   const response = await postOrRedirect(url, scope, authHeaders())
   return response.data;
 }
+export async function fetchProjectRetests(id: number | undefined) {
+  if(!id) return null;
+  const url = apiUrl(`project/Retest/${id}/`);
+  const response = await getOrRedirect(url, authHeaders());
+  return response.data;
+}
+export async function insertProjectRetest(data: any): Promise<any> {
+  const url = apiUrl(`project/Retest/add`);
+  const response = await postOrRedirect(url, data, authHeaders())
+  return response.data;
+}
+export async function deleteProjectRetest(id: number | number[]): Promise<any> {
+  const url = apiUrl(`project/Retest/delete/${id}/`);
+  const response = await deleteOrRedirect(url, {data: id, ...authHeaders()})
+  return response.data;
+}
+export async function markProjectRetestComplete(id: number): Promise<any> {
+  const url = apiUrl(`project/retest/status/completed/${id}/`);
+  const response = await getOrRedirect(url, authHeaders())
+  return response.data;
+}
 export async function deleteProjectScope(id: number | number[] ): Promise<any> {
   const url = apiUrl('project/scope/delete/');
   let toDelete = Array.isArray(id) ? id : [id]
@@ -352,7 +373,6 @@ export async function getProjectVulnerability(id: string | undefined) {
   return response.data;
 }
 export async function fetchVulnerabilityInstances(id: string | number | undefined) {
-  console.log(id)
   const url = apiUrl(`project/vulnerability/instances/${id}/`);
   const response = await getOrRedirect(url, authHeaders());
   return response.data;
