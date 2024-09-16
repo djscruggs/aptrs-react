@@ -23,18 +23,14 @@ import { RowsSkeleton } from '../components/skeletons'
 import { HeaderFilter, ClearFilter } from '../components/headerFilter';
 interface InstanceTableProps {
   id: number
-  instances: VulnerabilityInstance[]
 }
-
 export default function InstanceTable(props: InstanceTableProps) {
-  console.log(props)
   const initialState: DatasetState = {
     mode: 'idle',
-    data: props.instances,
+    data: [],
     queryParams: {offset:0, limit:DEFAULT_DATA_LIMIT},
-    totalRows: props.instances.length,
+    totalRows: 0,
   };
-  console.log(initialState)
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
     switch (action.type) {
       case 'set-data': {
@@ -43,16 +39,14 @@ export default function InstanceTable(props: InstanceTableProps) {
     }
   };
   const [state, dispatch] = useDataReducer(reducer, initialState);
-  console.log('state',state)
   const {id} = props
   const [editingData, setEditingData] = useState<VulnerabilityInstance | undefined>(undefined)
-  const [instances, setInstances] = useState<VulnerabilityInstance[]>(formatRows(props.instances || []))
-  
   const [showDialog, setShowDialog] = useState(false)
   const [showBulkDialog, setShowBulkDialog] = useState(false)
   const theme = useContext(ThemeContext);
   
   const loadInstances = async() => {
+    console.log('loading instances, id is', id)
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredVulnerabilityInstances(id, state.queryParams)
@@ -69,9 +63,8 @@ export default function InstanceTable(props: InstanceTableProps) {
   }
   
   useEffect(() => {
-    // sometimes the parent data is slow to load so this is here to make sure the table renders once the data is loaded
-    setInstances(formatRows(props.instances || []))
-  }, [props.instances]);
+    loadInstances()
+  }, []);
   const [selected, setSelected] = useState<VulnerabilityInstance[]>([])
   
   const openEditDialog = (row: VulnerabilityInstance) => {
@@ -90,7 +83,6 @@ export default function InstanceTable(props: InstanceTableProps) {
     setShowDialog(false)
   }
   const handleSort = (name: string, sortDirection: string) => {
-    console.log('handleSort', name, sortDirection)
     let order_by = sortDirection ? sortDirection : 'asc'
     
     if(name){

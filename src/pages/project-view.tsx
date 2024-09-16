@@ -272,6 +272,7 @@ function Retests({ project }: { project: ProjectWithId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showRetestModal, setShowRetestModal] = useState(false);
+  const currentUser = useCurrentUser();
   const loadRetests = async () => {
     setLoading(true);
     try {
@@ -313,6 +314,11 @@ function Retests({ project }: { project: ProjectWithId }) {
         return false;
       }
     };
+    if(!currentUserCan('Manage Projects')){
+      if(project.owner !== currentUser?.username){
+        return false;
+      }
+    }
     return true;
   };
   useEffect(() => {
