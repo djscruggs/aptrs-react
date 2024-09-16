@@ -7,6 +7,7 @@ interface FilterInputProps {
   name: string;
   autoFocus?: boolean;
   multiple?: boolean; // Added multiple prop
+  prompt?: string;
   onSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -19,7 +20,7 @@ export default function FilterInput(props: FilterInputProps) {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
-      setKbIndex(0);
+      setKbIndex(-1);
     }
     setSearch(e.target.value);
     const filtered = searchArray?.filter(item => 
@@ -45,7 +46,7 @@ export default function FilterInput(props: FilterInputProps) {
     }
     setSearch('');
     setFilteredArray([]);
-    setKbIndex(0);
+    setKbIndex(-1);
   }
 
   const handleRemove = (value: string) => {
@@ -74,7 +75,7 @@ export default function FilterInput(props: FilterInputProps) {
         }
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
           const increment = e.key === "ArrowDown" ? 1 : -1;
-          const newKbIndex = Math.max(0, Math.min(kbIndex + increment, filteredArray.length - 1));
+          const newKbIndex = Math.max(0, Math.min((kbIndex === -1 ? 0 : kbIndex) + increment, filteredArray.length - 1));
           setKbIndex(newKbIndex);
           document.getElementById(`item-${name}-${newKbIndex}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -86,8 +87,6 @@ export default function FilterInput(props: FilterInputProps) {
     const obj = {target: {name: name, value:value}} 
     return obj as React.ChangeEvent<HTMLInputElement>
   }
-  console.log('selectedValues', selectedValues)
-  console.log('kbIndex', kbIndex)
   return (
     <div className="relative bg-white dark:bg-gray-darkest dark:text-white">
       <div className="flex flex-wrap items-center gap-2 p-2 border rounded">
@@ -99,7 +98,7 @@ export default function FilterInput(props: FilterInputProps) {
         ))}
         <input
           type="text"
-          placeholder='Type to see options'
+          placeholder={props.prompt || 'Type to see options'}
           value={search}
           onFocus={() => setKbIndex(-1)}
           className={`flex-grow ${StyleTextfield}`}
@@ -134,7 +133,7 @@ function FilterItem(props: {item: {label: string, value: string}, index: number,
     <div 
     onClick={() => onClick(item.value)} 
     id={`item-${name}-${index}`} 
-    className={`p-2 cursor-pointer ${kbIndex === index ? 'bg-gray-lightest text-black' : 'bg-gray-darkest text-white hover:bg-gray-lighter hover:text-black dark:text-white hover:dark:text-black'}`} 
+    className={`p-2 cursor-pointer ${kbIndex === index ? 'bg-gray-darkest text-white' : 'bg-gray-lightest text-gray-darkest hover:bg-gray-darkest hover:text-white'}`} 
     key={index}
   >
     {display}

@@ -44,6 +44,7 @@ export default function UserSelect(props: React.PropsWithChildren<CompanySelectP
               defaultValue={props.value}
               autoFocus={props.autoFocus}
               multiple={props.multiple}
+              prompt='Type to see users'
               searchArray={users && users.map(user => ({label: user.full_name as string, value: user.username as string}))}
               onSelect={handleChange}
             />

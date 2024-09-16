@@ -338,6 +338,7 @@ export async function deleteProjectRetest(id: number | number[]): Promise<any> {
 export async function markProjectRetestComplete(id: number): Promise<any> {
   const url = apiUrl(`project/retest/status/completed/${id}/`);
   const response = await getOrRedirect(url, authHeaders())
+  console.log('response', response)
   return response.data;
 }
 export async function deleteProjectScope(id: number | number[] ): Promise<any> {

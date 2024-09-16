@@ -36,7 +36,7 @@ import {
 import ScopeTable from '../components/scope-table';
 import { useCurrentUser } from '../lib/customHooks';
 import DatePicker  from 'react-datepicker';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 
 interface ProjectViewProps {
@@ -250,7 +250,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                 <ScopeTable projectId={Number(id)} />
               </TabPanel>
               <TabPanel value="retest">
-                <Retests projectId={Number(id)} />
+                <Retests project={project} />
               </TabPanel>
               <TabPanel value="reports">
                 <div className="mt-4 max-w-lg"> 
@@ -264,31 +264,18 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     </>
   );
 }
-
-function Retests({ projectId }: { projectId: number }) {
+interface ProjectWithId extends Project {
+  id: number;
+}
+function Retests({ project }: { project: ProjectWithId }) {
   const [retests, setRetests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showRetestModal, setShowRetestModal] = useState(false);
-  const [retestData, setRetestData] = useState({
-    projectId,
-    startdate: '',
-    enddate: '',
-    owner: []
-  });
-  const newRetest = ():void => {
-    setRetestData({
-      projectId,
-      startdate: '',
-      enddate: '',
-      owner: []
-    });
-    setShowRetestModal(true);
-  }
   const loadRetests = async () => {
     setLoading(true);
     try {
-      const data = await fetchProjectRetests(projectId);
+      const data = await fetchProjectRetests(project.id);
       setRetests(data);
     } catch (error) {
       setError("Error fetching retests");
@@ -296,23 +283,47 @@ function Retests({ projectId }: { projectId: number }) {
       setLoading(false);
     }
   };
-  
-  const openEditDialog = (retest: any) => {
-    setRetestData(retest);
-    setShowRetestModal(true);
+
+  const markRetestComplete = async (id: number) => {
+    try {
+      await markProjectRetestComplete(id);
+      setRetests(prev => prev.map(retest => retest.id === id ? { ...retest, status: 'Completed' } : retest));
+    } catch (error) {
+      setError("Error marking retest as complete");
+      toast.error("Error marking retest as complete");
+    }
   };
-  const deleteRetest = (id: number) => {
-    console.log(id);
+
+  const deleteRetest = async (id: number) => {
+    if(!confirm('Are you sure you want to delete this retest?')) return;
+    try {
+      await deleteProjectRetest(id);
+      setRetests(prev => prev.filter(retest => retest.id !== id));
+    } catch (error) {
+      setError("Error deleting retest");
+      toast.error("Error deleting retest");
+    }
+  };
+  const canAddRetest = () => {
+    if(project.status !== 'Completed'){
+      return false;
+    };
+    if(retests.length >= 1){
+      if (retests.some(retest => retest.status !== 'Completed')) {
+        return false;
+      }
+    };
+    return true;
   };
   useEffect(() => {
     loadRetests();
   }, []);
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>
   return (
     <>
       <div className="max-w-lg ">
         <div className="min-w-full bg-white dark:bg-gray-darker">
+          {error && <FormErrorMessage message={error} />}
           <div className="flex py-2 px-4 border-b">
             <div className="w-1/5">&nbsp;</div>
             <div className="w-1/5">Start Date</div>
@@ -324,8 +335,14 @@ function Retests({ projectId }: { projectId: number }) {
           {retests?.map((retest) => (
             <div key={retest.id} className="flex py-2 px-4 border-b">
               <div className="w-1/5 mr-2">
-                <PencilSquareIcon onClick={()=>openEditDialog(retest)} className="inline w-5 cursor-pointer"/>
-                <TrashIcon onClick={() => deleteRetest(retest.id)} className="inline w-5 ml-1 cursor-pointer" />                        
+                {retest.status !== 'Completed' ? (
+                  <>
+                    <CheckCircleIcon onClick={() => markRetestComplete(retest.id)} className="inline w-5 cursor-pointer "/>
+                  </>
+                ) : (
+                  <CheckCircleIcon className="inline w-5 text-green-500"/>
+                )}
+                <TrashIcon onClick={() => deleteRetest(retest.id)} className="inline w-5 ml-1 cursor-pointer" />
               </div>
               <div className="w-1/5">{retest.startdate}</div>
               <div className="w-1/5">{retest.enddate}</div>
@@ -333,79 +350,124 @@ function Retests({ projectId }: { projectId: number }) {
               <div className="w-1/5">{retest.owner.join(', ')}</div>
             </div>
           ))}
-
         </div>
-      <button 
-        className="bg-primary text-white p-2 rounded-md mt-4"
-        onClick={() => setShowRetestModal(true)}
-      >
-        Add New Retest
-      </button>
-      {showRetestModal && (
-        <RetestForm 
-          data={retestData}
-          onClose={() => setShowRetestModal(false)}       
-          afterSave={loadRetests} 
-        />
-      )}
+        {project.status !== 'Completed' && (
+          <p className='mt-4'>You may only add retests to completed projects and if all previous retests are completed.</p>
+        )}
+        {canAddRetest() && (
+          <button 
+            className="bg-primary text-white p-2 rounded-md mt-4"
+          onClick={() => setShowRetestModal(true)}
+        >
+          Add New Retest
+          </button>
+        )}
+        {showRetestModal && (
+          <RetestForm 
+            projectId={project.id}
+            onClose={() => setShowRetestModal(false)}       
+            afterSave={loadRetests} 
+          />
+        )}
       </div>
     </>
   );
 }
+
 interface RetestFormProps {
-  data: {
-    projectId: number;
-    startdate: string;
-    enddate: string;
-    owner: string[];
-  };
+  projectId: number;
   onClose: () => void;
   afterSave: () => void;
 }
 
-function RetestForm({ data, onClose, afterSave }: RetestFormProps) {
+function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
+  const currentUser = useCurrentUser();
   const [formData, setFormData] = useState({
-    projectId: data.projectId,
-    startdate: data.startdate || '',
-    enddate: data.enddate || '',
-    owner: data.owner || []
+    project: projectId,
+    startdate: '',
+    enddate: '',
+    owner:[''] 
   });
   const [error, setError] = useState('');
-  
-const handleDatePicker = (input: string, value:string): void => {
+  const handleDatePicker = (input: string, value:string): void => {
     setFormData((prevFormData: typeof formData) => ({
       ...prevFormData,
       [input]: value,
     }));
   }
-  
-  
+  const [errors, setErrors] = useState({
+    startDate: '',
+    endDate: '',
+    owner: ''
+  });
   const handleOwnerChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setFormData({ ...formData, owner: event.target.value.split(',') });
   };
   const saveRetest = async () => {
+    let updatedOwner = formData.owner;
+    if (!formData.owner || formData.owner.length === 0 || (formData.owner.length === 1 && formData.owner[0] === '')) {
+      updatedOwner = [currentUser?.username || ''];
+    }
+    setFormData({ ...formData, owner: updatedOwner });
+    if (!formData.startdate) {
+      setErrors(prevErrors => ({ ...prevErrors, startDate: 'Start date is required' }));
+      return;
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, startDate: '' }));
+    }
+
+    if (!formData.enddate) {
+      setErrors(prevErrors => ({ ...prevErrors, endDate: 'End date is required' }));
+      return;
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, endDate: '' }));
+    }
+    if (new Date(formData.enddate) < new Date(formData.startdate)) {
+      setErrors(prevErrors => ({ ...prevErrors, endDate: 'End date cannot be earlier than start date' }));
+      return;
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, endDate: '' }));
+    }
+    // format dates as YYYY-MM-DD
+    const formattedStartDate = formData.startdate ? new Date(formData.startdate).toISOString().split('T')[0] : '';
+    const formattedEndDate = formData.enddate ? new Date(formData.enddate).toISOString().split('T')[0] : '';
+    const formattedFormData = {
+      ...formData,
+      startdate: formattedStartDate,
+      enddate: formattedEndDate,
+      owner: updatedOwner
+    };
     try {
-      await insertProjectRetest(formData);
+      await insertProjectRetest(formattedFormData);
       afterSave();
       onClose();
     } catch (error) {
       setError("Error saving retest");
     }
   };
-  const startDateRef = useRef(null);
-  // console.log('startDateRef', startDateRef?.current?.state)
+  const userNotSet = () => formData.owner.length === 0 || formData.owner.length === 1 && formData.owner[0] === '';
   return (
-    <Dialog open={true} handler={onClose} className='dark:bg-gray-darkest dark:text-white'>
+          <Dialog open={true} handler={onClose} className='dark:bg-gray-darkest dark:text-white'>
             <DialogHeader className='dark:bg-gray-darkest dark:text-white'>New Retest</DialogHeader>
               <DialogBody>
-                <UserSelect
-                  name='owner'
-                  multiple={true}
-                  value={formData.owner.join(', ')}
-                  changeHandler={handleOwnerChange}
-                  autoFocus
-                  required={true}
-                />
+                <label className={StyleLabel}>
+                  Retest Owner
+                  {userNotSet() &&
+                    <span className='block text-sm'>
+                      Will be set to <span className='font-bold'>{currentUser?.username}</span> unless you select different users.
+                    </span>
+                  }
+                </label>
+                {currentUserCan('Manage Projects') && (
+                  <UserSelect
+                    name='owner'
+                    multiple={true}
+                    value={formData.owner.join(', ')}
+                    changeHandler={handleOwnerChange}
+                    autoFocus
+                    required={true}
+                  />
+                )}
                 <div className="flex min-w-lg mb-2">
                   {error && <FormErrorMessage message={error} />}
                   <div className="w-1/2">
@@ -415,14 +477,13 @@ const handleDatePicker = (input: string, value:string): void => {
                         id="startdate"
                         name="startdate"
                         autoComplete="off"
-                        ref={startDateRef}
                         placeholderText='Select date'
                         className={StyleTextfield}
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
                         selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
-                      
+                      {errors.startDate && <FormErrorMessage message={errors.startDate} />}
                   
                   </div>
                   <div className='ml-4 w-1/2'>
@@ -434,9 +495,10 @@ const handleDatePicker = (input: string, value:string): void => {
                       dateFormat="yyyy-MM-dd"
                       onChange={(date: string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
-                      className={StyleTextfield}
+                      className={`${StyleTextfield} `}
                       required={true}
                     />
+                    {errors.endDate && <FormErrorMessage message={errors.endDate} />}
                 </div>
               </div>
             </DialogBody>
@@ -448,11 +510,6 @@ const handleDatePicker = (input: string, value:string): void => {
   )
 }
 
-interface RetestModalProps {
-  projectId: number;
-  onClose: () => void;
-  afterSave: () => void;
-}
 interface ReportFormProps {
   projectId: number;
   scopes: Scope[];
