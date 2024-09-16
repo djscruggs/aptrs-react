@@ -322,7 +322,8 @@ export async function fetchProjectRetests(id: number | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/Retest/${id}/`);
   const response = await getOrRedirect(url, authHeaders());
-  return response.data;
+  // this endpoint returns a 404 if no retests are found, so we need to return an empty array
+  return response?.data || [];
 }
 export async function insertProjectRetest(data: any): Promise<any> {
   const url = apiUrl(`project/Retest/add`);

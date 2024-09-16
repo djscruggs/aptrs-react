@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
@@ -20,7 +20,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { ModalErrorMessage, StyleLabel, StyleTextfield, FormErrorMessage, StyleCheckbox } from '../lib/formstyles';
 import PageTitle from '../components/page-title';
 import UserSelect from '../components/user-select';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import VulnerabilityTable from '../components/vulnerability-table';
 import { toast } from 'react-hot-toast';
 import {
@@ -37,6 +36,7 @@ import {
 import ScopeTable from '../components/scope-table';
 import { useCurrentUser } from '../lib/customHooks';
 import DatePicker  from 'react-datepicker';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 
 interface ProjectViewProps {
@@ -270,7 +270,21 @@ function Retests({ projectId }: { projectId: number }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showRetestModal, setShowRetestModal] = useState(false);
-  
+  const [retestData, setRetestData] = useState({
+    projectId,
+    startdate: '',
+    enddate: '',
+    owner: []
+  });
+  const newRetest = ():void => {
+    setRetestData({
+      projectId,
+      startdate: '',
+      enddate: '',
+      owner: []
+    });
+    setShowRetestModal(true);
+  }
   const loadRetests = async () => {
     setLoading(true);
     try {
@@ -283,7 +297,13 @@ function Retests({ projectId }: { projectId: number }) {
     }
   };
   
-
+  const openEditDialog = (retest: any) => {
+    setRetestData(retest);
+    setShowRetestModal(true);
+  };
+  const deleteRetest = (id: number) => {
+    console.log(id);
+  };
   useEffect(() => {
     loadRetests();
   }, []);
@@ -294,18 +314,23 @@ function Retests({ projectId }: { projectId: number }) {
       <div className="max-w-lg ">
         <div className="min-w-full bg-white dark:bg-gray-darker">
           <div className="flex py-2 px-4 border-b">
-            <div className="w-1/4">Start Date</div>
-            <div className="w-1/4">End Date</div>
-            <div className="w-1/4">Status</div>
-            <div className="w-1/4">Owner</div>
+            <div className="w-1/5">&nbsp;</div>
+            <div className="w-1/5">Start Date</div>
+            <div className="w-1/5">End Date</div>
+            <div className="w-1/5">Status</div>
+            <div className="w-1/5">Owner</div>
           </div>
-          {retests.length === 0 && <div className="py-2 px-4 border-b">No retests found</div>}
-          {retests.map((retest) => (
+          {retests?.length === 0 && <div className="py-2 px-4 border-b">No retests found</div>}
+          {retests?.map((retest) => (
             <div key={retest.id} className="flex py-2 px-4 border-b">
-              <div className="w-1/4">{retest.startdate}</div>
-              <div className="w-1/4">{retest.enddate}</div>
-              <div className="w-1/4">{retest.status}</div>
-              <div className="w-1/4">{retest.owner.join(', ')}</div>
+              <div className="w-1/5 mr-2">
+                <PencilSquareIcon onClick={()=>openEditDialog(retest)} className="inline w-5 cursor-pointer"/>
+                <TrashIcon onClick={() => deleteRetest(retest.id)} className="inline w-5 ml-1 cursor-pointer" />                        
+              </div>
+              <div className="w-1/5">{retest.startdate}</div>
+              <div className="w-1/5">{retest.enddate}</div>
+              <div className="w-1/5">{retest.status}</div>
+              <div className="w-1/5">{retest.owner.join(', ')}</div>
             </div>
           ))}
 
@@ -318,8 +343,8 @@ function Retests({ projectId }: { projectId: number }) {
       </button>
       {showRetestModal && (
         <RetestForm 
-          projectId={projectId} 
-          onClose={() => setShowRetestModal(false)} 
+          data={retestData}
+          onClose={() => setShowRetestModal(false)}       
           afterSave={loadRetests} 
         />
       )}
@@ -328,22 +353,26 @@ function Retests({ projectId }: { projectId: number }) {
   );
 }
 interface RetestFormProps {
-  projectId: number;
-  startdate: string;
-  enddate: string;
-  owner: string[];
+  data: {
+    projectId: number;
+    startdate: string;
+    enddate: string;
+    owner: string[];
+  };
   onClose: () => void;
   afterSave: () => void;
 }
-function RetestForm(props: RetestFormProps) {
+
+function RetestForm({ data, onClose, afterSave }: RetestFormProps) {
   const [formData, setFormData] = useState({
-    projectId: props.projectId,
-    startdate: props.startdate || '',
-    enddate: props.enddate || '',
-    owner: props.owner || []
+    projectId: data.projectId,
+    startdate: data.startdate || '',
+    enddate: data.enddate || '',
+    owner: data.owner || []
   });
   const [error, setError] = useState('');
-  const handleDatePicker = (input: string, value:Date): void => {
+  
+const handleDatePicker = (input: string, value:string): void => {
     setFormData((prevFormData: typeof formData) => ({
       ...prevFormData,
       [input]: value,
@@ -357,52 +386,63 @@ function RetestForm(props: RetestFormProps) {
   const saveRetest = async () => {
     try {
       await insertProjectRetest(formData);
-      props.afterSave();
-      props.onClose();
+      afterSave();
+      onClose();
     } catch (error) {
       setError("Error saving retest");
     }
   };
+  const startDateRef = useRef(null);
+  // console.log('startDateRef', startDateRef?.current?.state)
   return (
-    <Dialog open={true} handler={props.onClose}>
-            <DialogHeader>New Retest</DialogHeader>
+    <Dialog open={true} handler={onClose} className='dark:bg-gray-darkest dark:text-white'>
+            <DialogHeader className='dark:bg-gray-darkest dark:text-white'>New Retest</DialogHeader>
               <DialogBody>
                 <UserSelect
                   name='owner'
+                  multiple={true}
                   value={formData.owner.join(', ')}
                   changeHandler={handleOwnerChange}
+                  autoFocus
+                  required={true}
                 />
                 <div className="flex min-w-lg mb-2">
                   {error && <FormErrorMessage message={error} />}
                   <div className="w-1/2">
-                    
-                    <DatePicker
-                      id='startdate'
-                      name='startdate'
-                      placeholderText='Start Date'
-                      dateFormat="yyyy-MM-dd"
-                      onChange={(date:Date)=> handleDatePicker('startdate', date)}
-                      selected={formData.startdate ? new Date(formData.startdate) : ''}
-                      className={StyleTextfield}
+                    <label className={StyleLabel}>Start Date</label>
+                      
+                      <DatePicker
+                        id="startdate"
+                        name="startdate"
+                        autoComplete="off"
+                        ref={startDateRef}
+                        placeholderText='Select date'
+                        className={StyleTextfield}
+                        dateFormat="yyyy-MM-dd"
+                        onChange={(date:string) => handleDatePicker('startdate', date)}
+                        selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
+                      
+                  
                   </div>
                   <div className='ml-4 w-1/2'>
-                    
+                    <label className={StyleLabel}>End Date</label>
                     <DatePicker
                       id='enddate'
                       name='enddate'
-                      placeholderText='End Date'
+                      placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
-                      onChange={(date:Date)=> handleDatePicker('enddate', date)}
+                      onChange={(date: string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
                       className={StyleTextfield}
+                      required={true}
                     />
                 </div>
               </div>
             </DialogBody>
             <DialogFooter>
             <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveRetest}>Save</button>
-            <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={props.onClose}>Cancel</button>
+            <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={onClose}>Cancel</button>
             </DialogFooter>
           </Dialog>
   )

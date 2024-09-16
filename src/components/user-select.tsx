@@ -10,6 +10,7 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   changeHandler: React.ChangeEventHandler | ((e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void)
   error?: boolean
   required?:boolean
+  autoFocus?: boolean;
 }
 export default function UserSelect(props: React.PropsWithChildren<CompanySelectProps>) {
   const [users, setUsers] = useState<User[]>();
@@ -41,6 +42,8 @@ export default function UserSelect(props: React.PropsWithChildren<CompanySelectP
             <FilterInput
               name={props.name}
               defaultValue={props.value}
+              autoFocus={props.autoFocus}
+              multiple={props.multiple}
               searchArray={users && users.map(user => ({label: user.full_name as string, value: user.username as string}))}
               onSelect={handleChange}
             />

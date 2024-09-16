@@ -280,18 +280,18 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   >
                     Start Date
                   </label>
-                  <div className="relative mt-4 border p-1 rounded-md bg-white dark:text-black">
-                      <DatePicker
-                        id="startdate"
-                        name="startdate"
-                        autoComplete="off"
-                        placeholderText='Select date'
-                        dateFormat="yyyy-MM-dd"
-                        onChange={(date:string) => handleDatePicker('startdate', date)}
-                        selected={formData.startdate ? new Date(formData.startdate) : ''}
-                      />
-                    {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
-                  </div>
+                  <DatePicker
+                    id="startdate"
+                    name="startdate"
+                    autoComplete="off"
+                    className={StyleTextfield}
+                    placeholderText='Select date'
+                    dateFormat="yyyy-MM-dd"
+                    onChange={(date:string) => handleDatePicker('startdate', date)}
+                    selected={formData.startdate ? new Date(formData.startdate) : ''}
+                  />
+                  {errors.startdate && <FormErrorMessage message={errors.startdate} />} 
+                  
                 </div>
                 <div className="w-1/2 ml-2 ">
                   <label
@@ -300,19 +300,17 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                   >
                     End Date
                   </label>
-                  <div className="relative mt-4 border p-1 rounded-md bg-white dark:text-black">
-                    <DatePicker   
+                  <DatePicker   
                       id="enddate"
                       name="enddate"
                       autoComplete="off"
+                      className={StyleTextfield}
                       minDate={formData.startdate ? new Date(formData.startdate) : null}
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
                       onChange={(date:string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
-                    />
-                    
-                  </div>
+                  />
                   {errors.enddate && <FormErrorMessage message={errors.enddate} />} 
                 </div>
               </div>
