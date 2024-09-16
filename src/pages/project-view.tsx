@@ -314,11 +314,6 @@ function Retests({ project }: { project: ProjectWithId }) {
         return false;
       }
     };
-    if(!currentUserCan('Manage Projects')){
-      if(project.owner !== currentUser?.username){
-        return false;
-      }
-    }
     return true;
   };
   useEffect(() => {
@@ -368,13 +363,14 @@ function Retests({ project }: { project: ProjectWithId }) {
           Add New Retest
           </button>
         )}
-        {showRetestModal && (
           <RetestForm 
             projectId={project.id}
-            onClose={() => setShowRetestModal(false)}       
+            onClose={() => setShowRetestModal(false)}   
+            open={showRetestModal}    
             afterSave={loadRetests} 
           />
-        )}
+        
+         
       </div>
     </>
   );
@@ -384,9 +380,10 @@ interface RetestFormProps {
   projectId: number;
   onClose: () => void;
   afterSave: () => void;
+  open: boolean;
 }
 
-function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
+function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
   const currentUser = useCurrentUser();
   const [formData, setFormData] = useState({
     project: projectId,
@@ -396,9 +393,11 @@ function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
   });
   const [error, setError] = useState('');
   const handleDatePicker = (input: string, value:string): void => {
+    // format dates as YYYY-MM-DD
+    const formattedDate = value ? new Date(value).toISOString().split('T')[0] : '';
     setFormData((prevFormData: typeof formData) => ({
       ...prevFormData,
-      [input]: value,
+      [input]: formattedDate,
     }));
   }
   const [errors, setErrors] = useState({
@@ -434,13 +433,8 @@ function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
     } else {
       setErrors(prevErrors => ({ ...prevErrors, endDate: '' }));
     }
-    // format dates as YYYY-MM-DD
-    const formattedStartDate = formData.startdate ? new Date(formData.startdate).toISOString().split('T')[0] : '';
-    const formattedEndDate = formData.enddate ? new Date(formData.enddate).toISOString().split('T')[0] : '';
     const formattedFormData = {
       ...formData,
-      startdate: formattedStartDate,
-      enddate: formattedEndDate,
       owner: updatedOwner
     };
     try {
@@ -453,26 +447,30 @@ function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
   };
   const userNotSet = () => formData.owner.length === 0 || formData.owner.length === 1 && formData.owner[0] === '';
   return (
-          <Dialog open={true} handler={onClose} className='dark:bg-gray-darkest dark:text-white'>
+          <Dialog open={open} handler={onClose} size='sm'className='dark:bg-gray-darkest dark:text-white'>
             <DialogHeader className='dark:bg-gray-darkest dark:text-white'>New Retest</DialogHeader>
-              <DialogBody>
-                <label className={StyleLabel}>
-                  Retest Owner
-                  {userNotSet() &&
-                    <span className='block text-sm'>
-                      Will be set to <span className='font-bold'>{currentUser?.username}</span> unless you select different users.
-                    </span>
-                  }
-                </label>
+            <DialogBody>
                 {currentUserCan('Manage Projects') && (
-                  <UserSelect
-                    name='owner'
-                    multiple={true}
-                    value={formData.owner.join(', ')}
-                    changeHandler={handleOwnerChange}
-                    autoFocus
-                    required={true}
-                  />
+                  <>
+                    <label className={StyleLabel}>
+                      Retest Owner
+                      {userNotSet() &&
+                        <span className='block text-sm'>
+                          Will be assigned to you unless you select different users.
+                        </span>
+                      }
+                    </label>
+                    <div className='max-w-md'>
+                    <UserSelect
+                      name='owner'
+                      multiple={true}
+                      value={formData.owner.join(', ')}
+                      changeHandler={handleOwnerChange}
+                      autoFocus
+                      required={true}
+                    />
+                    </div>
+                  </>
                 )}
                 <div className="flex min-w-lg mb-2">
                   {error && <FormErrorMessage message={error} />}
@@ -482,11 +480,11 @@ function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
                       <DatePicker
                         id="startdate"
                         name="startdate"
-                        autoComplete="off"
                         placeholderText='Select date'
                         className={StyleTextfield}
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
+                        autoFocus={false}
                         selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
                       {errors.startDate && <FormErrorMessage message={errors.startDate} />}
@@ -509,8 +507,8 @@ function RetestForm({ projectId, onClose, afterSave }: RetestFormProps) {
               </div>
             </DialogBody>
             <DialogFooter>
-            <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveRetest}>Save</button>
-            <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={onClose}>Cancel</button>
+              <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveRetest}>Save</button>
+              <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={onClose}>Cancel</button>
             </DialogFooter>
           </Dialog>
   )
