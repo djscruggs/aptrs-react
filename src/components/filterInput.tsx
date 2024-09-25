@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {StyleTextfield} from '../lib/formstyles'
 
 interface FilterInputProps {
@@ -17,7 +17,7 @@ export default function FilterInput(props: FilterInputProps) {
   const [search, setSearch] = useState(defaultValue || '');
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [kbIndex, setKbIndex] = useState(-1);
-  
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
       setKbIndex(-1);
@@ -58,6 +58,7 @@ export default function FilterInput(props: FilterInputProps) {
   const propagateChange = (values: string[]) => {
     const obj = formatValue(values.join(', '));
     onSelect(obj);
+    inputRef.current?.focus();
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -98,6 +99,7 @@ export default function FilterInput(props: FilterInputProps) {
         ))}
         <input
           type="text"
+          ref={inputRef}
           placeholder={props.prompt || 'Type to see options'}
           value={search}
           onFocus={() => setKbIndex(-1)}
@@ -127,8 +129,6 @@ export default function FilterInput(props: FilterInputProps) {
 function FilterItem(props: {item: {label: string, value: string}, index: number, kbIndex: number, name: string, onClick: (value: string) => void}) {
   const {item, index, kbIndex, name, onClick} = props;
   const display = item.value !== item.label ? `${item.value} - ${item.label}` : item.value;
-  console.log('item', item)
-  console.log('kbIndex', kbIndex)
   return (
     <div 
     onClick={() => onClick(item.value)} 

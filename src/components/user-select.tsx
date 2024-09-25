@@ -2,7 +2,7 @@ import {  useState, useEffect } from 'react';
 import { SingleInputSkeleton } from './skeletons'
 import {sortByPropertyName} from '../lib/utilities'
 import FilterInput from '../components/filterInput';
-import { fetchUsers } from '../lib/data/api';
+import { fetchFilteredUsers } from '../lib/data/api';
 import { User } from '../lib/data/definitions';
 interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   name: string
@@ -14,13 +14,14 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 }
 export default function UserSelect(props: React.PropsWithChildren<CompanySelectProps>) {
   const [users, setUsers] = useState<User[]>();
-  
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const usersData = await fetchUsers()
-        const sorted = sortByPropertyName(usersData,'full_name')
-        setUsers(sorted as User[]);
+        // fetch only active users because API won't accept inactive users in the form
+        const response = await fetchFilteredUsers({is_active: true})
+        const usersData = response.results
+        const sortedActiveUsers = sortByPropertyName(usersData, 'full_name');
+        setUsers(sortedActiveUsers as User[]);
       } catch (error) {
         console.error("Error fetching companies list:", error);
       }

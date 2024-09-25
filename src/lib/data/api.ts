@@ -338,7 +338,6 @@ export async function deleteProjectRetest(id: number | number[]): Promise<any> {
 export async function markProjectRetestComplete(id: number): Promise<any> {
   const url = apiUrl(`project/retest/status/completed/${id}/`);
   const response = await getOrRedirect(url, authHeaders())
-  console.log('response', response)
   return response.data;
 }
 export async function deleteProjectScope(id: number | number[] ): Promise<any> {
@@ -381,10 +380,8 @@ export async function fetchVulnerabilityInstances(id: string | number | undefine
 }
 // /api/project/vulnerability/instances/filter/<Vulneability-id>/?URL=&Parameter=&status=&limit=20&offset=0&order_by=asc&sort=id API 
 export async function fetchFilteredVulnerabilityInstances(id: string | number | undefined, params: Record<string, any>): Promise<FilteredSet> {
-  console.log(params)
   const url = apiUrl(`project/vulnerability/instances/filter/${id}/`);
   const response = await getOrRedirect(url, { params: params, ...authHeaders() });
-  console.log(response.data)
   return response.data;
 }
 export async function updateVulnerabilityStatus(id: number, status: string) {
@@ -579,7 +576,7 @@ export async function deleteGroups(ids: any[]): Promise<any> {
 export async function getGroup(id: string | undefined) {
   if (!id) return null;
   const url = apiUrl(`auth/groups/${id}`);
-  const response = await getOrRedirect(url, authHeaders());;
+  const response = await getOrRedirect(url, authHeaders());
   return response.data;
 }
 export async function upsertGroup(formData: Group): Promise<any> {

@@ -272,7 +272,6 @@ function Retests({ project }: { project: ProjectWithId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showRetestModal, setShowRetestModal] = useState(false);
-  const currentUser = useCurrentUser();
   const loadRetests = async () => {
     setLoading(true);
     try {
@@ -369,8 +368,6 @@ function Retests({ project }: { project: ProjectWithId }) {
             open={showRetestModal}    
             afterSave={loadRetests} 
           />
-        
-         
       </div>
     </>
   );
@@ -385,6 +382,8 @@ interface RetestFormProps {
 
 function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
   const currentUser = useCurrentUser();
+  const startDateRef=useRef()
+  const endDateRef=useRef()
   const [formData, setFormData] = useState({
     project: projectId,
     startdate: '',
@@ -406,9 +405,10 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
     owner: ''
   });
   const handleOwnerChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData({ ...formData, owner: event.target.value.split(',') });
+    setFormData({ ...formData, owner: event.target.value.split(',').map(owner => owner.trim()) });
   };
   const saveRetest = async () => {
+    
     let updatedOwner = formData.owner;
     if (!formData.owner || formData.owner.length === 0 || (formData.owner.length === 1 && formData.owner[0] === '')) {
       updatedOwner = [currentUser?.username || ''];
@@ -445,6 +445,7 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
       setError("Error saving retest");
     }
   };
+  
   const userNotSet = () => formData.owner.length === 0 || formData.owner.length === 1 && formData.owner[0] === '';
   return (
           <Dialog open={open} handler={onClose} size='sm'className='dark:bg-gray-darkest dark:text-white'>
@@ -461,14 +462,14 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
                       }
                     </label>
                     <div className='max-w-md'>
-                    <UserSelect
-                      name='owner'
-                      multiple={true}
-                      value={formData.owner.join(', ')}
-                      changeHandler={handleOwnerChange}
-                      autoFocus
-                      required={true}
-                    />
+                      <UserSelect
+                        name='owner'
+                        multiple={true}
+                        value={formData.owner.join(', ')}
+                        changeHandler={handleOwnerChange}
+                        autoFocus
+                        required={true}
+                      />
                     </div>
                   </>
                 )}
@@ -480,11 +481,11 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
                       <DatePicker
                         id="startdate"
                         name="startdate"
+                        ref={startDateRef}
                         placeholderText='Select date'
                         className={StyleTextfield}
                         dateFormat="yyyy-MM-dd"
                         onChange={(date:string) => handleDatePicker('startdate', date)}
-                        autoFocus={false}
                         selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
                       {errors.startDate && <FormErrorMessage message={errors.startDate} />}
@@ -495,15 +496,17 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
                     <DatePicker
                       id='enddate'
                       name='enddate'
+                      ref={endDateRef}
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
                       onChange={(date: string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
-                      className={`${StyleTextfield} `}
+                      className={StyleTextfield}
                       required={true}
                     />
                     {errors.endDate && <FormErrorMessage message={errors.endDate} />}
                 </div>
+                
               </div>
             </DialogBody>
             <DialogFooter>

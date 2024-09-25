@@ -46,7 +46,6 @@ export default function InstanceTable(props: InstanceTableProps) {
   const theme = useContext(ThemeContext);
   
   const loadInstances = async() => {
-    console.log('loading instances, id is', id)
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
       const data:FilteredSet = await fetchFilteredVulnerabilityInstances(id, state.queryParams)
