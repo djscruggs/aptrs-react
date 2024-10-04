@@ -70,7 +70,8 @@ export default function InstanceTable(props: InstanceTableProps) {
     setEditingData(row)
     setShowDialog(true)
   }
-  const openNewDialog = () => {
+  const openNewDialog = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
     setEditingData(undefined)
     setShowDialog(true)
   }
