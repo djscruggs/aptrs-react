@@ -75,7 +75,8 @@ export default function InstanceTable(props: InstanceTableProps) {
     setEditingData(undefined)
     setShowDialog(true)
   }
-  const openBulkDialog = () => {
+  const openBulkDialog = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
     setShowBulkDialog(true)
   }
   const clearDialog = () => {
