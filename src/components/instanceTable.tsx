@@ -79,9 +79,10 @@ export default function InstanceTable(props: InstanceTableProps) {
     event.preventDefault()
     setShowBulkDialog(true)
   }
-  const clearDialog = () => {
+  const clearDialogs = () => {
     setEditingData(undefined)
     setShowDialog(false)
+    setShowBulkDialog(false)
   }
   const handleSort = (name: string, sortDirection: string) => {
     let order_by = sortDirection ? sortDirection : 'asc'
@@ -218,7 +219,6 @@ export default function InstanceTable(props: InstanceTableProps) {
   const handleSelectedRowsChange = (state: any) => {
     setSelected(state.selectedRows)
   }
-  
   return (
         <>
         <label>Vulnerable URLs</label>
@@ -250,8 +250,8 @@ export default function InstanceTable(props: InstanceTableProps) {
             theme={theme}
             selectableRows
           />
-          {showDialog && <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialog} onSave={loadInstances}/>}
-          {showBulkDialog && <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialog} onSave={loadInstances}/>}
+          <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialogs} onSave={loadInstances}/>
+          <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialogs} onSave={loadInstances}/>
         </div>
         </>
   );
@@ -290,6 +290,9 @@ function InstanceForm(props: InstanceFormProps): React.ReactNode {
       [name]: value,
     }));
   };
+  useEffect(() => {
+    setIsOpen(props.visible)
+  }, [props.visible])
   const saveInstance = async() => {
     if(!formData.URL){
       setError(true)
@@ -374,62 +377,67 @@ interface BulkInstanceFormProps {
   onSave: () => void
 }
 function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
-  const [bulkUrls, setBulkUrls] = useState('')
-  const [showDialog, setShowDialog] = useState(props.visible)
+  const [bulkUrls, setBulkUrls] = useState('');
+  const [showDialog, setShowDialog] = useState(props.visible);
+
+  useEffect(() => {
+    setShowDialog(props.visible);
+  }, [props.visible]);
+
   const clearDialog = () => {
-    setShowDialog(false)
-    props.onCancel()
-  }
+    setShowDialog(false);
+    props.onCancel();
+  };
+
   const bulkUrlsChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setBulkUrls(event.target.value);
-  }
-  const saveBulkUrls = async() => {
+  };
+
+  const saveBulkUrls = async () => {
     const lines = bulkUrls.split('\n').map(urlWithParams => {
-        const [url, ...parameter] = urlWithParams.trim().split(' '); // Split the line into URL and additional parameters
-        return {URL: url, 
-                Parameter:parameter.join(' '), 
-                status: 'Vulnerable', 
-                error: !url };
-      });
-      //new instances can be inserted all at once as an array
-      try {
-        await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines)
-        toast.success('URLs added')
-        clearDialog()
-        props.onSave()
-      } catch (error) {
-        console.error('Error adding URLs:', error)
-        toast.error(String(error))
-      }
-  }
+      const [url, ...parameter] = urlWithParams.trim().split(' ');
+      return { URL: url, Parameter: parameter.join(' '), status: 'Vulnerable', error: !url };
+    });
+
+    try {
+      await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines);
+      toast.success('URLs added');
+      clearDialog();
+      props.onSave();
+    } catch (error) {
+      console.error('Error adding URLs:', error);
+      toast.error(String(error));
+    }
+  };
+
   return (
-            <Dialog handler={clearDialog} open={showDialog} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md" >
-              <label 
-                htmlFor="bulkUrls"
-                className={StyleLabel}>
-                Enter URLs with (optional) parameters, one per line, URL first on each line
-              </label>
-              <textarea
-                name="bulkUrls"
-                id="bulkUrls"
-                placeholder='http://www.example.com'
-                rows={8}
-                className={StyleTextfield}
-                value={bulkUrls}
-                onChange={bulkUrlsChange}
-              />
-              <Button 
-                onClick={saveBulkUrls}
-                className="bg-primary cursor-pointer disabled:bg-gray-300 mt-2"
-                disabled = {bulkUrls.trim() === ''}
-                >
-                Add
-              </Button>
-              <Button onClick={clearDialog}
-                className="bg-red-600 cursor-pointer disabled:bg-gray-300 mt-2 ml-2">
-                Cancel
-              </Button>
-            </Dialog>
-  )
+    <Dialog handler={clearDialog} open={showDialog} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md">
+      <label htmlFor="bulkUrls" className={StyleLabel}>
+        Enter URLs with (optional) parameters, one per line, URL first on each line
+      </label>
+      <textarea
+        name="bulkUrls"
+        id="bulkUrls"
+        placeholder="http://www.example.com"
+        rows={8}
+        className={StyleTextfield}
+        value={bulkUrls}
+        onChange={bulkUrlsChange}
+      />
+      <Button
+        onClick={saveBulkUrls}
+        className="bg-primary cursor-pointer disabled:bg-gray-300 mt-2"
+        disabled={bulkUrls.trim() === ''}
+      >
+        Add
+      </Button>
+      <Button
+        onClick={clearDialog}
+        className="bg-red-600 cursor-pointer disabled:bg-gray-300 mt-2 ml-2"
+      >
+        Cancel
+      </Button>
+    </Dialog>
+  );
 }
 
