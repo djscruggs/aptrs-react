@@ -55,10 +55,23 @@ export function Groups() {
       name: 'Name',
       selector: (row: Group) => row.name,
       sortable: true,
+      maxWidth: '10rem'
     },
     {
       name: 'Description',
       selector: (row: Group) => row.description,
+      sortable: true,
+      maxWidth: '14rem'
+    },
+    {
+      name: 'Permissions',
+      selector: (row: Group) => (
+        <div className={`my-1 grid gap-x-4 ${row.list_of_permissions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {row.list_of_permissions.map((permission, index) => (
+            <div key={index} className="mb-1 w-[160px]">{permission}</div>
+          ))}
+        </div>
+      ),
       sortable: true,
     },
   ];
