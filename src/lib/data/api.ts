@@ -672,3 +672,8 @@ export async function fetchPermissionGroups() {
   const response = await getOrRedirect(url, authHeaders());;
   return response.data;
 }
+export async function fetchPermissions() {
+  const url = apiUrl('auth/list/permission/');
+  const response = await getOrRedirect(url, authHeaders());;
+  return response.data;
+}

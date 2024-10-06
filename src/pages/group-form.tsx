@@ -8,14 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   StyleTextfield,
   StyleLabel,
+  StyleCheckbox,
   FormErrorMessage,
-
 } from '../lib/formstyles'
 import { WithAuth } from "../lib/authutils";
 import { currentUserCan } from '../lib/utilities'
 import Button from '../components/button';
-import { upsertGroup} from '../lib/data/api';
-import { Group } from '../lib/data/definitions'
+import * as api from '../lib/data/api';
+import { Group, Permission } from '../lib/data/definitions'
 import toast from 'react-hot-toast';
 interface FormErrors {
   name?: string
@@ -36,12 +36,17 @@ function GroupForm(props: GroupFormProps): JSX.Element {
     navigate('/access-denied')
   }
   
-  const [formData, setFormData] = useState<Partial<Group>>(props.group);
+  const [formData, setFormData] = useState<Group>(props.group);
   //logo input
   
   const [errors, setErrors] = useState<FormErrors>({});
-  
+  const [permissions, setPermissions] = useState<Permission[]>([])
+  const fetchPermissions = async() => {
+    const data = await api.fetchPermissions()
+    setPermissions(data)
+  }
   useEffect(() => {
+    fetchPermissions()
     // trap keydown events to see if the user has edited anything
     function handleKeyDown(e: KeyboardEvent) {
       if(e.key == 'Escape') {
@@ -68,18 +73,32 @@ function GroupForm(props: GroupFormProps): JSX.Element {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("change", handleInputChange);
     };
+    
   }, []);
 
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setEditing(true)
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
+    setEditing(true);
+    const { name, value, type, checked } = event.target;
+    if(type === 'checkbox'){
+      let newValues: string[] = formData[name as keyof Group] as string[];
+      if (checked) {
+        newValues.push(value);
+      } else {
+        newValues = newValues.filter((permission: string) => permission !== value);
+      }
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: newValues,
+      }));
+    } else {
+      setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
+  }
   };
-  
   //override skips the check for whether the user wants to save before closing
   const closeModal = (override = false) =>  {
     if(!override) {
@@ -101,13 +120,12 @@ function GroupForm(props: GroupFormProps): JSX.Element {
       newErrors.name = 'Name should be at least three characters';
     }
     
-    
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
       console.error('Form failed validation:', newErrors);
     } else {
       try {
-        const newGroup = await upsertGroup(formData as Group);
+        const newGroup = await api.upsertGroup(formData as Group);
         props.onSave(newGroup)
         toast.success('Group saved.')
         setEditing(false)
@@ -123,9 +141,8 @@ function GroupForm(props: GroupFormProps): JSX.Element {
   }
   
   
-  
   return (
-    <div className="max-w-xl min-w-lg flex-1 rounded-lg">
+    <div className="min-w-lg flex-1 rounded-lg">
       
       <h1 className="mb-3 text-2xl dark:text-white">
         {formData.id ? "Edit" : "Create"} Group
@@ -143,7 +160,7 @@ function GroupForm(props: GroupFormProps): JSX.Element {
             <input
               name="name"
               id="name"
-              className={StyleTextfield}
+              className={`${StyleTextfield} max-w-xs`}
               value={formData.name}
               onChange={handleChange}
               type="text"
@@ -162,7 +179,7 @@ function GroupForm(props: GroupFormProps): JSX.Element {
             <input
               name="description"
               id="description"
-              className={StyleTextfield}
+              className={`${StyleTextfield} max-w-xs`}
               value={formData.description}
               onChange={handleChange}
               type="text"
@@ -172,8 +189,24 @@ function GroupForm(props: GroupFormProps): JSX.Element {
           </div>
         </div>
         
-        
-        {/* Submit button */}
+        <div className="grid grid-cols-2 gap-4 w-full">
+          {permissions.map((permission, index) => (
+            <div key={permission.id} className={index < Math.ceil(permissions.length / 2) ? 'col-span-1' : 'col-span-1'}>
+              <input
+                type="checkbox"
+                id={`permission-${permission.id}`}
+                name="list_of_permissions"
+                checked={formData.list_of_permissions?.includes(permission.name)}
+                value={permission.name}
+                onChange={handleChange}
+                className={`${StyleCheckbox} inline align-middle rounded-full`}
+              />
+              <label htmlFor={`permission-${permission.id}`} className={`${StyleLabel} inline ml-2 align-middle`}>
+                {permission.name}
+              </label>
+           </div>
+          ))}
+        </div>
         
         <div className="p-2 flex">
           <div className="w-1/2 flex justify-left">

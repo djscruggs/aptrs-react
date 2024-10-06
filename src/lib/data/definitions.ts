@@ -55,6 +55,7 @@ export interface Group  {
   id: number
   name: string
   description: string
+  list_of_permissions: string[]
 }
 
 export interface Customer  {
@@ -195,4 +196,9 @@ export interface FilteredSet {
   next?: string
   previous?: string
   results: any[] 
+}
+export interface Permission {
+  id: number
+  name: string
+  description: string
 }

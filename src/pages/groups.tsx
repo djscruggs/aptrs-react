@@ -1,7 +1,6 @@
-import {Group, Column, FilteredSet} from '../lib/data/definitions'
-import { useEffect, useState, useRef, useCallback, useContext } from 'react';
-import { useNavigate } from 'react-router-dom'
-import { fetchGroups, deleteGroups } from "../lib/data/api";
+import {Group, Column } from '../lib/data/definitions'
+import { useEffect, useState, useContext } from 'react';
+import * as api from "../lib/data/api";
 import { RowsSkeleton } from '../components/skeletons'
 import PageTitle from '../components/page-title';
 import { WithAuth } from "../lib/authutils";
@@ -13,7 +12,6 @@ import { Dialog, DialogBody } from '@material-tailwind/react'
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
-import { useDataReducer, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
 
 export function Groups() {
   const theme = useContext(ThemeContext);
@@ -24,17 +22,17 @@ export function Groups() {
   const canEdit = currentUserCan('Manage Group')
   //partial reducer for search and pagination; the rest is handled by useDataReducer
   const [selected, setSelected] = useState([])
-  const navigate = useNavigate()
   const [groups, setGroups] = useState<Group[]>([])
   //modal state variables
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [group, setGroup] = useState<GroupFormProps>({name: '', description: ''})
+  const [group, setGroup] = useState<GroupFormProps>({name: '', description: '', list_of_permissions: []})
   
   interface GroupFormProps {
     id?: number,
     name: string,
-    description: string
+    description: string,
+    list_of_permissions: string[]
   }
   const openModal = (group: GroupFormProps) => {
     setGroup(group)
@@ -45,7 +43,7 @@ export function Groups() {
     setShowModal(false);
   }
   const handleNew = () => {
-    openModal({name: '', description: ''})
+    openModal({name: '', description: '', list_of_permissions: []})
   }
   const columns: Column[] = [
     ...(currentUserCan('Manage Group') ? [{
@@ -80,7 +78,7 @@ export function Groups() {
     }
     let toDelete = Array.isArray(ids) ? ids : [ids]
     try {
-      await deleteGroups(toDelete)
+      await api.deleteGroups(toDelete)
       setRefresh(true)
       let msg:string;
       if(toDelete.length == 1) {
@@ -97,11 +95,11 @@ export function Groups() {
   }
   const loadData = async() => {
     try {
-      const data = await fetchGroups()
+      const data = await api.fetchGroups()
       let temp: any = []
       data.forEach((row: GroupWithActions) => {
         row.actions = (<>
-                      <PencilSquareIcon onClick={() => openModal({id: row.id, name:row.name, description: row.description})} className="inline w-6 cursor-pointer"/>
+                      <PencilSquareIcon onClick={() => openModal({id: row.id, name:row.name, description: row.description, list_of_permissions: row.list_of_permissions})} className="inline w-6 cursor-pointer"/>
                       <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
                       </>)
         temp.push(row)
@@ -128,7 +126,7 @@ export function Groups() {
       <PageTitle title='User Groups' />
       {/* modal content */}
         {showModal &&
-        <Dialog handler={clearModal} open={showModal} size="xs" className="rounded-md dark:bg-gray-darkest dark:text-white" >
+        <Dialog handler={clearModal} open={showModal} size="md" className="rounded-md dark:bg-gray-darkest dark:text-white" >
           <form method="dialog" onSubmit={clearModal}>
             <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
               <span className="text-gray-400 hover:text-white-900">x</span>
