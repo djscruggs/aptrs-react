@@ -140,14 +140,8 @@ export function Groups() {
       {/* modal content */}
         {showModal &&
         <Dialog handler={clearModal} open={showModal} size="md" className="rounded-md dark:bg-gray-darkest dark:text-white" >
-          <form method="dialog" onSubmit={clearModal}>
-            <Button className="bg-gray visible absolute right-2 top-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-md w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-              <span className="text-gray-400 hover:text-white-900">x</span>
-            </Button>
-          </form>
           <DialogBody>
           {group  && <GroupForm group={group} onSave={() => setRefresh(true)} onClose={clearModal}/>}
-          
           </DialogBody>
         </Dialog>
         }

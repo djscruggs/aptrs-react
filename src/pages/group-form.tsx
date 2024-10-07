@@ -20,6 +20,7 @@ import toast from 'react-hot-toast';
 interface FormErrors {
   name?: string
   description?: string
+  list_of_permissions?: string
 }
 
 interface GroupFormProps {
@@ -119,6 +120,9 @@ function GroupForm(props: GroupFormProps): JSX.Element {
     if (formData.name && formData.name.length < 3) {
       newErrors.name = 'Name should be at least three characters';
     }
+    if (formData.list_of_permissions.length < 1) {
+      newErrors.list_of_permissions = 'Select at least one permission';
+    }
     
     if (Object.keys(newErrors).length >  0) {
       setErrors(newErrors);
@@ -188,8 +192,9 @@ function GroupForm(props: GroupFormProps): JSX.Element {
             {errors.description && <FormErrorMessage message={errors.description} />}
           </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4 w-full">
+        {errors.list_of_permissions && <FormErrorMessage message={errors.list_of_permissions} />}
+        <div className="grid grid-cols-2 gap-4 w-full mb-4">
+          
           {permissions.map((permission, index) => (
             <div key={permission.id} className={index < Math.ceil(permissions.length / 2) ? 'col-span-1' : 'col-span-1'}>
               <input
