@@ -205,7 +205,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
               currentFilter={state.queryParams}
               handleSort={handleSort}
               />,
-      selector: (row: Project) => row.owner,
+      selector: (row: Project) => row.owner?.length > 0 ? row.owner.map((owner: string) => owner.trim()).join(', ') : 'none',
       maxWidth: '7rem',
     },
     {

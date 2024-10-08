@@ -66,7 +66,6 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
 
   const cancelEditing = () => {
     setOwnerError('');
-    setOwner(project?.owner || '');
     setEditingOwner(false);
   };
 
@@ -155,7 +154,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
             <TabsBody>
               <TabPanel value="summary">
                 {currentUserCan('Manage Projects') && (
-                  <Link className='text-primary underline' to={`/projects/${project.id}/edit`}>edit</Link>
+                  <Link className='text-primary underline' to={`/projects/${project.id}/edit`}>Edit Project</Link>
                 )}
                 <div className='w-2/3'>
                   <div className="w-full mb-4">
@@ -202,7 +201,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                         </div>
                       ) : (
                         <>
-                          {project.owner?.length > 0 ? project.owner : 'none'}
+                          {project.owner?.length > 0 ? project.owner.map(owner => owner.trim()).join(', ') : 'none'}
                           {(currentUserCan('Manage Projects') || currentUserCan('Assign Projects')) && (
                             <span className='underline ml-4 cursor-pointer' onClick={() => setEditingOwner(true)}><PencilSquareIcon className="inline w-5" /></span>
                           )}
