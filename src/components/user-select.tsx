@@ -36,7 +36,11 @@ export default function UserSelect(props: React.PropsWithChildren<CompanySelectP
     
   }
   if(typeof users === 'undefined'){
-    return (<SingleInputSkeleton />)
+    if(props.multiple){
+      return (<><SingleInputSkeleton /><SingleInputSkeleton /></>)
+    } else {
+      return (<SingleInputSkeleton />)
+    }
   }
   return (
           <>

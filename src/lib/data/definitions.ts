@@ -36,13 +36,13 @@ export interface Project  {
   name: string
   status: string
   description: string
-  projecttype: string //maybe enum "Web Application Penetration Testing"
+  projecttype: string
   startdate: string
   enddate: string
-  testingtype: string //maybe enum "Black Box",
-  projectexception: string //" empty string in test"
-  companyname: string // "OWASP" -- shouldnt this be an id?
-  owner: string //"admin" -- shouldnt this be an id?
+  testingtype: string
+  projectexception: string
+  companyname: string
+  owner: string[]
 }
 export interface Company  {
   id?: number

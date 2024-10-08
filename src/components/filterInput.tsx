@@ -1,9 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {StyleTextfield} from '../lib/formstyles'
 
 interface FilterInputProps {
   searchArray: {label: string, value: string}[] | undefined;
-  defaultValue: string;
+  defaultValue: string[] | string | undefined;
   name: string;
   autoFocus?: boolean;
   multiple?: boolean; // Added multiple prop
@@ -15,9 +15,15 @@ export default function FilterInput(props: FilterInputProps) {
   const {searchArray, onSelect, defaultValue, name, autoFocus, multiple = false} = props; // Default multiple to false
   const [filteredArray, setFilteredArray] = useState<{label: string, value: string}[]>([]);
   const [search, setSearch] = useState(defaultValue || '');
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [selectedValues, setSelectedValues] = useState<string[]>(defaultValue || []);
   const [kbIndex, setKbIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (Array.isArray(defaultValue)) {
+      setSelectedValues(defaultValue);
+      setSearch('');
+    } 
+  }, []);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
       setKbIndex(-1);
@@ -68,6 +74,8 @@ export default function FilterInput(props: FilterInputProps) {
           e.stopPropagation();
           if (filteredArray.length > 0) {
             handleSelect(filteredArray[kbIndex].value);
+            setFilteredArray([]);
+            setKbIndex(-1);
           }
         }
         if(e.key === "Escape" || e.key === "Tab") {
@@ -88,6 +96,7 @@ export default function FilterInput(props: FilterInputProps) {
     const obj = {target: {name: name, value:value}} 
     return obj as React.ChangeEvent<HTMLInputElement>
   }
+  console.log('selectedValues',selectedValues)
   return (
     <div className="relative bg-white dark:bg-gray-darkest dark:text-white">
       <div className="flex flex-wrap items-center gap-2 p-2 border rounded">

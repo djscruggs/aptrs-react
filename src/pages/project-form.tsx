@@ -111,6 +111,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
       [name]: value,
     }));
   };
+  const handleOwnerChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData({ ...formData, owner: event.target.value.split(',').map(owner => owner.trim()) });
+  };
   
   const handleDatePicker = (input: string, value:string): void => {
     setFormData((prevFormData) => ({
@@ -357,8 +360,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                           name='owner'
                           defaultValue={formData.owner}
                           value={formData.owner || ''} 
-                          changeHandler={handleChange} 
+                          changeHandler={handleOwnerChange} 
                           required={true}
+                          multiple={true}
                           error={errors.owner ? true : false}
                         />
                     ) :

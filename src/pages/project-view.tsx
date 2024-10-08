@@ -138,7 +138,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
 
   if (loading) return <FormSkeleton numInputs={6} className='max-w-lg' />;
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />;
-
+  console.log(project);
   return (
     <>
       {project && (
@@ -183,6 +183,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                             name='owner'
                             defaultValue={project.owner}
                             value={owner}
+                            multiple={true}
                             changeHandler={handleOwnerChange}
                             required={true}
                           />
