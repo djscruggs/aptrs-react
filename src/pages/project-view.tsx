@@ -137,7 +137,6 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
 
   if (loading) return <FormSkeleton numInputs={6} className='max-w-lg' />;
   if (loadingError) return <ModalErrorMessage message={"Error loading project"} />;
-  console.log(project);
   return (
     <>
       {project && (
@@ -264,10 +263,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
     </>
   );
 }
-interface ProjectWithId extends Project {
-  id: number;
-}
-function Retests({ project }: { project: ProjectWithId }) {
+function Retests({ project }: { project: Project }) {
   const [retests, setRetests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -322,6 +318,17 @@ function Retests({ project }: { project: ProjectWithId }) {
   return (
     <>
       <div className="max-w-lg ">
+      {project.status !== 'Completed' && (
+          <p className='mt-4'>You may only add retests to completed projects and if all previous retests are completed.</p>
+        )}
+        {canAddRetest() && (
+          <button 
+            className="bg-primary text-white p-2 rounded-md mt-4"
+            onClick={() => setShowRetestModal(true)}
+          >
+            Add New Retest
+          </button>
+        )}
         <div className="min-w-full bg-white dark:bg-gray-darker">
           {error && <FormErrorMessage message={error} />}
           <div className="flex py-2 px-4 border-b">
@@ -351,17 +358,7 @@ function Retests({ project }: { project: ProjectWithId }) {
             </div>
           ))}
         </div>
-        {project.status !== 'Completed' && (
-          <p className='mt-4'>You may only add retests to completed projects and if all previous retests are completed.</p>
-        )}
-        {canAddRetest() && (
-          <button 
-            className="bg-primary text-white p-2 rounded-md mt-4"
-          onClick={() => setShowRetestModal(true)}
-        >
-          Add New Retest
-          </button>
-        )}
+       
           <RetestForm 
             projectId={project.id}
             onClose={() => setShowRetestModal(false)}   
@@ -384,12 +381,13 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
   const currentUser = useCurrentUser();
   const startDateRef=useRef()
   const endDateRef=useRef()
-  const [formData, setFormData] = useState({
+  const defaultFormData = {
     project: projectId,
     startdate: '',
     enddate: '',
     owner:[''] 
-  });
+  }
+  const [formData, setFormData] = useState(defaultFormData);
   const [error, setError] = useState('');
   const handleDatePicker = (input: string, value:string): void => {
     // format dates as YYYY-MM-DD
@@ -398,12 +396,22 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
       ...prevFormData,
       [input]: formattedDate,
     }));
+    if(input === 'startdate'){
+      setMinEndDate(new Date(value));
+    }
+
   }
+  const [minEndDate, setMinEndDate] = useState(new Date());
+
   const [errors, setErrors] = useState({
     startDate: '',
     endDate: '',
     owner: ''
   });
+  const onCancel = () => {
+    setFormData(defaultFormData);
+    onClose();
+  };
   const handleOwnerChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setFormData({ ...formData, owner: event.target.value.split(',').map(owner => owner.trim()) });
   };
@@ -485,6 +493,7 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
                         placeholderText='Select date'
                         className={StyleTextfield}
                         dateFormat="yyyy-MM-dd"
+                        selectsStart
                         onChange={(date:string) => handleDatePicker('startdate', date)}
                         selected={formData.startdate ? new Date(formData.startdate) : ''}
                       />
@@ -499,10 +508,12 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
                       ref={endDateRef}
                       placeholderText='Select date'
                       dateFormat="yyyy-MM-dd"
+                      selectsEnd
                       onChange={(date: string) => handleDatePicker('enddate', date)}
                       selected={formData.enddate ? new Date(formData.enddate) : ''}
                       className={StyleTextfield}
                       required={true}
+                      minDate={minEndDate}
                     />
                     {errors.endDate && <FormErrorMessage message={errors.endDate} />}
                 </div>
@@ -511,7 +522,7 @@ function RetestForm({ projectId, onClose, afterSave, open }: RetestFormProps) {
             </DialogBody>
             <DialogFooter>
               <button className='bg-primary rounded-md text-white mx-1 p-2'  onClick={saveRetest}>Save</button>
-              <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={onClose}>Cancel</button>
+              <button className='bg-secondary rounded-md text-white mx-1 p-2'  onClick={onCancel}>Cancel</button>
             </DialogFooter>
           </Dialog>
   )
