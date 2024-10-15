@@ -147,7 +147,8 @@ export default function InstanceTable(props: InstanceTableProps) {
     clearDialogs()
     loadInstances()
   }
-  const deleteMultiple = async() => {
+  const deleteMultiple = async(event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
     if (!confirm('Are you sure?')) {
       return;
     }
