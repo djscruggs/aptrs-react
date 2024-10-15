@@ -1,7 +1,5 @@
-import React, { useEffect, useRef } from 'react';
 import { uploadFile } from '../lib/data/api';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { apiUrl } from '../lib/data/api';
 
 
 import {

@@ -389,6 +389,11 @@ export async function updateVulnerabilityStatus(id: number, status: string) {
   const response = await getOrRedirect(url, authHeaders())
   return response.data;
 }
+export async function bulkUpdateVulnerabilityStatus(ids: number[], status: string) {
+  const url = apiUrl(`project/vulnerability/status/instances/?status=${status}`);
+  const response = await postOrRedirect(url, ids, authHeaders())
+  return response.data;
+}
 
 export async function deleteVulnerabilityInstances(ids: any[]): Promise<any> {
   const url = apiUrl('project/vulnerability/delete/instances/');

@@ -1,13 +1,7 @@
 import { useState, useEffect, ChangeEvent, useContext } from 'react';
 import { VulnerabilityInstance, Column, FilteredSet } from '../lib/data/definitions'
 import { DatasetState, DatasetAction, DEFAULT_DATA_LIMIT, useDataReducer } from '../lib/useDataReducer';
-import { 
-  deleteVulnerabilityInstances,
-  updateProjectVulnerabilityInstance,
-  insertProjectVulnerabilityInstance,
-  updateProjectInstanceStatus,
-  fetchFilteredVulnerabilityInstances
-} from '../lib/data/api';
+import * as api from '../lib/data/api'
 import toast from 'react-hot-toast';
 import {
   StyleTextfield,
@@ -44,11 +38,11 @@ export default function InstanceTable(props: InstanceTableProps) {
   const [showDialog, setShowDialog] = useState(false)
   const [showBulkDialog, setShowBulkDialog] = useState(false)
   const theme = useContext(ThemeContext);
-  
+  const [showStatusDialog, setShowStatusDialog] = useState(false)
   const loadInstances = async() => {
     try {
       dispatch({ type: 'set-mode', payload: 'loading' });
-      const data:FilteredSet = await fetchFilteredVulnerabilityInstances(id, state.queryParams)
+      const data:FilteredSet = await api.fetchFilteredVulnerabilityInstances(id, state.queryParams)
       let temp = formatRows(data.results)
       data.results = temp
       dispatch({ type: 'set-data', payload: {data} });
@@ -83,6 +77,12 @@ export default function InstanceTable(props: InstanceTableProps) {
     setEditingData(undefined)
     setShowDialog(false)
     setShowBulkDialog(false)
+    setShowStatusDialog(false)
+  }
+  
+  const openStatusDialog = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    setShowStatusDialog(true)
   }
   const handleSort = (name: string, sortDirection: string) => {
     let order_by = sortDirection ? sortDirection : 'asc'
@@ -133,7 +133,7 @@ export default function InstanceTable(props: InstanceTableProps) {
       return;
     }
     try {
-      await deleteVulnerabilityInstances([id])
+      await api.deleteVulnerabilityInstances([id])
       loadInstances()
       toast.success('URL deleted')
       setSelected([])
@@ -143,12 +143,16 @@ export default function InstanceTable(props: InstanceTableProps) {
     }
    
   }
+  const afterUpdateBulkStatus = async() => {
+    clearDialogs()
+    loadInstances()
+  }
   const deleteMultiple = async() => {
     if (!confirm('Are you sure?')) {
       return;
     }
     try {
-      await deleteVulnerabilityInstances(selected.map(instance => instance.id))
+      await api.deleteVulnerabilityInstances(selected.map(instance => instance.id))
       loadInstances()
       toast.success('URLs deleted')
     } catch (error) {
@@ -231,6 +235,13 @@ export default function InstanceTable(props: InstanceTableProps) {
           >
             Delete
           </button>
+          <button  
+            className="bg-primary p-2 ml-2 text-white rounded-md disabled:opacity-50"
+            disabled={selected.length === 0}
+            onClick = {openStatusDialog}
+          >
+            Update Status
+          </button>
           <button key='addNewVulnerability' className='bg-primary text-white p-2 rounded-md ml-2' onClick={openNewDialog}>Add New</button>
           <button key='addBulkVulnerability' className='bg-primary text-white p-2 rounded-md ml-2' onClick={openBulkDialog}>Add Multiple</button>
           
@@ -250,10 +261,54 @@ export default function InstanceTable(props: InstanceTableProps) {
             theme={theme}
             selectableRows
           />
-          <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialogs} onSave={loadInstances}/>
+          <InstanceForm visible={showDialog} projectVulnerabilityId={id} data={editingData} onCancel={clearDialogs} onSave={afterUpdateBulkStatus}/>
           <BulkInstanceForm visible={showBulkDialog} projectVulnerabilityId={id} onCancel={clearDialogs} onSave={loadInstances}/>
+          <UpdateStatusDialog visible={showStatusDialog} selected={selected.map(instance => instance.id as number)} onCancel={clearDialogs} onSave={afterUpdateBulkStatus}/>
         </div>
         </>
+  );
+}
+
+interface StatusFormProps {
+  visible: boolean
+  onCancel: () => void
+  onSave: () => void
+  selected: number[]
+}
+function UpdateStatusDialog(props: StatusFormProps): React.ReactNode {
+  const  {visible, onCancel, onSave, selected} = props
+  const clearDialogs = () => {
+    onCancel()
+  }
+  const updateStatus = async(event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    try {
+      await api.bulkUpdateVulnerabilityStatus(selected, 'Confirmed Fixed')
+      toast.success('Status updated')
+      onSave()
+    } catch (error) {
+      console.error('Error updating status:', error)
+      toast.error(String(error))
+    }
+  }
+  return (
+    <Dialog handler={clearDialogs} open={visible} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md">
+      <DialogHeader>Update Status</DialogHeader>
+      <DialogBody>
+        <div>
+          <label className={StyleLabel}>Change status to:</label>
+          <select className={StyleTextfield}>
+            <option value="Vulnerable">Vulnerable</option>
+            <option value="Confirm Fixed">Confirm Fixed</option>
+            <option value="Accepted Risk">Accepted Risk</option>
+          </select>
+        </div>
+      </DialogBody>
+      <DialogFooter>
+        <button className="bg-primary rounded-md text-white mx-1 p-2" onClick={updateStatus}>Update</button>
+        <button className="bg-secondary rounded-md text-white mx-1 p-2" onClick={onCancel}>Cancel</button>
+      </DialogFooter>
+    </Dialog>
   );
 }
 
@@ -300,12 +355,12 @@ function InstanceForm(props: InstanceFormProps): React.ReactNode {
     }
     try {
       if(formData.id === 'new'){
-        await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, [formData])
+        await api.insertProjectVulnerabilityInstance(props.projectVulnerabilityId, [formData])
         toast.success('URL added')
       } else {
-        const updated = await updateProjectVulnerabilityInstance(formData)
+        const updated = await api.updateProjectVulnerabilityInstance(formData)
         // this is here because status update uses a different api endppoint from normal update
-        await updateProjectInstanceStatus(updated)
+        await api.updateProjectInstanceStatus(updated)
         toast.success('URL updated')
       }
       clearDialog()
@@ -400,7 +455,7 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
     });
 
     try {
-      await insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines);
+      await api.insertProjectVulnerabilityInstance(props.projectVulnerabilityId, lines);
       toast.success('URLs added');
       clearDialog();
       props.onSave();
