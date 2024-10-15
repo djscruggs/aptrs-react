@@ -441,6 +441,7 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
 
   const clearDialog = () => {
     setShowDialog(false);
+    setBulkUrls('')
     props.onCancel();
   };
 
@@ -450,7 +451,7 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
 
   const saveBulkUrls = async () => {
     const lines = bulkUrls.split('\n').map(urlWithParams => {
-      const [url, ...parameter] = urlWithParams.trim().split(' ');
+      const [url, ...parameter] = urlWithParams.trim().split(',');
       return { URL: url, Parameter: parameter.join(' '), status: 'Vulnerable', error: !url };
     });
 
@@ -468,12 +469,12 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
   return (
     <Dialog handler={clearDialog} open={showDialog} size="sm" className="modal-box w-[500px] bg-white p-4 rounded-md">
       <label htmlFor="bulkUrls" className={StyleLabel}>
-        Enter URLs with (optional) parameters, one per line, URL first on each line
+        Enter URLs with optional parameters, one per line. URL first followed by a comma and then parameters (if any)
       </label>
       <textarea
         name="bulkUrls"
         id="bulkUrls"
-        placeholder="http://www.example.com"
+        placeholder="http://www.example.com, parameter1 parameter2"
         rows={8}
         className={StyleTextfield}
         value={bulkUrls}
