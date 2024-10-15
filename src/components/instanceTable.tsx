@@ -281,12 +281,22 @@ function UpdateStatusDialog(props: StatusFormProps): React.ReactNode {
   const clearDialogs = () => {
     onCancel()
   }
+  const [status, setStatus] = useState('');
+  const [error, setError] = useState('')
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setStatus(event.target.value);
+  };
   const updateStatus = async(event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     try {
-      await api.bulkUpdateVulnerabilityStatus(selected, 'Confirmed Fixed')
+      if(!status){
+        setError("Please select a status")
+        return
+      }
+      await api.bulkUpdateVulnerabilityStatus(selected, status)
       toast.success('Status updated')
       onSave()
+      setStatus('')
     } catch (error) {
       console.error('Error updating status:', error)
       toast.error(String(error))
@@ -298,10 +308,12 @@ function UpdateStatusDialog(props: StatusFormProps): React.ReactNode {
       <DialogBody>
         <div>
           <label className={StyleLabel}>Change status to:</label>
-          <select className={StyleTextfield}>
-            <option value="Vulnerable">Vulnerable</option>
-            <option value="Confirm Fixed">Confirm Fixed</option>
-            <option value="Accepted Risk">Accepted Risk</option>
+          {error && <FormErrorMessage message={error} />}
+          <select className={StyleTextfield} value={status} onChange={handleChange} required>
+          <option value="">Select...</option>
+          {['Vulnerable', 'Confirm Fixed', 'Accepted Risk'].map((status) => ( 
+            <option key={`status-${status}`} value={status}>{status}</option>
+          ))}
           </select>
         </div>
       </DialogBody>
