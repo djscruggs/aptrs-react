@@ -269,7 +269,6 @@ export default function InstanceTable(props: InstanceTableProps) {
         </>
   );
 }
-
 interface StatusFormProps {
   visible: boolean
   onCancel: () => void
@@ -509,4 +508,5 @@ function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
     </Dialog>
   );
 }
+
 
