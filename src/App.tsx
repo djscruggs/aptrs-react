@@ -68,10 +68,12 @@ const App: React.FC = () => {
                     <Route path="/projects/:projectId/vulnerability/add" element={<VulnerabilityForm action='addToProject' />} />
                     <Route path="/projects/:projectId/vulnerability/add/:id" element={<VulnerabilityForm action='addToProject'/>} />
                     <Route path="/projects/:projectId/vulnerability/edit/:id" element={<VulnerabilityForm action='saveToProject'/>} />
+                    <Route path="/projects/:projectId/vulnerability/edit/:id/:tab" element={<VulnerabilityForm action='saveToProject'/>} />
                     <Route path="/companies/:id/edit" element={<CompanyForm />} />
                     <Route path="/companies/new" element={<CompanyForm />} />
                     <Route path="/vulnerabilities" element={<Vulnerabilities />} />
                     <Route path="/vulnerabilities/:id/edit" element={<VulnerabilityForm />} />
+                    
                     <Route path="/vulnerabilities/:id" element={<VulnerabilityView />} />
                     <Route path="/vulnerabilities/new" element={<VulnerabilityForm />} />
                     <Route path="/users" element={<Users />} />

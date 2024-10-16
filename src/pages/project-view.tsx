@@ -58,8 +58,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
   const [owner, setOwner] = useState('');
   const [ownerError, setOwnerError] = useState('');
   const [saving, setSaving] = useState(false);
-  const currentUser = useCurrentUser();
-
+  
   const handleOwnerChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOwner(e.target.value);
   };
