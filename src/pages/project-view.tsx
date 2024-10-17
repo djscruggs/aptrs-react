@@ -6,7 +6,7 @@ import { FormSkeleton } from '../components/skeletons';
 import {  getProject, 
           getProjectScopes, 
           getProjectReport, 
-          fetchStandards, 
+          fetchReportStandards, 
           updateProjectOwner, 
           markProjectAsCompleted, 
           markProjectAsOpen,
@@ -560,7 +560,7 @@ function ReportForm({ projectId, scopes }: ReportFormProps) {
   };
 
   const loadStandards = async () => {
-    const data = await fetchStandards();
+    const data = await fetchReportStandards();
     setStandards(data);
   };
 

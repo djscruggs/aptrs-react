@@ -202,3 +202,11 @@ export interface Permission {
   name: string
   description: string
 }
+export interface ReportStandard {
+  id: number
+  name: string
+}
+export interface ProjectType {
+  id: number
+  name: string
+}

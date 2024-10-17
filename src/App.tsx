@@ -19,6 +19,7 @@ import Groups from './pages/groups'
 import ErrorPage from './pages/error-page';
 import AccessDenied from './pages/access-denied';
 import Profile from './pages/profile';
+import Config from './pages/config';
 import { useEffect } from 'react';
 import { refreshAuth, getAuthUser, shouldRefreshToken } from './lib/data/api';
 import.meta.env.VITE_APP_ENV
@@ -71,6 +72,7 @@ const App: React.FC = () => {
                     <Route path="/projects/:projectId/vulnerability/edit/:id/:tab" element={<VulnerabilityForm action='saveToProject'/>} />
                     <Route path="/companies/:id/edit" element={<CompanyForm />} />
                     <Route path="/companies/new" element={<CompanyForm />} />
+                    <Route path="/config" element={<Config />} />
                     <Route path="/vulnerabilities" element={<Vulnerabilities />} />
                     <Route path="/vulnerabilities/:id/edit" element={<VulnerabilityForm />} />
                     

@@ -7,13 +7,14 @@ import {
   RocketLaunchIcon,
   CircleStackIcon,
   UserIcon,
-  UsersIcon
+  UsersIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { useCurrentUser } from '../lib/customHooks';
 import clsx from 'clsx';
 // ... (Icons and other imports)
 import { ThemeIcon } from '../components/themeIcon';
-
+import { currentUserCan } from '../lib/utilities';
 interface NavLinksProps {
   theme: string;
   toggleTheme: () => void;
@@ -31,8 +32,13 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
     { name: 'Vulnerability DB', href: '/vulnerabilities', icon: CircleStackIcon },
     ...(currentUser?.isAdmin ? [
       { name: 'Users', href: '/users', icon: UserIcon},
-      { name: 'Groups', href: '/groups', icon: UsersIcon}
-    ] : [])
+      { name: 'Groups', href: '/groups', icon: UsersIcon},
+    ] : []),
+    
+  ];
+  const configLinks = [
+    { name: 'Report Standard', href: '/config#report-standard' },
+    { name: 'Project Type', href: '/config#project-type' },
   ];
   
   
@@ -45,7 +51,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
           <Link
             to={link.href}
             className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+              'flex h-[48px] grow items-center justify-center gap-2 bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
               {
                 'bg-sky-100 text-blue-600': pathname === link.href,
               }
@@ -57,6 +63,29 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
           </Link>
         );
       })}
+      { currentUserCan('Manage Configurations')  &&
+        <>
+        <div className='ml-4 md:p-2 md:px-3'>
+        <Cog6ToothIcon className="mt-3 md:mt-0 w-6 md:w-8 inline" /> <span className='hidden md:inline'>Configurations</span>
+        {configLinks.map((link) => {
+        return (
+          <Link
+            to={link.href}
+            className={clsx(
+              'flex text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-1',
+              {
+                'bg-sky-100 text-blue-600': pathname === link.href,
+              }
+            )}
+            key={link.name} // Add a unique key
+          >
+            <p className="hidden ml-8 md:block md:text-md">{link.name}</p>
+          </Link>
+        );
+      })}
+        </div>
+        </>
+      }
       <div className='h-[48px] md:hidden mt-1.5'>
         <ThemeIcon theme={theme} toggleTheme={toggleTheme}/>
       </div>

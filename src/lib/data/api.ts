@@ -281,7 +281,7 @@ export async function getProjectReport(props: ProjectReportParams) {
   const response = await getOrRedirect(url, config)
   return response
 }
-export async function fetchStandards() {
+export async function fetchReportStandards() {
   const url = apiUrl('config/standards/')
   const response = await getOrRedirect(url, authHeaders());
   return response.data

@@ -12,12 +12,12 @@ export function ErrorPage(props: ErrorPageProps) {
   }
   
   return (
-    <div className="bg-gray-200 w-full px-16 md:px-0 h-screen flex items-center justify-center">
-    <div className="bg-white border border-gray-200 flex flex-col items-center justify-center px-4 md:px-8 lg:px-24 py-8 rounded-lg shadow-2xl">
+    <div className="bg-gray-200 w-full min-w-96 px-0 md:px-16 h-screen flex items-start justify-center md:justify-start">
+    <div className="bg-white border border-gray-200 w-full md:max-w-md flex flex-col items-center justify-center px-0 md:px-8 lg:px-24 py-8 rounded-lg shadow-2xl">
         <p className="text-6xl md:text-7xl lg:text-7xl font-bold tracking-wider text-gray-300">
           {is404 ? "404" : "Oops!"}
         </p>
-        <p className="text-2xl md:text-3xl lg:text-5xl font-bold tracking-wider text-secondary my-4 md:my-20">
+        <p className="text-center text-2xl w-96 md:text-3xl lg:text-5xl font-bold tracking-wider text-secondary my-4 md:my-20">
           {is404 ? "Not Found" : message ? message : " Something went wrong."}
         </p>
         {is404 &&
