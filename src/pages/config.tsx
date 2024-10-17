@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react"
 import { ReportStandard, ProjectType } from "../lib/data/definitions"
 import * as api from "../lib/data/api"
+import { currentUserCan } from '../lib/utilities'
+import { AccessDenied } from "./access-denied"
 
 export default function Config() {
-    
+    if (!currentUserCan('Manage Configurations')) {
+        return <AccessDenied />
+    }
 
   return (
       <div>
