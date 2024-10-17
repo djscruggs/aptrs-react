@@ -286,6 +286,16 @@ export async function fetchReportStandards() {
   const response = await getOrRedirect(url, authHeaders());
   return response.data
 }
+export async function insertProjectType(name: string) {
+  const url = apiUrl('config/project-type/create/')
+  const response = await postOrRedirect(url, {name}, authHeaders())
+  return response.data
+}
+export async function insertReportStandard(name: string) {
+  const url = apiUrl('config/standards/create/')
+  const response = await postOrRedirect(url, {name}, authHeaders())
+  return response.data
+}
 export async function getProject(id: string | undefined) {
   if(!id) return null;
   const url = apiUrl(`project/get-project/${id}/`);
