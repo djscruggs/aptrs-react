@@ -30,19 +30,16 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
     { name: 'Customers', href: '/customers', icon: UserGroupIcon },
     { name: 'Projects', href: '/projects', icon: RocketLaunchIcon },
     { name: 'Vulnerability DB', href: '/vulnerabilities', icon: CircleStackIcon },
-    ...(currentUser?.isAdmin ? [
+    ...(currentUserCan('Manage Users') ? [
       { name: 'Users', href: '/users', icon: UserIcon},
       { name: 'Groups', href: '/groups', icon: UsersIcon},
     ] : []),
+    ...(currentUserCan('Manage Configurations') ? [
+      { name: 'Configurations', href: '/config', icon: Cog6ToothIcon},
+    ] : []),
     
   ];
-  const configLinks = [
-    { name: 'Report Standard', href: '/config#report-standard' },
-    { name: 'Project Type', href: '/config#project-type' },
-  ];
   
-  
-
   return (
     <>
       {links.map((link) => {
@@ -63,29 +60,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ theme, toggleTheme }) => {
           </Link>
         );
       })}
-      { currentUserCan('Manage Configurations')  &&
-        <>
-        <div className='ml-4 md:p-2 md:px-3'>
-        <Cog6ToothIcon className="mt-3 md:mt-0 w-6 md:w-8 inline" /> <span className='hidden md:inline'>Configurations</span>
-        {configLinks.map((link) => {
-        return (
-          <Link
-            to={link.href}
-            className={clsx(
-              'flex text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-1',
-              {
-                'bg-sky-100 text-blue-600': pathname === link.href,
-              }
-            )}
-            key={link.name} // Add a unique key
-          >
-            <p className="hidden ml-8 md:block md:text-md">{link.name}</p>
-          </Link>
-        );
-      })}
-        </div>
-        </>
-      }
+
       <div className='h-[48px] md:hidden mt-1.5'>
         <ThemeIcon theme={theme} toggleTheme={toggleTheme}/>
       </div>
