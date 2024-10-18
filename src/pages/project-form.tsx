@@ -69,7 +69,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
     testingtype: '',
     projectexception: '',
     companyname: '',
-    owner: currentUser?.username as string,
+    owner: [currentUser?.username as string],
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const navigate = useNavigate()
@@ -180,7 +180,7 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
           <PageTitle title={id ? "Edit Project" : "Create Project"} />
       
           <div className='grid grid-cols-2 gap-4'>
-            <div className="w-full ">
+            <div className="w-full mb-4">
               <div className='flex'>
                 <div className="w-1/2 pr-2">
                   <label
