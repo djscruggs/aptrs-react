@@ -24,6 +24,9 @@ export default function FilterInput(props: FilterInputProps) {
       setSearch('');
     } 
   }, []);
+  useEffect(() => {
+    setSearch(defaultValue as string);
+  }, [defaultValue])
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
       setKbIndex(-1);
@@ -96,7 +99,6 @@ export default function FilterInput(props: FilterInputProps) {
     const obj = {target: {name: name, value:value}} 
     return obj as React.ChangeEvent<HTMLInputElement>
   }
-  console.log('selectedValues',selectedValues)
   return (
     <div className="relative bg-white dark:bg-gray-darkest dark:text-white">
       <div className="flex flex-wrap items-center gap-2 p-2 border rounded">

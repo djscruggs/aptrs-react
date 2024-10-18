@@ -15,6 +15,7 @@ interface CompanySelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 export default function CompanySelect(props: React.PropsWithChildren<CompanySelectProps>) {
   
   const [companies, setCompanies] = useState<Company[]>();
+  const [value, setValue] = useState<string[]>([]);
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -28,9 +29,10 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
     }
     loadCompanies()
   }, []);
+  useEffect(() => {
+    setValue(props.value)
+  }, [props.value])
   const handleChange = (event:React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    //create object that matches the shape of an HTML input event
-    // const obj = {target: {name:props.name, value:value}} 
     props.changeHandler && props.changeHandler(event)
     
   }
@@ -41,7 +43,7 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
           <>
             <FilterInput
               name={props.name}
-              defaultValue={props.value}
+              defaultValue={value}
               searchArray={companies && companies.map(company => ({label: company.name as string, value: company.name as string}))}
               onSelect={handleChange}
             />
