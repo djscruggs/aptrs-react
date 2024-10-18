@@ -61,7 +61,7 @@ function ReportStandards() {
   return (
     <div className="mt-4 mb-2">
             <h2 className='text-xl'>Report Standards</h2>
-            <ul>
+            <ul className='cursor-text'>
                 {reportStandards.map(standard => (
                     <li key={standard.id}>{standard.name}</li>
                 ))}
@@ -124,7 +124,7 @@ function ProjectTypes() {
   return (
       <div className="mt-4 mb-2">
             <h2 className='text-xl'>Project Types</h2>
-            <ul>
+            <ul className='cursor-text'>
                 {projectTypes.map(type => (
                     <li key={type.id}>{type.name}</li>
                 ))}
