@@ -106,7 +106,6 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
   const isSorted = currentFilter?.sort === name
   const sortDirection = isSorted ? currentFilter.order_by : ''
   const nextSort = sortDirection === 'asc' ? 'desc' : 'asc'
-  console.log('active', active)
   return (
     <>
     {active ? (
