@@ -198,127 +198,107 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
       
       <form onSubmit={handleSubmit} id="customerForm" method="POST">
         {/* Form inputs */}
-        <div className="flex">
-        
-          <div className="w-1/2 px-4">
-            <div className="w-full mb-4">
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="name">
-                    Name
-                </label>
-                <div className="relative">
-                  <input
-                    name="full_name"
-                    id="full_name"
-                    value = {formData.full_name}
-                    onChange={handleChange}
-                    className={StyleTextfield}
-                    type="text"
-                    required
-                  />
-                  {errors.full_name && <p>{errors.full_name}</p>} 
-                </div>
-              </div>
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="email">
-                    Email
-                </label>
-                <div className="relative">
-                  <input
-                    name="email"
-                    id="email"
-                    value = {formData.email}
-                    className={StyleTextfield}
-                    onChange={handleChange}
-                    type="text"
-                    required
-                  />
-                  {errors.email && <p>{errors.email}</p>} 
-                </div>
-              </div>
-              <div className="mt-4">
-                <label
-                  className={StyleLabel}
-                  htmlFor="number">
-                    Phone number
-                </label>
-                <div className="relative pr-2">
-                  <PhoneInput
-                    value={formData.number}
-                    onChange={handlePhoneInputChange}
-                    name="number"
-                    defaultCountry={defaultCountry}
-                    className={StyleTextfield + ' pr-2'}
-                    id="number"
-                  />
-                  {errors.number && <FormErrorMessage message={errors.number} />} 
-                </div>
-              </div>
+        <div className="grid grid-cols-2 gap-2 px-2">
+          <div className="mb-2">
+            <label className={StyleLabel} htmlFor="name">
+              Name
+            </label>
+            <div className="relative">
+              <input
+                name="full_name"
+                id="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
+                className={StyleTextfield}
+                type="text"
+                required
+              />
+              {errors.full_name && <p>{errors.full_name}</p>}
             </div>
           </div>
-          <div className="w-1/2 px-4">
-            <div className="mt-4">
-              <label
-                className={StyleLabel}
-                htmlFor="company">
-                  Company
-              </label>
-              <div className="relative">
-                <CompanySelect 
-                  name="company" 
-                  id="company"
-                  value={formData.company} 
-                  changeHandler={handleChange} 
-                  error={errors.company ? true : false}
-                  required={true}
-                />
-                {errors.company && <FormErrorMessage message={errors.company} />} 
-              </div>
+          <div className="mb-2">
+            <label className={StyleLabel} htmlFor="email">
+              Email
+            </label>
+            <div className="relative">
+              <input
+                name="email"
+                id="email"
+                value={formData.email}
+                className={StyleTextfield}
+                onChange={handleChange}
+                type="text"
+                required
+              />
+              {errors.email && <p>{errors.email}</p>}
             </div>
-            <div className="mt-4">
-              <label
-                className={StyleLabel}
-                htmlFor="position">
-                  Position
-              </label>
-              <div className="relative">
-                <input
-                  name="position"
-                  id="position"
-                  value = {formData.position}
-                  onChange={handleChange}
-                  className={StyleTextfield}
-                  type="text"
-                  required
-                />
-                {errors.position && <FormErrorMessage message={errors.position} />} 
-              </div>
-              
+          </div>
+          <div className="mb-2">
+            <label className={StyleLabel} htmlFor="number">
+              Phone number
+            </label>
+            <div className="relative pr-2">
+              <PhoneInput
+                value={formData.number}
+                onChange={handlePhoneInputChange}
+                name="number"
+                defaultCountry={defaultCountry}
+                className={StyleTextfield + ' pr-2'}
+                id="number"
+              />
+              {errors.number && <FormErrorMessage message={errors.number} />}
             </div>
-            <div className="mt-14">
-            <label 
-                  htmlFor="is_active"
-                  className='label cursor-pointer text-left'
-                >
-                  <input type="checkbox" 
-                    name='is_active' 
-                    id="is_active"
-                    
-                    className='rounded-xl toggle toggle-accent mr-2'
-                    onChange={handleChange}
-                    checked={formData.is_active ? true : false} 
-                  />
-                  Active
-              </label>
+          </div>
+          <div className="mb-2">
+            <label className={StyleLabel} htmlFor="company">
+              Company
+            </label>
+            <div className="relative">
+              <CompanySelect
+                name="company"
+                id="company"
+                value={formData.company}
+                changeHandler={handleChange}
+                error={errors.company ? true : false}
+                required={true}
+              />
+              {errors.company && <FormErrorMessage message={errors.company} />}
             </div>
+          </div>
+          
+          <div className="mb-2">
+            <label className={StyleLabel} htmlFor="position">
+              Position
+            </label>
+            <div className="relative">
+              <input
+                name="position"
+                id="position"
+                value={formData.position}
+                onChange={handleChange}
+                className={StyleTextfield}
+                type="text"
+                required
+              />
+              {errors.position && <FormErrorMessage message={errors.position} />}
+            </div>
+          </div>
+          <div className="mb-2 flex items-center">
+            <label htmlFor="is_active" className="label cursor-pointer text-left ml-4  mt-8">
+              <input
+                type="checkbox"
+                name="is_active"
+                id="is_active"
+                className="rounded-xl toggle toggle-accent mr-2"
+                onChange={handleChange}
+                checked={formData.is_active ? true : false}
+              />
+              Active
+            </label>
           </div>
         </div>
         {!id &&
-          <div className="p-0 w-full flex justify-center">
+          <div className="p-0 w-full mt-4 flex justify-center">
             <fieldset className="w-[300px] form-control rounded-md   p-4 mb-6 border border-lighter" >
               <legend className='text-sm px-1'>Create Password</legend>
               <PasswordDescription password={formData.password} />

@@ -168,7 +168,18 @@ export function Customers() {
             />,
       selector: (row: Customer) => row.full_name,
     },
-    
+    {
+      name: <HeaderFilter 
+              label='Company' 
+              name='company' 
+              defaultValue={filterValues.company} 
+              currentFilter={state.queryParams}
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              handleSort={handleSort}
+            />,
+      selector: (row: Customer) => row.company,
+    },
     {
       name: <HeaderFilter 
               label='Active?' 
