@@ -112,7 +112,6 @@ function CustomerForm({ id: customerId, forwardedRef, setRefresh, onClose }: Cus
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value, checked, options } = event.target as HTMLInputElement & HTMLSelectElement;
     setEditing(true)
-    console.log(name, value)
     // Check the type of input - checkboxes and selects don't have a value attribute
     let inputValue: any;
     if ((event.target as HTMLInputElement).type  === 'checkbox') {

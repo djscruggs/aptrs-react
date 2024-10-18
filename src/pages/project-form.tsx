@@ -218,9 +218,9 @@ function ProjectForm({ id: externalId }: ProjectFormProps): JSX.Element {
                         required
                       >
                       <option value=''>Select...</option>
-                      {projectTypes.map((type =>
-                          <option key={`type-${type.name}`} value={type.name}>{type.name}</option>
-                    ))}
+                      {projectTypes.map((type) =>
+                          <option key={`type-${type.id}`} value={type.name}>{type.name}</option>
+                      )}
                     </select>
                     {errors.projecttype && <p>{errors.projecttype}</p>} 
                   </div>

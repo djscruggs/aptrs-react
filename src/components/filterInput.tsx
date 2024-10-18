@@ -14,10 +14,12 @@ interface FilterInputProps {
 export default function FilterInput(props: FilterInputProps) {
   const {searchArray, onSelect, defaultValue, name, autoFocus, multiple = false} = props; // Default multiple to false
   const [filteredArray, setFilteredArray] = useState<{label: string, value: string}[]>([]);
-  const [search, setSearch] = useState(defaultValue || '');
-  const [selectedValues, setSelectedValues] = useState<string[]>(defaultValue || []);
+  const [search, setSearch] = useState(multiple ? '' : defaultValue || '');
+  const [selectedValues, setSelectedValues] = useState<string[] | string>(defaultValue || []);
   const [kbIndex, setKbIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  //commit tracks if the input has been committed to the onSelect function, which signals the end of a search
+  const [commit, setCommit] = useState(true);
   useEffect(() => {
     if (Array.isArray(defaultValue)) {
       setSelectedValues(defaultValue);
@@ -25,12 +27,15 @@ export default function FilterInput(props: FilterInputProps) {
     } 
   }, []);
   useEffect(() => {
-    setSearch(defaultValue as string);
+    if (!commit) {
+      setSearch(defaultValue as string);
+    }
   }, [defaultValue])
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
       setKbIndex(-1);
     }
+    setCommit(false);
     setSearch(e.target.value);
     const filtered = searchArray?.filter(item => 
       item.label.toLowerCase().includes(e.target.value.toLowerCase()) || 
@@ -52,7 +57,9 @@ export default function FilterInput(props: FilterInputProps) {
     } else {
       setSelectedValues([value]);
       propagateChange([value]);
+      
     }
+    setCommit(true);
     setSearch('');
     setFilteredArray([]);
     setKbIndex(-1);
