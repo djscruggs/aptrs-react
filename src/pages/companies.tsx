@@ -14,7 +14,7 @@ import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import DataTable from 'react-data-table-component';
 import { toast } from 'react-hot-toast';
 import { useDataReducer, DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
-
+import { HeaderFilter, ClearFilter } from "../components/headerFilter";
 export function Companies() {
   const theme = useContext(ThemeContext);
   const initialState: DatasetState = {
@@ -79,6 +79,32 @@ export function Companies() {
     setSelected(ids)
     
   }
+  const [filterValues, setFilterValues] = useState({
+    name: ''
+  });
+  const filterCommit = () => {
+    dispatch({ type: 'set-filter', payload: filterValues})
+  }
+  const handleFilter = (event:any) => {
+    const {name, value} = event.target
+    setFilterValues((prevFilterValues) => ({
+      ...prevFilterValues,
+      [name]: value,
+    }));
+  }
+  const handleSort = (name: any, sortDirection: string) => {
+    let order_by = sortDirection ? sortDirection : 'asc'
+    if(name){
+      dispatch({ type: 'set-sort', payload: {sort: name, order_by: order_by as 'asc' | 'desc'} });
+      loadData()
+    }
+  }
+  const clearFilter = () => {
+    setFilterValues({
+      name: '',
+    });
+    dispatch({ type: 'reset'})
+  }
   const columns: Column[] = [
     ...(currentUserCan('Manage Company') ? [{
       name: 'Action',
@@ -86,9 +112,16 @@ export function Companies() {
       maxWidth: '1rem'
     }] : []),
     {
-      name: 'Name',
+      name: <HeaderFilter 
+      label='Name' 
+      name='name' 
+      defaultValue={filterValues.name} 
+      currentFilter={state.queryParams}
+      onCommit={filterCommit} 
+      onChange={handleFilter}
+      handleSort={handleSort}
+    />,
       selector: (row: Company) => row.name,
-      sortable: true,
     },
     {
       name: 'Address',
@@ -134,7 +167,7 @@ export function Companies() {
       data.results.forEach((row: CompanyWithActions) => {
         row.actions = (<>
                       <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
-                      <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
+                      <TrashIcon onClick={() => handleDelete([row.id as number])} className="inline w-6 ml-2 cursor-pointer" />                        
                       </>)
         temp.push(row)
       });
@@ -209,10 +242,7 @@ export function Companies() {
           </>
         }
         {state.queryParams.name &&
-          <p className="mt-8">
-            Results for &quot;{state.queryParams.name}&quot;
-            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
-          </p>
+          <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
         }
         {state.mode === 'loading' && <div className="mt-16"><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>

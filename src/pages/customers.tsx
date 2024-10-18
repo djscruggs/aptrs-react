@@ -312,12 +312,6 @@ export function Customers() {
               </Button>
             </>
           )}
-        {state.queryParams.full_name &&
-          <p className="mt-8">
-            Results for &quot;{state.queryParams.full_name}&quot;
-            <span className="text-xs ml-1">(<span className="underline text-blue-600" onClick={clearSearch}>clear</span>)</span>
-          </p>
-        }
         <ClearFilter queryParams={state.queryParams} clearFilter={clearFilter}/>
         {state.mode === 'loading' && <div className="mt-16 "><RowsSkeleton numRows={state.queryParams.limit}/></div>} 
         <div className={state.mode != 'idle' ? 'hidden' : ''}>

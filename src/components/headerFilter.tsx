@@ -33,7 +33,7 @@ export function ClearFilter({queryParams, clearFilter }: ClearFilterProps): JSX.
   }
   return (
       <div className='text-sm text-center my-4'  onClick={clearFilter}>
-          <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filters
+          <CiCircleRemove className='w-4 h-4 text-secondary inline'/> Clear filter
       </div>
   )
 }
