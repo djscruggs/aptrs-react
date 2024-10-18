@@ -57,6 +57,9 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
     if(event.key === 'Enter') {
       onCommit(event)
     }
+    if(event.key === 'Escape') {
+      clearValue()
+    }
   }
   const handleRadioChange = (event:any) => {
     setValue(event.target.value)
@@ -71,6 +74,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
   }
   const clearValue = () => {
     setValue('')
+    setActive(false)
   }
   const handleChange = (event:any) => {
     setValue(event.target.value)
@@ -102,7 +106,7 @@ export function HeaderFilter({label, name, defaultValue, isDate = false, isBoole
   const isSorted = currentFilter?.sort === name
   const sortDirection = isSorted ? currentFilter.order_by : ''
   const nextSort = sortDirection === 'asc' ? 'desc' : 'asc'
-  
+  console.log('active', active)
   return (
     <>
     {active ? (

@@ -167,12 +167,20 @@ const Vulnerabilities = () => {
               handleSort={handleSort}
               />,
       selector: (row: VulnWithActions) => row.vulnerabilityname,
-      maxWidth: '40em'
+      maxWidth: '30em'
     },
     {
-      name: 'Severity',
-      selector: (row: VulnWithActions) => row.severity,
-      maxWidth: '5em'
+      name: <HeaderFilter 
+              label='Severity' 
+              name='vulnerabilityseverity' 
+              defaultValue={filterValues.vulnerabilityseverity} 
+              onCommit={filterCommit} 
+              onChange={handleFilter}
+              currentFilter={state.queryParams}
+              handleSort={handleSort}
+              />,
+      selector: (row: VulnWithActions) => row.vulnerabilityseverity,
+      maxWidth: '10em'
     },
     {
       name: <HeaderFilter 
