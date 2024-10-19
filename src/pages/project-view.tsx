@@ -159,15 +159,15 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
                     <label className={StyleLabel}>Name</label>
                     <div className="relative cursor-text">{project.name}</div>
                   </div>
-                  <div className="mt-4">
+                  <div className="mt-4 mb-6">
                     <label className={StyleLabel}>Status</label>
                     <div className={`relative cursor-text ${getProjectStatusColor(project.status)}`}>
                       {project.status}
                       {currentUserCan('Manage Projects') && project.status !== 'Completed' && (
-                        <div className='text-secondary underline cursor-pointer text-sm' onClick={markAsCompleted}>Mark Complete</div>
+                        <div className='text-secondary dark:text-white underline cursor-pointer text-sm' onClick={markAsCompleted}>Mark Complete</div>
                       )}
                       {currentUserCan('Manage Projects') && project.status == 'Completed' && (
-                        <div className='text-secondary underline cursor-pointer text-sm' onClick={markAsOpen}>Reopen</div>
+                        <div className='text-secondary dark:text-white underline cursor-pointer text-sm' onClick={markAsOpen}>Reopen</div>
                       )}
                     </div>
                   </div>
