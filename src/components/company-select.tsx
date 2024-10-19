@@ -32,6 +32,7 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
   useEffect(() => {
     setValue(props.value)
   }, [props.value])
+  
   const handleChange = (event:React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     props.changeHandler && props.changeHandler(event)
     
@@ -40,27 +41,11 @@ export default function CompanySelect(props: React.PropsWithChildren<CompanySele
     return (<SingleInputSkeleton />)
   }
   return (
-          <>
             <FilterInput
               name={props.name}
               defaultValue={value}
               searchArray={companies && companies.map(company => ({label: company.name as string, value: company.name as string}))}
               onSelect={handleChange}
             />
-           
-           {/* {companies && (
-            <select name={props.name}
-              value={props.value} 
-              onChange={props.changeHandler}
-              required={props.required}
-              className={props.error ? `${StyleTextfieldError}` :`${StyleTextfield}`}
-            >
-              <option key='' value=''>Select...</option>
-            {companies && companies.map((company =>
-                <option key={company.id} value={company.name}>{company.name}</option>
-           ))}
-            </select>
-          )} */}
-          </>
   )
 }

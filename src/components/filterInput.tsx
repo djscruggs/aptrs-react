@@ -27,10 +27,10 @@ export default function FilterInput(props: FilterInputProps) {
     } 
   }, []);
   useEffect(() => {
-    if (!commit) {
+    if (!commit ) {
       setSearch(defaultValue as string);
     }
-  }, [defaultValue])
+  }, [props])
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target?.value === '') {
       setKbIndex(-1);
@@ -54,13 +54,14 @@ export default function FilterInput(props: FilterInputProps) {
         setSelectedValues(newSelectedValues);
         propagateChange(newSelectedValues);
       }
+      setSearch('');
     } else {
       setSelectedValues([value]);
+      setSearch(value);
       propagateChange([value]);
       
     }
     setCommit(true);
-    setSearch('');
     setFilteredArray([]);
     setKbIndex(-1);
   }
