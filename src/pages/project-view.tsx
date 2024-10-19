@@ -55,12 +55,12 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
   const [scopes, setScopes] = useState<Scope[]>([]);
   const [loadingError, setLoadingError] = useState(false);
   const [editingOwner, setEditingOwner] = useState(false);
-  const [owner, setOwner] = useState('');
+  const [owner, setOwner] = useState<string[]>([]);
   const [ownerError, setOwnerError] = useState('');
   const [saving, setSaving] = useState(false);
   
   const handleOwnerChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setOwner(e.target.value);
+    setOwner(e.target.value.split(',').map(owner => owner.trim()));
   };
 
   const cancelEditing = () => {
@@ -70,7 +70,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
 
   const saveOwner = async () => {
     setSaving(true);
-    const _project: Partial<Project> = { id: Number(id), owner: owner || '' };
+    const _project: Partial<Project> = { id: Number(id), owner: owner  as string[] };
     try {
       await updateProjectOwner(_project);
       setEditingOwner(false);
@@ -86,7 +86,7 @@ function ProjectView({ id: externalId }: ProjectViewProps): JSX.Element {
   const markAsCompleted = async () => {
     setSaving(true);
     try {
-      const response = await markProjectAsCompleted(Number(id));
+      await markProjectAsCompleted(Number(id));
       setProject(prev => prev ? { ...prev, status: 'Completed' } : prev);
     } catch (error) {
       setOwnerError("Error updating project");
@@ -357,13 +357,14 @@ function Retests({ project }: { project: Project }) {
             </div>
           ))}
         </div>
-       
+        {project.id && (
           <RetestForm 
             projectId={project.id}
             onClose={() => setShowRetestModal(false)}   
             open={showRetestModal}    
             afterSave={loadRetests} 
           />
+        )}
       </div>
     </>
   );

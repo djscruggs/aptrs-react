@@ -89,11 +89,11 @@ class MyUploadAdapter {
         try {
             const file = await this.loader.file;
             const data = await uploadFile(file);
-            const image_path = import.meta.env.VITE_APP_API_URL + data.url
+            const image_path = import.meta.env.VITE_APP_API_URL + data.url;
             return { default: image_path };
         } catch (error) {
             console.error('Upload failed', error);
-            return null;
+            throw new Error('Upload failed');
         }
     }
 

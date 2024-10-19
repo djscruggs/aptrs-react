@@ -482,7 +482,7 @@ function UserForm({ id: userId, forwardedRef, setRefresh, onClose }: UserFormPro
               </button>
               <Button 
                 className="bg-red-500 ml-1"
-                onClick = {closeModal}>
+                onClick = {() => closeModal()}>
                   Cancel
               </Button>
           </div>

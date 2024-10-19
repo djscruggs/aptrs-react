@@ -308,7 +308,7 @@ function CompanyForm({ id: companyId, forwardedRef, setRefresh, onClose }: Compa
               </Button>
               <Button 
                 className="bg-red-500 ml-1"
-                onClick = {closeModal}
+                onClick={() => closeModal()}
                 disabled={btnDisabled}>
                   Cancel
               </Button>

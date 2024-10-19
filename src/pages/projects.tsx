@@ -111,13 +111,7 @@ export function Projects(props:ProjectsProps): JSX.Element {
       dispatch({ type: 'set-mode', payload: 'loading' });
       let data:FilteredSet
       if(props.mine){
-        const _data = await fetchMyProjects()
-        //format object shape to match expected data shape
-        const data = {
-            count: _data.length,
-            previous: null,
-            results: _data
-        }
+        data = await fetchMyProjects()
         dispatch({ type: 'set-data', payload: {data} });
       } else {
         data = await fetchFilteredProjects(state.queryParams)

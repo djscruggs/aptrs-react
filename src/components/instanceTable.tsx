@@ -28,7 +28,7 @@ export default function InstanceTable(props: InstanceTableProps) {
   const reducer = (state: DatasetState, action: DatasetAction): DatasetState|void => {
     switch (action.type) {
       case 'set-data': {
-        return {...state, data: action.payload.data.results};
+        return {...state, data: action.payload.data.results || []};
       }
     }
   };
@@ -275,7 +275,7 @@ interface StatusFormProps {
   onSave: () => void
   selected: number[]
 }
-function UpdateStatusDialog(props: StatusFormProps): React.ReactNode {
+function UpdateStatusDialog(props: StatusFormProps): React.JSX.Element {
   const  {visible, onCancel, onSave, selected} = props
   const clearDialogs = () => {
     onCancel()
@@ -331,7 +331,7 @@ interface InstanceFormProps {
   onSave: () => void
   onCancel: () => void
 }
-function InstanceForm(props: InstanceFormProps): React.ReactNode {
+function InstanceForm(props: InstanceFormProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(props.visible)
   const [error, setError] = useState(false)
   interface InstanceFormState {
@@ -443,7 +443,7 @@ interface BulkInstanceFormProps {
   onCancel: () => void
   onSave: () => void
 }
-function BulkInstanceForm(props: BulkInstanceFormProps): React.ReactNode {
+function BulkInstanceForm(props: BulkInstanceFormProps): React.JSX.Element {
   const [bulkUrls, setBulkUrls] = useState('');
   const [showDialog, setShowDialog] = useState(props.visible);
 

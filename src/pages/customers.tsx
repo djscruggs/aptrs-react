@@ -100,7 +100,7 @@ export function Customers() {
       data.results.forEach((row: CustomerWithActions) => {
         row.actions = (<>
                       <PencilSquareIcon onClick={() => openModal(String(row.id))} className="inline w-6 cursor-pointer"/>
-                      <TrashIcon onClick={() => handleDelete([row.id])} className="inline w-6 ml-2 cursor-pointer" />                        
+                      <TrashIcon onClick={() => handleDelete([row.id] as number[])} className="inline w-6 ml-2 cursor-pointer" />                        
                       </>)
         temp.push(row)
       });
@@ -272,9 +272,6 @@ export function Customers() {
   }
   function handlePageChange(page: number){
     dispatch({ type: 'set-page', payload: page });
-  }
-  const clearSearch = ():void => {
-    return handleSearch('')
   }
   if(state.error){
     navigate('/error')

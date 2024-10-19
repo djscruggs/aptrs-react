@@ -30,8 +30,7 @@ export default function UserSelect(props: React.PropsWithChildren<CompanySelectP
     loadUsers()
   }, []);
   const handleChange = (event:React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    //create object that matches the shape of an HTML input event
-    // const obj = {target: {name:props.name, value:value}} 
+    console.log(event)
     props.changeHandler && props.changeHandler(event)
     
   }

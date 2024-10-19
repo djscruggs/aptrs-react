@@ -67,7 +67,7 @@ export default function FilterInput(props: FilterInputProps) {
   }
 
   const handleRemove = (value: string) => {
-    const newSelectedValues = selectedValues.filter(v => v !== value);
+    const newSelectedValues = Array.isArray(selectedValues) ? selectedValues.filter(v => v !== value) : [];
     setSelectedValues(newSelectedValues);
     propagateChange(newSelectedValues);
   }
@@ -110,7 +110,7 @@ export default function FilterInput(props: FilterInputProps) {
   return (
     <div className="relative bg-white dark:bg-gray-darkest dark:text-white">
       <div className="flex flex-wrap items-center gap-2 p-2 border rounded">
-        {multiple && selectedValues.map((value, index) => (
+        {multiple && Array.isArray(selectedValues) && selectedValues.map((value, index) => (
           <div key={index} className="flex items-center bg-gray-lighter dark:bg-gray-darker rounded-full px-3 py-1">
             <span>{value}</span>
             <button onClick={() => handleRemove(value)} className="ml-2 text-red-500">x</button>

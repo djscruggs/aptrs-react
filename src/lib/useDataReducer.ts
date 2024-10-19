@@ -29,7 +29,7 @@ export type DatasetAction =
 | { type: 'set-rows-per-page'; payload: number }
 | { type: 'set-error'; payload: any }
 | { type: 'clear-search'}
-| { type: 'set-data'; payload: { data: FilteredSet} }
+| { type: 'set-data'; payload: { data: Partial<FilteredSet>} }
 | { type: 'reset'}
 
 //used by reducer functions in pages that have search and pagination
@@ -63,7 +63,7 @@ export const useDataReducer = (reducer: (state: DatasetState, action: DatasetAct
       case 'set-data': {
         const { data } = action.payload;
         const totalRows = data.count
-        return { ...state, data: data.results, totalRows, mode: 'idle' };
+        return { ...state, data: data.results || [], totalRows: totalRows || 0, mode: 'idle' };
       }
       case 'set-rows-per-page': {
         if(state.queryParams.limit === action.payload){

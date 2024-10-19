@@ -22,7 +22,7 @@ import {
   ChangeEvent, 
   FormEvent
 } from 'react';
-
+import type {Country} from 'react-phone-number-input';
 
 interface FormErrors {
   email?: string
@@ -60,10 +60,12 @@ export const Profile = () => {
   const [formData, setFormData] = useState<UserForm>(defaults);
   //profile image input
   const [file, setFile] = useState<File | null>(null);
-  const [fileDataURL, setFileDataURL] = useState<string | null>(currentUser?.profilepic ? avatarUrl(currentUser!.profilepic) : null)
+  const [fileDataURL, setFileDataURL] = useState<string | null>(
+    typeof currentUser?.profilepic === 'string' ? avatarUrl(currentUser.profilepic) : null
+  )
   
   
-  const defaultCountry = currentUser!.location?.country 
+  const defaultCountry: Country = currentUser!.location?.country as Country
   const [errors, setErrors] = useState<FormErrors>({});
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = event.target;
@@ -207,7 +209,11 @@ export const Profile = () => {
     setFile(null)
     setFileDataURL(null)
     setFormData(defaults)
-    setFileDataURL(currentUser?.profilepic ? avatarUrl(currentUser!.profilepic) : null)
+    setFileDataURL(
+      typeof currentUser?.profilepic === 'string' 
+        ? avatarUrl(currentUser.profilepic) 
+        : null
+    )
     setEditing(false)
   }
   return (
@@ -231,7 +237,7 @@ export const Profile = () => {
               onChange={handleChange}
               type="text"
               required={true}
-            />) : <>{currentUser.full_name}</>
+            />) : <>{currentUser?.full_name}</>
           }
 
             {errors.full_name && <FormErrorMessage message={errors.full_name} />}
@@ -294,11 +300,11 @@ export const Profile = () => {
               value={formData.number}
               onChange={handlePhoneInputChange}
               name="number"
-              defaultCountry={defaultCountry}
+              defaultCountry={defaultCountry as Country}
               className={StyleTextfield}
               id="number"
               required={true}
-            />) : <>{formatPhoneNumber(currentUser!.number)}</>
+            />) : <>{formatPhoneNumber(currentUser?.number as string)}</>
           }
             {errors.number && <FormErrorMessage message={errors.number} />}
           </div>

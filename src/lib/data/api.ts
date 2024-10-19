@@ -5,7 +5,8 @@ import {  Company,
           LoginUser, 
           IPAddressInfo,
           Vulnerability,
-          FilteredSet } from './definitions'
+          FilteredSet,
+          Group } from './definitions'
 import axios, { AxiosResponse, AxiosError } from 'axios'
 interface AuthHeaders {
   headers: Record<string, string>;
@@ -240,12 +241,12 @@ export async function fetchProjects() {
 export async function fetchMyProjects() {
   const url = apiUrl('project/my-projects/');
   const response = await getOrRedirect(url, authHeaders());
-  return response.data;
+  return response.data as FilteredSet;
 }
 export async function fetchFilteredProjects(params: Record<string, any>): Promise<FilteredSet> {
   const url = apiUrl('project/projects/filter/');
   const response = await getOrRedirect(url, { params: params, ...authHeaders() });
-  return response.data;
+  return response.data as FilteredSet;
 }
 
 
