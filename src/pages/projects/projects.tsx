@@ -1,21 +1,21 @@
 import { useEffect, useState, useContext } from 'react';
-import { ThemeContext } from '../layouts/layout';
+import { ThemeContext } from '../../layouts/layout';
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchFilteredProjects, fetchMyProjects, deleteProjects } from "../lib/data/api";
+import { fetchFilteredProjects, fetchMyProjects, deleteProjects } from "../../lib/data/api";
 import { toast } from 'react-hot-toast';
-import PageTitle from '../components/page-title';
+import PageTitle from '../../components/page-title';
 import { Link } from 'react-router-dom';
-import { WithAuth} from "../lib/authutils";
-import { currentUserCan, getProjectStatusColor } from "../lib/utilities";
-import { useDataReducer } from '../lib/useDataReducer';
+import { WithAuth} from "../../lib/authutils";
+import { currentUserCan, getProjectStatusColor } from "../../lib/utilities";
+import { useDataReducer } from '../../lib/useDataReducer';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Project, Column, FilteredSet} from '../lib/data/definitions'
-import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../lib/useDataReducer'
+import { Project, Column, FilteredSet} from '../../lib/data/definitions'
+import {  DatasetState, DatasetAction, DEFAULT_DATA_LIMIT } from '../../lib/useDataReducer'
 import DataTable from 'react-data-table-component';
-import Button from '../components/button';
-import { HeaderFilter, ClearFilter} from "../components/headerFilter";
-import { RowsSkeleton } from '../components/skeletons'
-import { ErrorPage } from './error-page'
+import Button from '../../components/button';
+import { HeaderFilter, ClearFilter} from "../../components/headerFilter";
+import { RowsSkeleton } from '../../components/skeletons'
+import ErrorPage from '../../pages/error-page'
 
  
 export interface ProjectsProps {

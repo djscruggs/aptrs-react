@@ -7,10 +7,10 @@ import Login from './pages/login';
 import Vulnerabilities from './pages/vulnerabilities';
 import VulnerabilityForm from './pages/vulnerability-form';
 import Customers from './pages/customers';
-import Projects from './pages/projects'
-import ProjectView from './pages/project-view';
+import Projects from './pages/projects/projects'
+import ProjectView from './pages/projects/project-view';
 import VulnerabilityView from './pages/vulnerability-view';
-import ProjectForm from './pages/project-form';
+import ProjectForm from './pages/projects/project-form';
 import CompanyForm from './pages/company-form';
 import Companies from './pages/companies';
 import Dashboard from './pages/dashboard'; // Replace with your protected page component

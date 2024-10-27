@@ -59,27 +59,27 @@ function ReportStandards() {
     loadReportStandards()
   }, [])
   return (
-    <div className="mt-4 mb-2">
-            <h2 className='text-xl'>Report Standards</h2>
-            <ul className='cursor-text'>
-                {reportStandards.map(standard => (
-                    <li key={standard.id}>{standard.name}</li>
-                ))}
-            </ul>
-            <button className="text-primary underline text-sm ml-6" onClick={() => setShowAddReportStandard(true)}>Add New</button>
-            <Dialog open={showAddReportStandard} handler={setShowAddReportStandard}>
-                <DialogHeader>Add Report Standard</DialogHeader>
-                <DialogBody>
-                    <form>
-                        <input type="text" placeholder="Name" className={StyleTextfield} />
-                        {errors.name && <FormErrorMessage message={errors.name} />}
-                    </form>
-                </DialogBody>
-                <DialogFooter>
-                    <button className="bg-secondary p-2 text-white rounded-md disabled:opacity-50" onClick={handleCancel}>Cancel</button>
-                    <button type="submit" onClick={handleSave} className="bg-primary p-2 ml-2 text-white rounded-md disabled:opacity-50">Save</button>
-                </DialogFooter>
-            </Dialog>
+      <div className="mt-4 mb-2">
+          <h2 className='text-xl'>Report Standards</h2>
+          <ul className='cursor-text'>
+              {reportStandards.map(standard => (
+                  <li key={standard.id}>{standard.name}</li>
+              ))}
+          </ul>
+          <button className="text-primary underline text-sm ml-6" onClick={() => setShowAddReportStandard(true)}>Add New</button>
+          <Dialog open={showAddReportStandard} handler={setShowAddReportStandard}>
+              <DialogHeader>Add Report Standard</DialogHeader>
+              <DialogBody>
+                  <form>
+                      <input type="text" placeholder="Name" className={StyleTextfield} />
+                      {errors.name && <FormErrorMessage message={errors.name} />}
+                  </form>
+              </DialogBody>
+              <DialogFooter>
+                  <button className="bg-secondary p-2 text-white rounded-md disabled:opacity-50" onClick={handleCancel}>Cancel</button>
+                  <button type="submit" onClick={handleSave} className="bg-primary p-2 ml-2 text-white rounded-md disabled:opacity-50">Save</button>
+              </DialogFooter>
+          </Dialog>
         </div>
     )
 }

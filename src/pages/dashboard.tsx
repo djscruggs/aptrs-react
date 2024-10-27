@@ -1,5 +1,5 @@
 import { WithAuth } from "../lib/authutils";
-import { Projects } from "./projects";
+import Projects from "./projects/projects";
 
 import PageTitle from '../components/page-title';
 
