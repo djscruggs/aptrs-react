@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 interface LoginProps {
   onSuccess?: () => void
 }
-const Login: React.FC<LoginProps> = ({onSuccess, onError}) => {
+const Login: React.FC<LoginProps> = ({onSuccess}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
