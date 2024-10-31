@@ -1,17 +1,24 @@
 import Logo from '../components/logo';
 import Login from './login';
-import { useCurrentUser } from '../lib/customHooks';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {
   isRelogin?: boolean
 }
 export default function Home({isRelogin = false}: HomeProps) {
   //is this a relogin after session expiration? set in WithAuth in authutils
-  const currentUser = useCurrentUser()
+  const navigate = useNavigate()
   //if logged in, redirect to dashboard
-  if(currentUser && !isRelogin){
-    return <Navigate to={"/dashboard"} />
+  const onLoginSuccess = () => {
+    const storedRedirect = localStorage.getItem('redirect')
+      console.log('login success, redirects is', storedRedirect)
+      if(storedRedirect){
+        localStorage.removeItem('redirect')
+        navigate(storedRedirect)
+      } else {
+        console.log('no redirect, navigating to dashboard')
+        navigate('/dashboard')
+      }
   }
   
   return (
@@ -29,7 +36,7 @@ export default function Home({isRelogin = false}: HomeProps) {
           {isRelogin && 
             <p>Please login to proceed.</p>
           }
-          <Login />
+          <Login onSuccess={onLoginSuccess} />
         </div>
         <div className="flex items-start justify-start align-start p-0 md:w-3/5 md:px-28">
           <div className="h-1/2 flex justify-start items-start">

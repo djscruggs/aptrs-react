@@ -5,6 +5,7 @@ import { PowerIcon } from '@heroicons/react/24/outline';
 import {logout} from '../lib/data/api'
 import Button from '../components/button';
 import { useCurrentUser } from '../lib/customHooks';
+import { useNavigate } from 'react-router-dom';
 interface SideNavProps {
   theme: string;
   toggleTheme: () => void;
@@ -12,12 +13,12 @@ interface SideNavProps {
 
 const SideNav: React.FC<SideNavProps> = ({ theme, toggleTheme }) => {
   const currentUser = useCurrentUser()
-  
+  const navigate = useNavigate()
   const handleSignOut = () => {
+    console.log('signing out')
     logout();
-
-    document.location='/'
-  }
+    navigate('/')
+ }
   
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AtSymbolIcon,
   KeyIcon,
@@ -9,45 +9,49 @@ import {Button} from '../components/button'
 import { login } from '../lib/data/api';
 import { StyleLabel } from '../lib/formstyles'
 import ShowPasswordButton from '../components/show-password-button'
+import { useNavigate } from 'react-router-dom';
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onSuccess?: () => void
+}
+const Login: React.FC<LoginProps> = ({onSuccess, onError}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [loginResult, setLoginResult] = useState(false)
-  const [redirect, setRedirect]= useState('/dashboard')
   const [btnDisabled, setBtnDisabled] = useState(false);
+  const navigate = useNavigate()
   const [passwordVisible, setPasswordVisible] = useState(false)
   function togglePasswordVisibility() {
     setPasswordVisible((prevState) => !prevState);
   }
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault()
-    setBtnDisabled(true)
-    const result = await login(email,password)
-    if(!result){
-      //bad email & password
-      setLoginError(true)
-      setBtnDisabled(false)
-    }  else {
-      setLoginResult(true)
-      //using document.location to force a full re-render, otherwise it doesn't pass the auth state to the navbar
-      const storedRedirect = localStorage.getItem('redirect')
-      if(storedRedirect){
-        localStorage.removeItem('redirect')
-        setRedirect(storedRedirect)
-      }
-    }
+    e.stopPropagation()
     
-  }
-  if(loginResult){
-      document.location='/dashboard'
+    setBtnDisabled(true)
+    try {
+      const result = await login(email,password)
+      if(!result){
+        //bad email & password
+        setLoginError(true)
+        setBtnDisabled(false)
+      } else {
+        if(onSuccess) {
+          onSuccess()
+        } else {
+          navigate('/dashboard')
+        }
+      }     
+    } catch (error) {
+      console.error('login error', error)
+      setLoginError(true)
+    } finally {
+      setBtnDisabled(false)
+    }
   }
   return (
-          
             <div className="max-w-sm flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                <form action="" onSubmit={handleLogin} id="loginForm">
-                  
+                  <form onSubmit={handleLogin}>
                   <div className="w-full mb-4">
                     <div>
                       <label
@@ -66,6 +70,7 @@ const Login: React.FC = () => {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="user@example.com"
                           required
+                          autoComplete="username"
                         />
                         <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
                       </div>
@@ -87,6 +92,7 @@ const Login: React.FC = () => {
                           required
                           minLength={4}
                           value={password}
+                          autoComplete="current-password"
                           onChange={(e) => setPassword(e.target.value)}
                         />
                         <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900 dark:text-black" />

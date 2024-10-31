@@ -1,4 +1,5 @@
 import { getAuthUser } from '../lib/data/api';
+import { LoginUser } from './data/definitions';
 
 // returns color code for a vulnerability score
 // score can be a number (e.g. 4.2) or a string (.e.g Medium)
@@ -41,7 +42,7 @@ export function useVulnerabilityColor(scoreOrText: string | number | null){
     
 }
 
-export function useCurrentUser(){
+export function useCurrentUser(): LoginUser | null {
   return getAuthUser()
 }
 

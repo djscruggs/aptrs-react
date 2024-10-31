@@ -1,18 +1,17 @@
 import SideNav from './sidenav'; 
-import { Outlet } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useCurrentUser } from '../lib/customHooks';
 import { getInitials, avatarUrl } from '../lib/utilities'
 import { Link } from 'react-router-dom';
 import { Avatar } from '@material-tailwind/react';
-import { useEffect, useState, useContext, createContext } from 'react';
-import { CurrentUser } from '../lib/data/definitions'
+import { useEffect, useState, createContext } from 'react';
+import { LoginUser } from '../lib/data/definitions'
 import { ThemeIcon } from '../components/themeIcon';
 
 export const ThemeContext = createContext('light')
 const Layout: React.FC = () => {
-  
+  const navigate = useNavigate()
   const [theme, setTheme] = useState('light')
   const toggleTheme = () => {
     if(theme === 'light'){
@@ -38,17 +37,21 @@ const Layout: React.FC = () => {
       const editors = document.querySelectorAll('.ck');
       editors.forEach(editor => {
         editor.classList.add('custom-ckeditor-dark');
-    });
-      
+      });
     }
   }, [])
-  const [currentUser, setCurrentUser] = useState<CurrentUser | undefined>(useCurrentUser())
+  const [currentUser, setCurrentUser] = useState<LoginUser | null>(useCurrentUser())
   // can't use useLocation here because the layout is outside of the  Router in App.tsx
   const location = useLocation();
-  useEffect(() => {
-    const user = useCurrentUser()
-    setCurrentUser(user)
-  }, [location.pathname])
+  // useEffect(() => {
+  //   const user = useCurrentUser()
+  //   setCurrentUser(user)
+  //   if(!user){
+  //     if(!['/','/401'].includes(location.pathname)){
+  //       navigate('/')
+  //     }
+  //   }
+  // }, [location.pathname])
    
   return (
         <>

@@ -4,7 +4,6 @@ import Projects from "./projects/projects";
 import PageTitle from '../components/page-title';
 
 const Dashboard = () => {
-  
   return (
     <>
       <PageTitle title={'My Projects'} />

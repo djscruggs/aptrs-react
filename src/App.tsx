@@ -1,6 +1,6 @@
 // App.tsx
 import React from 'react';
-import { Route, BrowserRouter as Router, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import Layout from './layouts/layout';
 import Home from './pages/home';
 import Login from './pages/login';
@@ -27,6 +27,7 @@ import.meta.env.VITE_APP_ENV
 
 const App: React.FC = () => {
   const user = getAuthUser()
+  const navigate = useNavigate()
   useEffect(() => {
     const refreshUser = async () => {
       try {
@@ -34,7 +35,7 @@ const App: React.FC = () => {
         if(!refreshedUser){
           // can't use useNavigate outside of a Router component
           // see https://stackoverflow.com/questions/70491774/usenavigate-may-be-used-only-in-the-context-of-a-router-component
-          document.location = '/'
+          navigate('/')
         }
       } catch(error){
         console.error('Error refreshing authentication:', error);
@@ -50,7 +51,6 @@ const App: React.FC = () => {
   return (
         
         
-          <Router>
             <Routes>
               <Route path="/" element={<Layout />}>
                 <Route path="/" element={<Home />} />
@@ -94,7 +94,7 @@ const App: React.FC = () => {
                 }                
               </Route>
             </Routes>
-          </Router>
+          
         
   
   );

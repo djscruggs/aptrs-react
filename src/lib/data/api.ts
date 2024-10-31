@@ -1,7 +1,6 @@
 import {  Company, 
           Project, 
           User,
-          CurrentUser,
           LoginUser, 
           IPAddressInfo,
           Vulnerability,
@@ -14,7 +13,6 @@ interface AuthHeaders {
 function redirectIfUnauthorized(response: AxiosResponse){
   if(response?.status === 401){
     logout()
-    window.location.href = '/'
   }
 }
 
@@ -108,11 +106,11 @@ export function setAuthUser(user: LoginUser): void {
   localStorage.setItem('lastRefresh', new Date().toISOString())
 }
 
-export function getAuthUser(): CurrentUser | undefined {
+export function getAuthUser(): LoginUser | null {
   return _userObject()
 }
-//private function get the user object from local storage
-function _userObject(): any | undefined {
+//private function to get the user object from local storage
+function _userObject(): LoginUser | null {
   const jsonUser = localStorage.getItem('user');
   if(jsonUser !== null) {
     return JSON.parse(jsonUser) as LoginUser;
@@ -135,7 +133,9 @@ export async function login(email: string, password:string) {
   // catch it here and return boolean; otherwise throw error
   let result
   try {
-    const response = await postOrRedirect(url, { email, password })
+    const params = { email, password }
+    // const response = await axios.post(url, params, headers);
+    const response = await postOrRedirect(url, params);
     result = response.data;
   } catch (error: any | unknown){
     if (axios.isAxiosError(error)) {
